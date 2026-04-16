@@ -1,3 +1,5 @@
+import { AnimaleDto } from './animale';
+
 export interface AdottanteDto {
   id?: number;
   nome: string;
@@ -7,4 +9,6 @@ export interface AdottanteDto {
   codiceFiscale: string;
   indirizzo?: string;
   telefono?: string;
+
+  animaliAdottati: AnimaleDto[];
 }

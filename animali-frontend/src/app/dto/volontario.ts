@@ -1,3 +1,5 @@
+import { CentroAdozioneDto } from './centroadozioni';
+
 export interface VolontarioDto {
   id?: number;
   nome: string;
@@ -5,4 +7,7 @@ export interface VolontarioDto {
   email: string;
   cf: string;
   turno: string;
+  ruolo: string;
+
+  centroAdozione?: CentroAdozioneDto;
 }

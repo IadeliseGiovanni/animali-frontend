@@ -1,3 +1,6 @@
+import { AnimaleDto } from './animale';
+import { VolontarioDto } from './volontario';
+
 export interface CentroAdozioneDto {
   id: number;
   nomeCentro: string;
@@ -5,4 +8,7 @@ export interface CentroAdozioneDto {
   citta: string;
   capacitaMassima: number;
   isNoProfit: boolean;
+
+  AnimaliOspitati?: AnimaleDto[];
+  Volontari?: VolontarioDto[];
 }

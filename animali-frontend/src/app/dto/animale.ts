@@ -1,9 +1,6 @@
-export interface CentroAdozioneDto {
-  id: number;
-  nomeCentro: string;
-  citta: string;
-  indirizzo: string;
-}
+import { CentroAdozioneDto } from '../dto/centroadozioni';
+import { AdottanteDto } from './adottante';
+import { VisitaMedicaDto } from './visitamedica';
 
 export interface AnimaleDto {
   id: number;
@@ -17,9 +14,13 @@ export interface AnimaleDto {
   microchip: string;
   // AGGIUNGI QUESTO:
   centroAdozione?: CentroAdozioneDto;
+  visiteMediche: VisitaMedicaDto[]; //
+  Adottante?: AdottanteDto;
 }
 
 export interface AdozioneRequestDto {
   idAnimale: number;
   idAdottante: number;
+  dataRichiesta: string;
+  note?: string; // Il '?' lo rende opzionale
 }
