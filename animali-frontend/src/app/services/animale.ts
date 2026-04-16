@@ -38,11 +38,24 @@ export class AnimaleService {
     });
   }
 
-  getFiltered(specie?: string, genere?: string): Observable<AnimaleDto[]> {
+  getFiltered(
+    specie: string,
+    genere: string,
+    centroId: number | null = null,
+  ): Observable<AnimaleDto[]> {
     let params = new HttpParams();
     if (specie) params = params.set('specie', specie);
     if (genere) params = params.set('genere', genere);
+    if (centroId) params = params.set('centroId', centroId.toString()); // <--- Fondamentale
 
     return this.http.get<AnimaleDto[]>(`${this.apiUrl}/search`, { params });
+  }
+
+  // All'interno della classe AnimaleService
+
+  getFilteredByCentro(idCentro: number): Observable<AnimaleDto[]> {
+    // Assicurati che l'URL corrisponda all'endpoint del tuo controller Spring Boot
+    // Esempio: http://localhost:8080/api/animali/centro/1
+    return this.http.get<AnimaleDto[]>(`${this.apiUrl}/centro/${idCentro}`);
   }
 }

@@ -1,44 +1,55 @@
 <div class="container my-5">
   <div class="text-center mb-5">
     <h2 class="fw-bold display-6">Cani e gatti in adozione</h2>
-    <p class="text-muted">
-      Ci sono <strong>{{ animali().length }}</strong> piccoli amici che cercano casa
-    </p>
+    <p class="text-muted">Ci sono {{ animali().length }} amici che ti aspettano</p>
   </div>
 
   <div class="row g-4">
     <aside class="col-lg-3 col-md-4">
-      <div class="filter-card p-4 shadow-sm sticky-top" style="top: 20px">
-        <div class="d-flex justify-content-between align-items-center mb-4">
-          <h6 class="fw-bold mb-0">Filtri</h6>
-          <button
-            class="btn btn-link btn-sm text-decoration-none p-0 text-muted"
-            (click)="resetFiltri()"
-          >
-            Reset
+      <div class="sticky-top" style="top: 20px">
+        <div class="card border-0 shadow-sm overflow-hidden mb-4" style="border-radius: 15px">
+          <div class="card-header bg-white border-0 py-2">
+            <h6 class="fw-bold mb-0 small text-uppercase text-secondary">Posizione Centri</h6>
+          </div>
+
+          <app-mappa (centroSelezionato)="filtraPerCentro($event)"></app-mappa>
+
+          @if (selectedCentroId()) {
+            <div class="p-2 bg-orange-light text-center">
+              <button
+                class="btn btn-sm btn-link text-orange text-decoration-none p-0 small"
+                (click)="caricaTutti()"
+              >
+                Rimuovi filtro mappa
+              </button>
+            </div>
+          }
+        </div>
+
+        <div class="filter-card p-4 shadow-sm" style="border-radius: 15px; background: white">
+          <h6 class="fw-bold mb-4 text-uppercase text-secondary small">Filtri Ricerca</h6>
+
+          <div class="mb-4">
+            <label class="form-label small fw-bold">SPECIE</label>
+            <select
+              class="form-select border-light-subtle shadow-none"
+              [ngModel]="selectedSpecie()"
+              (change)="selectedSpecie.set($any($event.target).value); onFilterChange()"
+            >
+              <option value="">Tutte</option>
+              <option value="Cane">Cani</option>
+              <option value="Gatto">Gatti</option>
+            </select>
+          </div>
+
+          <button class="btn btn-orange w-100 py-2 fw-bold shadow-sm" (click)="resetFiltri()">
+            Reset Totale
           </button>
         </div>
-
-        <div class="mb-4">
-          <label class="form-label small fw-bold text-secondary">SPECIE</label>
-          <select
-            class="form-select border-light-subtle shadow-none"
-            [ngModel]="selectedSpecie()"
-            (change)="selectedSpecie.set($any($event.target).value); onFilterChange()"
-          >
-            <option value="">Tutte</option>
-            <option value="Cane">Cani</option>
-            <option value="Gatto">Gatti</option>
-          </select>
-        </div>
-
-        <button class="btn btn-orange w-100 py-2 fw-bold shadow-sm" (click)="onFilterChange()">
-          Applica
-        </button>
       </div>
     </aside>
 
-    <main class="col-lg-9 col-md-8">
+    <main class="col-lg-9 col-md-8" id="griglia-animali">
       @if (isLoading()) {
         <div class="text-center py-5">
           <div class="spinner-border text-orange" role="status"></div>
@@ -48,39 +59,50 @@
           @for (animale of animali(); track animale.id) {
             <div class="col-12 col-sm-6 col-lg-4">
               <div
-                class="card animal-card border-0 shadow-sm h-100 position-relative"
+                class="card animal-card border-0 shadow-sm h-100"
                 (click)="apriDettagli(animale)"
+                style="cursor: pointer; transition: transform 0.2s"
               >
-                <div class="card-img-wrapper">
+                <div
+                  class="card-img-wrapper"
+                  style="position: relative; overflow: hidden; border-radius: 15px 15px 0 0"
+                >
                   <img
                     [src]="'https://placedog.net/400/400?id=' + animale.id"
                     class="card-img-top"
                     alt="{{ animale.nome }}"
                   />
-                  <span class="badge-overlay">{{ animale.specie }}</span>
-                  @if (animale.Adottante) {
-                    <div class="position-absolute top-0 end-0 m-2">
-                      <span class="badge bg-success rounded-pill shadow-sm">Adottato</span>
-                    </div>
-                  }
+                  <span
+                    class="badge-overlay"
+                    style="
+                      position: absolute;
+                      top: 10px;
+                      right: 10px;
+                      background: rgba(255, 165, 0, 0.9);
+                      color: white;
+                      padding: 4px 10px;
+                      border-radius: 20px;
+                      font-size: 0.7rem;
+                      font-weight: bold;
+                    "
+                  >
+                    {{ animale.specie }}
+                  </span>
                 </div>
                 <div class="card-body p-3">
-                  <div class="d-flex justify-content-between align-items-center mb-1">
-                    <h5 class="card-title mb-0 fw-bold">{{ animale.nome }}</h5>
-                    <span class="text-secondary">
-                      {{ animale.genere === 'Maschio' ? '♂' : '♀' }}
-                    </span>
+                  <div class="d-flex justify-content-between align-items-center">
+                    <h5 class="card-title mb-0 fw-bold text-dark">{{ animale.nome }}</h5>
+                    <span class="text-secondary">{{
+                      animale.genere === 'Maschio' ? '♂' : '♀'
+                    }}</span>
                   </div>
-                  <p class="text-muted small mb-0">{{ animale.razza }}</p>
-                  <p class="text-muted small">
-                    <i class="bi bi-calendar3 me-1"></i>{{ animale.eta }} anni
-                  </p>
+                  <p class="text-muted small mb-0">{{ animale.razza }} • {{ animale.eta }} anni</p>
                 </div>
               </div>
             </div>
           } @empty {
             <div class="col-12 text-center py-5">
-              <p class="text-muted">Nessun animale trovato con questi filtri.</p>
+              <p class="text-muted">Nessun animale disponibile per i filtri selezionati.</p>
             </div>
           }
         </div>
@@ -97,105 +119,79 @@
       <div class="modal-content border-0 shadow-lg overflow-hidden" style="border-radius: 20px">
         <div class="row g-0">
           <div class="col-md-5">
-            <img
-              [src]="'https://placedog.net/600/600?id=' + selected.id"
-              class="img-fluid h-100 object-fit-cover"
-              style="min-height: 450px"
-            />
+            <div class="h-100 position-relative">
+              <img
+                [src]="'https://placedog.net/600/600?id=' + selected.id"
+                class="img-fluid h-100 object-fit-cover"
+                style="min-height: 450px"
+              />
+              <span class="badge bg-orange position-absolute top-0 start-0 m-3 px-3 py-2 shadow">
+                {{ selected.specie }}
+              </span>
+            </div>
           </div>
-
-          <div class="col-md-7 p-4 d-flex flex-column position-relative">
-            <button
-              class="btn-close position-absolute end-0 top-0 m-3"
-              (click)="chiudiDettagli()"
-            ></button>
-
-            <div class="mb-3">
-              <h2 class="fw-bold mb-0">{{ selected.nome }}</h2>
-              <p class="text-orange fw-bold mb-2">{{ selected.specie }} • {{ selected.razza }}</p>
-
-              @if (selected.centroAdozione) {
-                <div class="d-flex align-items-center small text-muted">
-                  <i class="bi bi-geo-alt-fill text-orange me-1"></i>
-                  Ospitato presso:
-                  <strong class="ms-1">{{ selected.centroAdozione.nomeCentro }}</strong>
-                </div>
-              }
+          <div class="col-md-7 p-4 d-flex flex-column">
+            <div class="d-flex justify-content-between align-items-start mb-2">
+              <div>
+                <h2 class="fw-bold mb-0 text-dark">{{ selected.nome }}</h2>
+                <p class="text-muted mb-0">{{ selected.razza }}</p>
+              </div>
+              <button type="button" class="btn-close" (click)="chiudiDettagli()"></button>
             </div>
-
-            <div class="mb-3">
-              <h6 class="small fw-bold text-uppercase text-secondary" style="font-size: 0.75rem">
-                Storia e Personalità
-              </h6>
-              <p class="text-muted small mb-0" style="line-height: 1.5">
-                {{
-                  selected.descrizione ||
-                    'Nessuna descrizione disponibile per questo piccolo amico.'
-                }}
-              </p>
-            </div>
-
-            <div class="row g-2 mb-3">
-              <div class="col-6">
-                <div class="bg-light p-2 rounded text-center small">
-                  <strong>Età:</strong> {{ selected.eta }} anni
+            <hr class="my-3 opacity-25" />
+            @if (selected.centroAdozione) {
+              <div class="mb-3 d-flex align-items-center p-2 bg-light rounded-3">
+                <i class="bi bi-geo-alt-fill text-orange me-2"></i>
+                <div class="small">
+                  <span class="d-block text-secondary fw-bold" style="font-size: 0.7rem"
+                    >OSPITATO PRESSO:</span
+                  >
+                  <strong class="text-dark">{{ selected.centroAdozione.nomeCentro }}</strong> ({{
+                    selected.centroAdozione.citta
+                  }})
                 </div>
               </div>
-              <div class="col-6">
-                <div class="bg-light p-2 rounded text-center small">
-                  <strong>Sesso:</strong>
-                  <span class="ms-1">
-                    {{ selected.genere }}
-                    {{ selected.genere === 'Maschio' ? '♂' : '♀' }}
-                  </span>
-                </div>
-              </div>
-            </div>
-
+            }
             <div class="mb-4">
               <h6
                 class="small fw-bold text-uppercase text-secondary mb-2"
                 style="font-size: 0.75rem"
               >
-                Libretto Sanitario
+                La sua storia
               </h6>
-              <div class="bg-light rounded p-2" style="max-height: 120px; overflow-y: auto">
-                @for (visita of selected.visiteMediche; track visita.id) {
-                  <div
-                    class="d-flex justify-content-between align-items-center border-bottom border-white py-1 mb-1"
+              <p class="text-muted small mb-0" style="line-height: 1.6">
+                {{
+                  selected.descrizione ||
+                    'Nessuna descrizione disponibile. Contatta il centro per saperne di più!'
+                }}
+              </p>
+            </div>
+            <div class="row g-2 mb-4">
+              <div class="col-6">
+                <div class="border rounded p-2 text-center">
+                  <span
+                    class="d-block text-secondary small text-uppercase"
+                    style="font-size: 0.65rem"
+                    >Età</span
                   >
-                    <div class="small">
-                      <span class="d-block fw-bold" style="font-size: 0.8rem">{{
-                        visita.esito
-                      }}</span>
-                      <span class="text-muted" style="font-size: 0.7rem"
-                        >Dott. {{ visita.veterinario }}</span
-                      >
-                    </div>
-                    <span class="badge bg-white text-dark border small" style="font-size: 0.7rem">
-                      {{ visita.data | date: 'dd/MM/yy' }}
-                    </span>
-                  </div>
-                } @empty {
-                  <p class="text-muted small italic text-center mb-0">Nessuna visita registrata.</p>
-                }
+                  <strong class="text-dark">{{ selected.eta }} anni</strong>
+                </div>
+              </div>
+              <div class="col-6">
+                <div class="border rounded p-2 text-center">
+                  <span
+                    class="d-block text-secondary small text-uppercase"
+                    style="font-size: 0.65rem"
+                    >Sesso</span
+                  >
+                  <strong class="text-dark">{{ selected.genere }}</strong>
+                </div>
               </div>
             </div>
-
             <div class="mt-auto">
-              @if (selected.Adottante) {
-                <div class="alert alert-success d-flex align-items-center border-0 mb-0 py-2">
-                  <i class="bi bi-house-heart-fill fs-4 me-3"></i>
-                  <div class="small">
-                    <strong>Già adottato!</strong><br />
-                    Da {{ selected.Adottante.nome }} {{ selected.Adottante.cognome }}
-                  </div>
-                </div>
-              } @else {
-                <button class="btn btn-orange w-100 rounded-pill py-2 fw-bold shadow-sm">
-                  Avvia Pratica di Adozione
-                </button>
-              }
+              <button class="btn btn-orange w-100 rounded-pill py-2 fw-bold shadow-sm">
+                Avvia Pratica di Adozione
+              </button>
             </div>
           </div>
         </div>

@@ -1,5 +1,5 @@
-import { Component, inject, signal, OnInit } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { Component, inject, signal, OnInit, AfterViewInit, PLATFORM_ID } from '@angular/core';
+import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { CentroAdozioneService } from '../../services/centroadozione';
 import { CentroAdozioneDto } from '../../dto/centroadozioni';
@@ -11,33 +11,54 @@ import { CentroAdozioneDto } from '../../dto/centroadozioni';
   templateUrl: './centroadozione.html',
   styleUrl: './centroadozione.css',
 })
-export class CentroAdozioneComponent implements OnInit {
+export class CentroAdozioneComponent implements OnInit, AfterViewInit {
   private centroService = inject(CentroAdozioneService);
+  private platformId = inject(PLATFORM_ID);
 
-  // Stato dell'interfaccia
   centri = signal<CentroAdozioneDto[]>([]);
   isLoading = signal(false);
-
-  // Per i filtri di ricerca
   cercaCitta = signal('');
+  private map: any;
 
   ngOnInit() {
     this.caricaTutti();
+  }
+
+  ngAfterViewInit() {
+    if (isPlatformBrowser(this.platformId)) {
+      this.initMap();
+    }
+  }
+
+  private async initMap() {
+    const L = await import('leaflet');
+
+    this.map = L.map('map').setView([41.9028, 12.4964], 5);
+
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution: '© OpenStreetMap',
+    }).addTo(this.map);
+
+    // Carichiamo i marker prendendoli dai dati già caricati o dal service
+    this.centroService.getAll().subscribe((data) => {
+      data.forEach((centro) => {
+        if (centro.latitudine && centro.longitudine) {
+          L.marker([centro.latitudine, centro.longitudine])
+            .addTo(this.map)
+            .bindPopup(`<b>${centro.nomeCentro}</b><br>${centro.citta}`);
+        }
+      });
+    });
   }
 
   caricaTutti() {
     this.isLoading.set(true);
     this.centroService.getAll().subscribe({
       next: (data) => {
-        console.log('Dati ricevuti:');
-        console.table(data); // <--- Questo ti dice i nomi esatti delle proprietà
         this.centri.set(data);
         this.isLoading.set(false);
       },
-      error: (err) => {
-        console.error('Errore API:', err);
-        this.isLoading.set(false);
-      },
+      error: () => this.isLoading.set(false),
     });
   }
 
@@ -46,14 +67,6 @@ export class CentroAdozioneComponent implements OnInit {
       this.caricaTutti();
       return;
     }
-    this.centroService.findByCitta(this.cercaCitta()).subscribe((data) => {
-      this.centri.set(data);
-    });
-  }
-
-  filtraNoProfit(soloNoProfit: boolean) {
-    this.centroService.findByNoProfit(soloNoProfit).subscribe((data) => {
-      this.centri.set(data);
-    });
+    this.centroService.findByCitta(this.cercaCitta()).subscribe((data) => this.centri.set(data));
   }
 }

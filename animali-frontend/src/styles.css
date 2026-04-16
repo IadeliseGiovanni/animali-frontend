@@ -1,3 +1,5 @@
+/* In style.css */
+@import 'leaflet/dist/leaflet.css';
 /* --- TEMA PETFLOW --- */
 :root {
   --pf-orange: #f27c21;

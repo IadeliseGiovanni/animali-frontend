@@ -8,6 +8,8 @@ export interface CentroAdozioneDto {
   citta: string;
   capacitaMassima: number;
   isNoProfit: boolean;
+  latitudine: number;
+  longitudine: number;
 
   AnimaliOspitati?: AnimaleDto[];
   Volontari?: VolontarioDto[];

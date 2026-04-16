@@ -1,0 +1,20 @@
+.map-wrapper {
+  width: 100%;
+  border-radius: 15px 15px 0 0; /* Arrotonda solo gli angoli superiori per unirla alla card */
+  overflow: hidden;
+  position: relative;
+  border-bottom: 1px solid #dee2e6;
+}
+
+#map {
+  /* Assicura che la mappa sia sempre visibile */
+  min-height: 250px;
+  background-color: #f8f9fa; /* Colore di fallback mentre carica */
+  z-index: 1; /* Deve essere basso per non coprire i menu a tendina di Angular */
+}
+
+/* Fix per le immagini di Leaflet che a volte ereditano stili globali sbagliati */
+.leaflet-container {
+  font-family: inherit;
+  touch-action: none;
+}

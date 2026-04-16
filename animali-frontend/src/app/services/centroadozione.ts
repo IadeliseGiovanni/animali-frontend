@@ -2,6 +2,7 @@ import { inject, Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { CentroAdozioneDto } from '../dto/centroadozioni';
+import { AnimaleDto } from '../dto/animale';
 
 @Injectable({
   providedIn: 'root',
