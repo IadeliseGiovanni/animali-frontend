@@ -1,0 +1,68 @@
+<nav class="navbar navbar-expand-lg navbar-light bg-white border-bottom shadow-sm sticky-top">
+  <div class="container">
+    <a class="navbar-brand fw-bold d-flex align-items-center" routerLink="/" style="color: #f27c21">
+      <span class="fs-3 me-2">🐾</span>
+      <span class="brand-text">Pet<span style="color: #333">Flow</span></span>
+    </a>
+
+    <button
+      class="navbar-toggler border-0 shadow-none"
+      type="button"
+      data-bs-toggle="collapse"
+      data-bs-target="#navPetFlow"
+    >
+      <span class="navbar-toggler-icon"></span>
+    </button>
+
+    <div class="collapse navbar-collapse" id="navPetFlow">
+      <ul class="navbar-nav mx-auto">
+        <li class="nav-item">
+          <a class="nav-link px-3 fw-semibold" routerLink="/animali" routerLinkActive="active-link"
+            >Animali</a
+          >
+        </li>
+        <li class="nav-item">
+          <a
+            class="nav-link px-3 fw-semibold"
+            routerLink="/adottanti"
+            routerLinkActive="active-link"
+            >Adottanti</a
+          >
+        </li>
+        <li class="nav-item">
+          <a class="nav-link px-3 fw-semibold" routerLink="/centri" routerLinkActive="active-link"
+            >Centri</a
+          >
+        </li>
+        <li class="nav-item">
+          <a
+            class="nav-link px-3 fw-semibold"
+            routerLink="/volontari"
+            routerLinkActive="active-link"
+            >Volontari</a
+          >
+        </li>
+      </ul>
+
+      <div class="d-flex align-items-center gap-2">
+        <a routerLink="/login" class="btn btn-link text-decoration-none text-muted fw-bold"
+          >Accedi</a
+        >
+        <a routerLink="/registrati" class="btn btn-orange px-4 py-2 rounded-pill fw-bold shadow-sm">
+          Registrati
+        </a>
+      </div>
+    </div>
+  </div>
+</nav>
+
+<main class="content-area">
+  <router-outlet></router-outlet>
+</main>
+
+<footer class="bg-dark text-white py-5 mt-5">
+  <div class="container text-center">
+    <h4 class="fw-bold mb-3">🐾 PetFlow</h4>
+    <p class="small text-secondary mb-0">© 2026 PetFlow Inc. • Progetto No-Profit</p>
+  </div>
+</footer>

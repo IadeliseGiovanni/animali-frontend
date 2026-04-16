@@ -1,0 +1,55 @@
+<div class="container mt-4">
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <h2>Gestione Volontari</h2>
+    <div class="d-flex gap-2">
+      <input
+        type="text"
+        class="form-control"
+        placeholder="Cerca (Nome, CF...)"
+        [(ngModel)]="searchTerm"
+        (input)="onSearch()"
+      />
+    </div>
+  </div>
+
+  @if (isLoading()) {
+    <div class="text-center">Caricamento in corso...</div>
+  }
+
+  <div class="table-responsive shadow-sm rounded">
+    <table class="table table-hover align-middle">
+      <thead class="table-dark">
+        <tr>
+          <th>Nome e Cognome</th>
+          <th>Codice Fiscale</th>
+          <th>Turno</th>
+          <th>Email</th>
+          <th class="text-end">Azioni</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (v of volontari(); track v.id) {
+          <tr>
+            <td>
+              <strong>{{ v.nome }} {{ v.cognome }}</strong>
+            </td>
+            <td>
+              <code>{{ v.cf }}</code>
+            </td>
+            <td>
+              <span class="badge bg-primary">{{ v.turno }}</span>
+            </td>
+            <td>{{ v.email }}</td>
+            <td class="text-end">
+              <button class="btn btn-sm btn-outline-danger" (click)="elimina(v.id)">Elimina</button>
+            </td>
+          </tr>
+        } @empty {
+          <tr>
+            <td colspan="5" class="text-center py-4">Nessun volontario trovato.</td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  </div>
+</div>

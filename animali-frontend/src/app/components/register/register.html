@@ -1,0 +1,97 @@
+<div class="register-wrapper d-flex align-items-center justify-content-center">
+  <div class="card register-card shadow-lg border-0">
+    <div class="card-body p-4 p-md-5">
+      <div class="text-center mb-4">
+        <h2 class="fw-bold text-dark">Unisciti a noi 🐾</h2>
+        <p class="text-muted">Crea un account per iniziare il tuo percorso</p>
+      </div>
+
+      <div class="role-selector d-flex p-1 mb-4 bg-light rounded-pill">
+        <button
+          type="button"
+          class="btn flex-grow-1 rounded-pill fw-bold transition-all"
+          [class.btn-orange]="ruolo() === 'adottante'"
+          [class.text-muted]="ruolo() !== 'adottante'"
+          (click)="ruolo.set('adottante')"
+        >
+          Adottante
+        </button>
+        <button
+          type="button"
+          class="btn flex-grow-1 rounded-pill fw-bold transition-all"
+          [class.btn-orange]="ruolo() === 'volontario'"
+          [class.text-muted]="ruolo() !== 'volontario'"
+          (click)="ruolo.set('volontario')"
+        >
+          Volontario
+        </button>
+      </div>
+
+      <form (submit)="onRegister($event)">
+        <div class="mb-3">
+          <label class="form-label small fw-bold text-secondary text-uppercase"
+            >Nome e Cognome</label
+          >
+          <div class="input-group">
+            <span class="input-group-text bg-white border-end-0 rounded-start-3">
+              <i class="bi bi-person text-muted"></i>
+            </span>
+            <input
+              type="text"
+              class="form-control border-start-0 rounded-end-3 shadow-none"
+              [(ngModel)]="form.nome"
+              name="nome"
+              placeholder="Inserisci il tuo nome"
+              required
+            />
+          </div>
+        </div>
+
+        <div class="mb-3">
+          <label class="form-label small fw-bold text-secondary text-uppercase">Email</label>
+          <div class="input-group">
+            <span class="input-group-text bg-white border-end-0 rounded-start-3">
+              <i class="bi bi-envelope text-muted"></i>
+            </span>
+            <input
+              type="email"
+              class="form-control border-start-0 rounded-end-3 shadow-none"
+              [(ngModel)]="form.email"
+              name="email"
+              placeholder="esempio@email.it"
+              required
+            />
+          </div>
+        </div>
+
+        <div class="mb-4">
+          <label class="form-label small fw-bold text-secondary text-uppercase">Password</label>
+          <div class="input-group">
+            <span class="input-group-text bg-white border-end-0 rounded-start-3">
+              <i class="bi bi-lock text-muted"></i>
+            </span>
+            <input
+              type="password"
+              class="form-control border-start-0 rounded-end-3 shadow-none"
+              [(ngModel)]="form.password"
+              name="password"
+              placeholder="Almeno 6 caratteri"
+              required
+            />
+          </div>
+        </div>
+
+        <button type="submit" class="btn btn-orange w-100 py-3 fw-bold rounded-pill shadow-sm mt-2">
+          Registrati come {{ ruolo() | titlecase }}
+        </button>
+
+        <div class="text-center mt-4">
+          <p class="small text-muted">
+            Hai già un account?
+            <a href="/login" class="text-orange fw-bold text-decoration-none">Accedi qui</a>
+          </p>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>

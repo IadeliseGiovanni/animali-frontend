@@ -1,0 +1,72 @@
+<div class="container d-flex justify-content-center align-items-center" style="min-height: 80vh">
+  <div
+    class="card shadow-lg border-0 p-4 p-md-5"
+    style="max-width: 450px; width: 100%; border-radius: 24px"
+  >
+    <div class="text-center mb-4">
+      <h2 class="fw-bold text-dark">Accesso PetFlow</h2>
+      <p class="text-muted small text-uppercase fw-bold tracking-wider">Bentornato nel network</p>
+    </div>
+
+    @if (errorMessage()) {
+      <div class="alert alert-danger border-0 rounded-3 small fw-bold mb-3 shadow-sm">
+        <i class="bi bi-exclamation-triangle-fill me-2"></i>
+        {{ errorMessage() }}
+      </div>
+    }
+
+    <form (submit)="onLogin()">
+      <div class="mb-3">
+        <label class="form-label small fw-bold text-secondary text-uppercase">Email</label>
+        <input
+          type="email"
+          class="form-control rounded-3 py-2 shadow-none border-light-subtle"
+          placeholder="Inserisci la tua email"
+          [(ngModel)]="loginData.email"
+          name="email"
+          [disabled]="isLoading()"
+        />
+      </div>
+
+      <div class="mb-4">
+        <label class="form-label small fw-bold text-secondary text-uppercase">Password</label>
+        <input
+          type="password"
+          class="form-control rounded-3 py-2 shadow-none border-light-subtle"
+          placeholder="********"
+          [(ngModel)]="loginData.password"
+          name="password"
+          [disabled]="isLoading()"
+        />
+      </div>
+
+      <button
+        type="submit"
+        class="btn btn-orange w-100 py-3 fw-bold rounded-pill shadow-sm mb-3 d-flex align-items-center justify-content-center"
+        [disabled]="isLoading()"
+      >
+        @if (isLoading()) {
+          <span
+            class="spinner-border spinner-border-sm me-2"
+            role="status"
+            aria-hidden="true"
+          ></span>
+          Accesso in corso...
+        } @else {
+          Accedi
+        }
+      </button>
+
+      <div class="text-center mt-3">
+        <p class="small text-muted mb-1">Non hai ancora un account?</p>
+        <a
+          routerLink="/registrati"
+          style="cursor: pointer !important; z-index: 10"
+          class="text-orange fw-bold text-decoration-none small d-inline-block"
+        >
+          Registrati ora
+        </a>
+      </div>
+    </form>
+  </div>
+</div>
