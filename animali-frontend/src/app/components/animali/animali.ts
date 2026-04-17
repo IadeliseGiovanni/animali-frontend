@@ -70,6 +70,7 @@ export class AnimaliComponent implements OnInit {
   }
 
   apriDettagli(a: AnimaleDto) {
+    console.log('Dati animale ricevuto:', a);
     this.animaleSelezionato.set(a);
   }
   chiudiDettagli() {
