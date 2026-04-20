@@ -5,11 +5,12 @@ import { AdottanteDto } from '../../dto/adottante';
 import { AuthService } from '../../services/auth';
 import { Router } from '@angular/router';
 import { HttpClient, HttpResponse } from '@angular/common/http';
+import { FormsModule } from '@angular/forms';
 
 @Component({
   selector: 'app-adottante',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, FormsModule],
   templateUrl: './adottante.html',
   styleUrl: './adottante.css',
 })
@@ -26,6 +27,10 @@ export class AdottanteComponent implements OnInit {
   isListaMode = signal(false);
   provenienzaDaLista = signal(false);
 
+  // Stato per il Cambio Password (REINSERITO)
+  isUpdatingPwd = signal(false);
+  pwdData = { old: '', new: '' };
+
   // Filtri e Paginazione
   searchTerm = signal('');
   filtroIdoneita = signal<'TUTTI' | 'IDONEI' | 'NON_IDONEI'>('TUTTI');
@@ -33,7 +38,7 @@ export class AdottanteComponent implements OnInit {
   paginaCorrente = signal(1);
   elementiPerPagina = 15;
 
-  // LOGICA DI FILTRO REATTIVA (3 FILTRI)
+  // LOGICA DI FILTRO REATTIVA
   listaFiltrata = computed(() => {
     let list = this.listaAdottanti();
     const search = this.searchTerm().toLowerCase();
@@ -101,6 +106,26 @@ export class AdottanteComponent implements OnInit {
         this.isLoading.set(false);
       },
       error: () => this.isLoading.set(false),
+    });
+  }
+
+  // NUOVO METODO: Gestione Cambio Password
+  aggiornaPassword() {
+    if (!this.pwdData.old || !this.pwdData.new) return;
+
+    this.isUpdatingPwd.set(true);
+    this.authService.changePassword(this.pwdData.old, this.pwdData.new).subscribe({
+      next: (res) => {
+        alert(res.message || 'Password aggiornata con successo!');
+        this.pwdData = { old: '', new: '' };
+        this.isUpdatingPwd.set(false);
+      },
+      error: (err) => {
+        console.error('ERRORE:', err);
+        const msg = err.error?.message || "Errore durante l'aggiornamento";
+        alert('Errore: ' + msg);
+        this.isUpdatingPwd.set(false);
+      },
     });
   }
 

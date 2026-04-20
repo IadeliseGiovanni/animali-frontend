@@ -9,25 +9,25 @@ export const authGuard: CanActivateFn = (route, state) => {
   const router = inject(Router);
   const platformId = inject(PLATFORM_ID);
 
-  // Se siamo nel browser
+  // 1. Controllo fondamentale: siamo nel Browser?
   if (isPlatformBrowser(platformId)) {
     const token = localStorage.getItem('token');
 
     if (token) {
-      // Se c'è un token ma per qualche motivo il segnale è false, lo forziamo
+      // Se il token esiste, l'utente DEVE poter passare.
+      // Sincronizziamo il segnale se fosse rimasto indietro.
       if (!authService.isAuthenticated()) {
         authService.isAuthenticated.set(true);
       }
-      return true; // Passa pure!
+      return true;
     }
-  }
-
-  // Fallback se non c'è token o non siamo nel browser
-  if (authService.isAuthenticated()) {
+  } else {
+    // 2. Se siamo sul Server (SSR), permettiamo il passaggio per evitare redirect infiniti
+    // L'idratazione nel browser prenderà poi il controllo.
     return true;
   }
 
-  // Se arriviamo qui, l'utente non è davvero loggato
+  // 3. Solo se siamo nel browser e NON c'è il token, allora facciamo il redirect
   router.navigate(['/login']);
   return false;
 };

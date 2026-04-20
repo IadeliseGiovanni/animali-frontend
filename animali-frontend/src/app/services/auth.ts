@@ -18,12 +18,12 @@ export class AuthService {
   private platformId = inject(PLATFORM_ID);
   private readonly apiUrl = 'http://localhost:8080/api/auth';
 
-  // Inizializzazione IMMEDIATA: Legge il token all'istante
+  // Stato autenticazione basato sulla presenza del token
   isAuthenticated = signal<boolean>(
     isPlatformBrowser(this.platformId) ? !!localStorage.getItem('token') : false,
   );
 
-  // Inizializzazione IMMEDIATA del profilo: Se esiste nel localStorage, lo carica subito
+  // Stato profilo utente caricato dal localStorage o null
   private userProfile = signal<UserProfile | null>(
     isPlatformBrowser(this.platformId) && localStorage.getItem('user_profile')
       ? JSON.parse(localStorage.getItem('user_profile')!)
@@ -32,15 +32,14 @@ export class AuthService {
 
   currentUser = computed(() => this.userProfile());
 
-  // Reattivo e istantaneo al boot
+  // Getter reattivo per controllare se l'utente è ADMIN
   isAdmin = computed(() => {
     const user = this.userProfile();
     return user?.ruolo?.toUpperCase() === 'ADMIN';
   });
 
   constructor() {
-    // Al caricamento, se abbiamo il token ma non il profilo (es. primo refresh dopo login vecchio stile),
-    // ricarichiamo i dati dal token JWT
+    // Se l'utente è autenticato ma il profilo è vuoto (es. dopo un refresh), lo recupera dal JWT
     if (this.isAuthenticated() && !this.userProfile()) {
       this.loadUserProfile();
     }
@@ -58,7 +57,6 @@ export class AuthService {
             ruolo: response.ruolo,
           };
 
-          // Salva l'oggetto profilo per il prossimo refresh
           localStorage.setItem('user_profile', JSON.stringify(profile));
           this.userProfile.set(profile);
           this.isAuthenticated.set(true);
@@ -82,6 +80,7 @@ export class AuthService {
       const token = localStorage.getItem('token');
       if (token) {
         try {
+          // Decodifica il payload del JWT (Base64)
           const payload = JSON.parse(atob(token.split('.')[1]));
           const role = payload.ruolo || payload.role || payload.authority || 'USER';
           const profile: UserProfile = {
@@ -100,15 +99,38 @@ export class AuthService {
     }
   }
 
+  /**
+   * RESET PASSWORD: Usato quando l'utente NON è loggato.
+   * Invia email e la nuova password scelta dall'utente.
+   */
+  resetPassword(email: string, password: string): Observable<any> {
+    return this.http.post(`${this.apiUrl}/reset-password`, { email, password });
+  }
+
+  /**
+   * CHANGE PASSWORD: Usato quando l'utente È loggato.
+   * Richiede la vecchia password per sicurezza.
+   */
+  changePassword(oldPassword: string, newPassword: string): Observable<any> {
+    return this.http.post(`${this.apiUrl}/change-password`, {
+      oldPassword,
+      newPassword,
+    });
+  }
+
+  // Registrazione e Verifiche
   registraAdottante(data: any) {
     return this.http.post(`${this.apiUrl}/register/adottante`, data);
   }
+
   registraVolontario(data: any) {
     return this.http.post(`${this.apiUrl}/register/volontario`, data);
   }
+
   verifyEmail(token: string): Observable<any> {
     return this.http.get(`${this.apiUrl}/verify?token=${token}`, { responseType: 'text' });
   }
+
   resendVerification(email: string) {
     return this.http.post(
       `${this.apiUrl}/resend-verification?email=${email}`,

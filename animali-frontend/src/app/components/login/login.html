@@ -14,7 +14,6 @@
           <i class="bi bi-exclamation-triangle-fill me-2"></i>
           <span>{{ errorMessage() }}</span>
         </div>
-
         @if (showResendButton()) {
           <div
             class="mt-2 pt-2 border-top border-danger-subtle d-flex justify-content-between align-items-center"
@@ -46,8 +45,20 @@
         />
       </div>
 
-      <div class="mb-4">
-        <label class="form-label small fw-bold text-secondary text-uppercase">Password</label>
+      <div class="mb-2">
+        <div class="d-flex justify-content-between align-items-center">
+          <label class="form-label small fw-bold text-secondary text-uppercase mb-1"
+            >Password</label
+          >
+          <button
+            type="button"
+            class="btn btn-link text-orange text-decoration-none p-0 mb-1"
+            style="font-size: 0.75rem; font-weight: 600"
+            (click)="mostraResetForm.set(true)"
+          >
+            Password dimenticata?
+          </button>
+        </div>
         <input
           type="password"
           class="form-control rounded-3 py-2 shadow-none border-light-subtle"
@@ -60,7 +71,7 @@
 
       <button
         type="submit"
-        class="btn btn-orange w-100 py-3 fw-bold rounded-pill shadow-sm mb-3 d-flex align-items-center justify-content-center"
+        class="btn btn-orange w-100 py-3 fw-bold rounded-pill shadow-sm mb-3 mt-3 d-flex align-items-center justify-content-center"
         [disabled]="isLoading()"
       >
         @if (isLoading()) {
@@ -88,3 +99,64 @@
     </form>
   </div>
 </div>
+
+@if (mostraResetForm()) {
+  <div class="modal-backdrop fade show" (click)="mostraResetForm.set(false)"></div>
+  <div class="modal fade show d-block" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content border-0 shadow-lg" style="border-radius: 24px">
+        <div class="modal-header border-0 p-4 pb-0">
+          <h5 class="fw-bold text-dark">Recupero Password</h5>
+          <button
+            type="button"
+            class="btn-close shadow-none"
+            (click)="mostraResetForm.set(false)"
+          ></button>
+        </div>
+        <div class="modal-body p-4">
+          <p class="text-muted small mb-4">
+            Inserisci la tua email e la <strong>nuova password</strong> che desideri impostare per
+            il tuo account.
+          </p>
+
+          <div class="mb-3">
+            <label class="form-label small fw-bold text-secondary text-uppercase">Tua Email</label>
+            <input
+              type="email"
+              class="form-control rounded-3 py-2 border-light-subtle shadow-none"
+              placeholder="giovanni@esempio.com"
+              [(ngModel)]="resetPayload.email"
+              name="emailReset"
+            />
+          </div>
+
+          <div class="mb-4">
+            <label class="form-label small fw-bold text-secondary text-uppercase"
+              >Nuova Password</label
+            >
+            <input
+              type="password"
+              class="form-control rounded-3 py-2 border-light-subtle shadow-none"
+              placeholder="Scegli una nuova password"
+              [(ngModel)]="resetPayload.password"
+              name="passwordReset"
+            />
+          </div>
+
+          <button
+            class="btn btn-orange w-100 py-2 fw-bold rounded-pill shadow-sm d-flex align-items-center justify-content-center"
+            [disabled]="isResetting() || !resetPayload.email || !resetPayload.password"
+            (click)="inviaReset()"
+          >
+            @if (isResetting()) {
+              <span class="spinner-border spinner-border-sm me-2"></span>
+              Aggiornamento...
+            } @else {
+              Invia Nuova Password
+            }
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+}

@@ -20,16 +20,24 @@ export class LoginComponent {
   isLoading = signal(false);
   errorMessage = signal<string | null>(null);
 
-  // Aggiungiamo questo signal per controllare la visibilità del tasto reinvio
+  // Gestione UI Reset Password e Reinvio Verifica
   showResendButton = signal(false);
+  mostraResetForm = signal(false);
+  isResetting = signal(false);
+
+  // Dati per il reset (Email + Nuova Password scelta dall'utente)
+  resetPayload = {
+    email: '',
+    password: '',
+  };
 
   onLogin() {
     this.isLoading.set(true);
     this.errorMessage.set(null);
-    this.showResendButton.set(false); // Reset al nuovo tentativo
+    this.showResendButton.set(false);
 
     this.authService.login(this.loginData).subscribe({
-      next: (response) => {
+      next: () => {
         this.isLoading.set(false);
         this.router.navigate(['/animali']);
       },
@@ -37,7 +45,7 @@ export class LoginComponent {
         this.isLoading.set(false);
         if (err.status === 403) {
           this.errorMessage.set('Account non verificato. Controlla la tua email! 🐾');
-          this.showResendButton.set(true); // Mostra il tasto se l'errore è 403
+          this.showResendButton.set(true);
         } else if (err.status === 401) {
           this.errorMessage.set('Email o password non corrette.');
         } else {
@@ -47,14 +55,12 @@ export class LoginComponent {
     });
   }
 
-  // Metodo per gestire il reinvio dell'email
   handleResend() {
     if (!this.loginData.email) return;
 
     this.isLoading.set(true);
-    // Assicurati di aver aggiunto resendVerification nel tuo AuthService
     this.authService.resendVerification(this.loginData.email).subscribe({
-      next: (msg) => {
+      next: () => {
         this.isLoading.set(false);
         this.errorMessage.set('Email di verifica inviata con successo! 📧');
         this.showResendButton.set(false);
@@ -62,6 +68,35 @@ export class LoginComponent {
       error: (err) => {
         this.isLoading.set(false);
         this.errorMessage.set('Errore nel reinvio: ' + (err.error || 'riprova più tardi.'));
+      },
+    });
+  }
+
+  inviaReset() {
+    if (!this.resetPayload.email || !this.resetPayload.password) {
+      alert('Inserisci email e la nuova password desiderata.');
+      return;
+    }
+
+    if (this.resetPayload.password.length < 6) {
+      alert('La password deve essere di almeno 6 caratteri.');
+      return;
+    }
+
+    this.isResetting.set(true);
+    this.authService.resetPassword(this.resetPayload.email, this.resetPayload.password).subscribe({
+      next: (res) => {
+        alert(res.message || 'Password aggiornata con successo! Ora puoi accedere.');
+        this.isResetting.set(false);
+        this.mostraResetForm.set(false);
+        // Puliamo i campi dopo il successo
+        this.loginData.email = this.resetPayload.email;
+        this.resetPayload = { email: '', password: '' };
+      },
+      error: (err) => {
+        const msg = err.error?.message || err.error || 'Errore durante il reset';
+        alert(msg);
+        this.isResetting.set(false);
       },
     });
   }
