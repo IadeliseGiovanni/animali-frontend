@@ -15,8 +15,6 @@ export interface AnimaleDto {
   centroAdozione?: CentroAdozioneDto;
   visiteMediche: VisitaMedicaDto[];
   Adottante?: AdottanteDto;
-  
-  // --- RISOLUZIONE ERRORI ---
   foto?: string;       // Usato in animali.html
   fotoUrl?: string;    // AGGIUNTO PER RISOLVERE L'ERRORE IN adottante.html
   videoUrl?: string;   // Per i tuoi nuovi video
