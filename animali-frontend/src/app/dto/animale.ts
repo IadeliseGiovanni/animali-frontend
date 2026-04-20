@@ -1,4 +1,4 @@
-import { CentroAdozioneDto } from '../dto/centroadozioni';
+import { CentroAdozioneDto } from './centroadozioni';
 import { AdottanteDto } from './adottante';
 import { VisitaMedicaDto } from './visitamedica';
 
@@ -9,19 +9,23 @@ export interface AnimaleDto {
   razza: string;
   eta: number;
   descrizione?: string;
-  adottato: boolean; // Verifica se nel backend si chiama 'adottato' o 'disponibile'
-  genere: 'Maschio' | 'Femmina'; // Allinealo a quello che invia il backend
+  adottato: boolean;
+  genere: string;
   microchip: string;
-  // AGGIUNGI QUESTO:
   centroAdozione?: CentroAdozioneDto;
-  visiteMediche: VisitaMedicaDto[]; //
+  visiteMediche: VisitaMedicaDto[];
   Adottante?: AdottanteDto;
-  fotoUrl?: string; // URL dell'immagine, se disponibile
+  
+  // --- RISOLUZIONE ERRORI ---
+  foto?: string;       // Usato in animali.html
+  fotoUrl?: string;    // AGGIUNTO PER RISOLVERE L'ERRORE IN adottante.html
+  videoUrl?: string;   // Per i tuoi nuovi video
 }
 
+// Assicurati che sia presente anche questo, serviva al service
 export interface AdozioneRequestDto {
   idAnimale: number;
   idAdottante: number;
   dataRichiesta: string;
-  note?: string; // Il '?' lo rende opzionale
+  note?: string;
 }

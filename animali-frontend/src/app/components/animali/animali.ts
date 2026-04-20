@@ -1,9 +1,10 @@
 import { Component, inject, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser'; 
 import { AnimaleService } from '../../services/animale';
 import { AnimaleDto } from '../../dto/animale';
-import { MappaComponent } from '../mappa-centri/mappa-centri'; // Importa la nuova mappa
+import { MappaComponent } from '../mappa-centri/mappa-centri'; 
 import { PraticaService } from '../../services/pratica';
 
 @Component({
@@ -16,6 +17,7 @@ import { PraticaService } from '../../services/pratica';
 export class AnimaliComponent implements OnInit {
   private animaleService = inject(AnimaleService);
   private praticaService = inject(PraticaService);
+  private sanitizer = inject(DomSanitizer); 
 
   isSendingPratica = signal(false);
   animali = signal<AnimaleDto[]>([]);
@@ -29,21 +31,31 @@ export class AnimaliComponent implements OnInit {
     this.caricaTutti();
   }
 
+  // --- SICUREZZA MULTIMEDIALE ---
+  // Risolve il problema della pagina grigia autorizzando l'URL del video
+  getSafeVideoUrl(url: string | undefined): SafeResourceUrl {
+    if (!url) return '';
+    // Questo comunica ad Angular che l'URL proveniente dal DB è sicuro
+    return this.sanitizer.bypassSecurityTrustResourceUrl(url);
+  }
+
+  // --- ALGORITMO SENIOR FIRST ---
+  private applicaAlgoritmoSenior(lista: AnimaleDto[]): AnimaleDto[] {
+    return lista.sort((a, b) => (b.eta ?? 0) - (a.eta ?? 0));
+  }
+
   avviaPratica(animaleId: number) {
     if (this.isSendingPratica()) return;
-
     this.isSendingPratica.set(true);
 
     this.praticaService.avviaPratica(animaleId).subscribe({
-      next: (res) => {
+      next: () => {
         alert('Richiesta inviata con successo! Il centro adozioni esaminerà la tua pratica.');
         this.isSendingPratica.set(false);
-        this.chiudiDettagli(); // Chiude la modale dopo il successo
+        this.chiudiDettagli();
       },
       error: (err) => {
-        // Qui catturiamo i messaggi di errore inviati dal backend (es. "Non sei idoneo")
-        const messaggioErrore =
-          err.error || "Si è verificato un errore durante l'avvio della pratica.";
+        const messaggioErrore = err.error || "Si è verificato un errore.";
         alert(messaggioErrore);
         this.isSendingPratica.set(false);
       },
@@ -55,7 +67,8 @@ export class AnimaliComponent implements OnInit {
     this.isLoading.set(true);
     this.animaleService.getAll().subscribe({
       next: (data) => {
-        this.animali.set(data);
+        const ordinati = this.applicaAlgoritmoSenior(data);
+        this.animali.set(ordinati);
         this.isLoading.set(false);
       },
       error: () => this.isLoading.set(false),
@@ -64,22 +77,21 @@ export class AnimaliComponent implements OnInit {
 
   filtraPerCentro(idCentro: number) {
     this.selectedCentroId.set(idCentro);
-    this.onFilterChange(); // Usa la logica centralizzata dei filtri
+    this.onFilterChange();
   }
 
   onFilterChange() {
     this.isLoading.set(true);
-
-    // Ora TypeScript non si lamenterà più dei 3 argomenti
     this.animaleService
       .getFiltered(
         this.selectedSpecie(),
         this.selectedGenere(),
-        this.selectedCentroId(), // Questo ora viene passato correttamente al service
+        this.selectedCentroId(),
       )
       .subscribe({
         next: (data) => {
-          this.animali.set(data);
+          const ordinati = this.applicaAlgoritmoSenior(data);
+          this.animali.set(ordinati);
           this.isLoading.set(false);
         },
         error: () => this.isLoading.set(false),
@@ -94,9 +106,9 @@ export class AnimaliComponent implements OnInit {
   }
 
   apriDettagli(a: AnimaleDto) {
-    console.log('Dati animale ricevuto:', a);
     this.animaleSelezionato.set(a);
   }
+
   chiudiDettagli() {
     this.animaleSelezionato.set(null);
   }
