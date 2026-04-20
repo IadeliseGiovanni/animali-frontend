@@ -12,6 +12,7 @@ import { Router, RouterLink } from '@angular/router';
   templateUrl: './login.html',
   styleUrl: './login.css',
 })
+
 export class LoginComponent {
   private authService = inject(AuthService);
   private router = inject(Router);
@@ -36,7 +37,7 @@ export class LoginComponent {
       error: (err) => {
         this.isLoading.set(false);
         if (err.status === 403) {
-          this.errorMessage.set('Account non verificato. Controlla la tua email! 🐾');
+          this.errorMessage.set('Account non verificato. Controlla la tua email! 🐶');
           this.showResendButton.set(true); // Mostra il tasto se l'errore è 403
         } else if (err.status === 401) {
           this.errorMessage.set('Email o password non corrette.');
