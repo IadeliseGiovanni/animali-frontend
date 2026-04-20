@@ -1,12 +1,16 @@
 <nav class="navbar navbar-expand-lg navbar-light bg-white border-bottom shadow-sm sticky-top">
   <div class="container">
-    <a class="navbar-brand fw-bold d-flex align-items-center" routerLink="/" style="color: #f27c21">
+    <a
+      class="navbar-brand fw-bold d-flex align-items-center"
+      routerLink="/animali"
+      style="color: #f27c21"
+    >
       <span class="fs-3 me-2">🐾</span>
       <span class="brand-text">Pet<span style="color: #333">Flow</span></span>
     </a>
 
     <button
-      class="navbar-toggler border-0 shadow-none"
+      class="navbar-toggler"
       type="button"
       data-bs-toggle="collapse"
       data-bs-target="#navPetFlow"
@@ -16,49 +20,98 @@
 
     <div class="collapse navbar-collapse" id="navPetFlow">
       <ul class="navbar-nav mx-auto">
-        <li class="nav-item">
-          <a class="nav-link px-3 fw-semibold" routerLink="/animali" routerLinkActive="active-link"
-            >Animali</a
-          >
-        </li>
-        <li class="nav-item">
-          <a
-            class="nav-link px-3 fw-semibold"
-            routerLink="/adottanti"
-            routerLinkActive="active-link"
-            >Adottanti</a
-          >
-        </li>
-        <li class="nav-item">
-          <a class="nav-link px-3 fw-semibold" routerLink="/centri" routerLinkActive="active-link"
-            >Centri</a
-          >
-        </li>
-        <li class="nav-item">
-          <a
-            class="nav-link px-3 fw-semibold"
-            routerLink="/volontari"
-            routerLinkActive="active-link"
-            >Volontari</a
-          >
-        </li>
+        @if (authService.isAuthenticated() && authService.isAdmin()) {
+          <li class="nav-item">
+            <a
+              class="nav-link px-3 fw-semibold"
+              routerLink="/adottanti"
+              routerLinkActive="active-link"
+              >Adottanti</a
+            >
+          </li>
+          <li class="nav-item">
+            <a class="nav-link px-3 fw-semibold" routerLink="/centri" routerLinkActive="active-link"
+              >Centri</a
+            >
+          </li>
+          <li class="nav-item">
+            <a
+              class="nav-link px-3 fw-semibold"
+              routerLink="/volontari"
+              routerLinkActive="active-link"
+              >Volontari</a
+            >
+          </li>
+
+          <li class="nav-item">
+            <a
+              class="nav-link px-3 fw-semibold"
+              routerLink="/gestione-pratiche"
+              routerLinkActive="active-link"
+              >Pratiche</a
+            >
+          </li>
+        }
       </ul>
 
       <div class="d-flex align-items-center gap-2">
-        <a routerLink="/login" class="btn btn-link text-decoration-none text-muted fw-bold"
-          >Accedi</a
-        >
-        <a routerLink="/registrati" class="btn btn-orange px-4 py-2 rounded-pill fw-bold shadow-sm">
-          Registrati
-        </a>
+        @if (!authService.isAuthenticated()) {
+          <a routerLink="/login" class="btn btn-link text-decoration-none text-muted fw-bold"
+            >Accedi</a
+          >
+          <a
+            routerLink="/registrati"
+            class="btn btn-orange px-4 py-2 rounded-pill fw-bold text-white shadow-sm"
+            >Registrati</a
+          >
+        } @else {
+          <div class="dropdown">
+            <button
+              class="btn btn-light rounded-circle border shadow-sm p-0 d-flex align-items-center justify-content-center"
+              type="button"
+              id="userDropdown"
+              data-bs-toggle="dropdown"
+              style="width: 45px; height: 45px"
+            >
+              <span class="fw-bold text-orange fs-5">
+                {{ authService.currentUser()?.nome?.charAt(0)?.toUpperCase() }}
+              </span>
+            </button>
+            <ul
+              class="dropdown-menu dropdown-menu-end border-0 shadow-lg mt-2 p-2"
+              style="border-radius: 15px; min-width: 240px"
+            >
+              <li class="px-3 py-3">
+                <span class="fw-bold d-block">{{ authService.currentUser()?.nome }}</span>
+                <span class="text-muted small">{{ authService.currentUser()?.email }}</span>
+              </li>
+              <li><hr class="dropdown-divider opacity-50" /></li>
+              <li>
+                <a
+                  class="dropdown-item rounded-3 py-2"
+                  routerLink="/adottante"
+                  routerLinkActive="active-dropdown-item"
+                >
+                  <i class="bi bi-person-circle me-2"></i> Il mio Account
+                </a>
+              </li>
+              <li>
+                <button
+                  (click)="authService.logout()"
+                  class="dropdown-item rounded-3 py-2 text-danger fw-semibold"
+                >
+                  <i class="bi bi-box-arrow-right me-2"></i> Esci
+                </button>
+              </li>
+            </ul>
+          </div>
+        }
       </div>
     </div>
   </div>
 </nav>
 
-<main class="content-area">
-  <router-outlet></router-outlet>
-</main>
+<main class="content-area"><router-outlet></router-outlet></main>
 
 <footer class="bg-dark text-white py-5 mt-5">
   <div class="container text-center">

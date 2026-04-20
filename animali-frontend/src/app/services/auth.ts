@@ -1,33 +1,68 @@
-import { inject, Injectable, signal, PLATFORM_ID } from '@angular/core';
+import { inject, Injectable, signal, PLATFORM_ID, computed } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { isPlatformBrowser } from '@angular/common';
 import { Observable, tap } from 'rxjs';
 import { LoginRequest, AuthResponse } from '../dto/auth';
 import { Router } from '@angular/router';
 
-@Injectable({
-  providedIn: 'root',
-})
+export interface UserProfile {
+  nome: string;
+  email: string;
+  ruolo?: string;
+}
+
+@Injectable({ providedIn: 'root' })
 export class AuthService {
   private http = inject(HttpClient);
   private router = inject(Router);
   private platformId = inject(PLATFORM_ID);
-
-  // 1. ASSICURATI CHE QUESTA RIGA ESISTA DENTRO LA CLASSE
   private readonly apiUrl = 'http://localhost:8080/api/auth';
 
+  // Inizializzazione IMMEDIATA: Legge il token all'istante
   isAuthenticated = signal<boolean>(
     isPlatformBrowser(this.platformId) ? !!localStorage.getItem('token') : false,
   );
 
+  // Inizializzazione IMMEDIATA del profilo: Se esiste nel localStorage, lo carica subito
+  private userProfile = signal<UserProfile | null>(
+    isPlatformBrowser(this.platformId) && localStorage.getItem('user_profile')
+      ? JSON.parse(localStorage.getItem('user_profile')!)
+      : null,
+  );
+
+  currentUser = computed(() => this.userProfile());
+
+  // Reattivo e istantaneo al boot
+  isAdmin = computed(() => {
+    const user = this.userProfile();
+    return user?.ruolo?.toUpperCase() === 'ADMIN';
+  });
+
+  constructor() {
+    // Al caricamento, se abbiamo il token ma non il profilo (es. primo refresh dopo login vecchio stile),
+    // ricarichiamo i dati dal token JWT
+    if (this.isAuthenticated() && !this.userProfile()) {
+      this.loadUserProfile();
+    }
+  }
+
   login(request: LoginRequest) {
-    // 2. CONTROLLA CHE QUI CI SIA 'this.apiUrl' (case-sensitive)
     return this.http.post<AuthResponse>(`${this.apiUrl}/login`, request).pipe(
       tap((response) => {
         if (isPlatformBrowser(this.platformId)) {
           localStorage.setItem('token', response.token);
+
+          const profile: UserProfile = {
+            nome: response.nome || 'Utente',
+            email: request.email,
+            ruolo: response.ruolo,
+          };
+
+          // Salva l'oggetto profilo per il prossimo refresh
+          localStorage.setItem('user_profile', JSON.stringify(profile));
+          this.userProfile.set(profile);
+          this.isAuthenticated.set(true);
         }
-        this.isAuthenticated.set(true);
         this.router.navigate(['/animali']);
       }),
     );
@@ -35,23 +70,50 @@ export class AuthService {
 
   logout() {
     if (isPlatformBrowser(this.platformId)) {
-      localStorage.removeItem('token');
+      localStorage.clear();
     }
+    this.userProfile.set(null);
     this.isAuthenticated.set(false);
     this.router.navigate(['/login']);
+  }
+
+  private loadUserProfile() {
+    if (isPlatformBrowser(this.platformId)) {
+      const token = localStorage.getItem('token');
+      if (token) {
+        try {
+          const payload = JSON.parse(atob(token.split('.')[1]));
+          const role = payload.ruolo || payload.role || payload.authority || 'USER';
+          const profile: UserProfile = {
+            nome: payload.nome || 'Utente',
+            email: payload.sub || payload.email,
+            ruolo: role,
+          };
+
+          this.userProfile.set(profile);
+          localStorage.setItem('user_profile', JSON.stringify(profile));
+        } catch (e) {
+          console.error('Errore decodifica token:', e);
+          this.logout();
+        }
+      }
+    }
   }
 
   registraAdottante(data: any) {
     return this.http.post(`${this.apiUrl}/register/adottante`, data);
   }
-
   registraVolontario(data: any) {
     return this.http.post(`${this.apiUrl}/register/volontario`, data);
   }
-
-  // auth.service.ts
   verifyEmail(token: string): Observable<any> {
-    // Richiama l'endpoint che abbiamo creato nel backend
     return this.http.get(`${this.apiUrl}/verify?token=${token}`, { responseType: 'text' });
+  }
+  resendVerification(email: string) {
+    return this.http.post(
+      `${this.apiUrl}/resend-verification?email=${email}`,
+      {},
+      { responseType: 'text' },
+    );
   }
 }

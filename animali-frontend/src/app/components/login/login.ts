@@ -3,8 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { AuthService } from '../../services/auth';
 import { LoginRequest } from '../../dto/auth';
-import { Router } from 'express';
-import { RouterLink } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 
 @Component({
   selector: 'app-login',
@@ -15,41 +14,54 @@ import { RouterLink } from '@angular/router';
 })
 export class LoginComponent {
   private authService = inject(AuthService);
+  private router = inject(Router);
 
-  // Dati del form
   loginData: LoginRequest = { email: '', password: '' };
-
   isLoading = signal(false);
   errorMessage = signal<string | null>(null);
+
+  // Aggiungiamo questo signal per controllare la visibilità del tasto reinvio
+  showResendButton = signal(false);
 
   onLogin() {
     this.isLoading.set(true);
     this.errorMessage.set(null);
+    this.showResendButton.set(false); // Reset al nuovo tentativo
 
     this.authService.login(this.loginData).subscribe({
       next: (response) => {
         this.isLoading.set(false);
-        // Qui solitamente reindirizzi alla home degli animali
-        // this.router.navigate(['/animali']);
+        this.router.navigate(['/animali']);
       },
       error: (err) => {
         this.isLoading.set(false);
-
-        // GESTIONE ERRORI SPECIFICI
         if (err.status === 403) {
-          // L'utente è autenticato ma NON è abilitato (email non verificata)
-          this.errorMessage.set(
-            'Account non verificato. Controlla la tua email per attivare il profilo! 🐾',
-          );
+          this.errorMessage.set('Account non verificato. Controlla la tua email! 🐾');
+          this.showResendButton.set(true); // Mostra il tasto se l'errore è 403
         } else if (err.status === 401) {
-          // Email o password errate
           this.errorMessage.set('Email o password non corrette.');
         } else {
-          // Errore generico (server offline, etc.)
-          this.errorMessage.set('Si è verificato un errore. Riprova più tardi.');
+          this.errorMessage.set('Errore di connessione al server.');
         }
+      },
+    });
+  }
 
-        console.error('Login Error:', err);
+  // Metodo per gestire il reinvio dell'email
+  handleResend() {
+    if (!this.loginData.email) return;
+
+    this.isLoading.set(true);
+    // Assicurati di aver aggiunto resendVerification nel tuo AuthService
+    this.authService.resendVerification(this.loginData.email).subscribe({
+      next: (msg) => {
+        this.isLoading.set(false);
+        this.errorMessage.set('Email di verifica inviata con successo! 📧');
+        this.showResendButton.set(false);
+      },
+      error: (err) => {
+        this.isLoading.set(false);
+        this.errorMessage.set('Errore nel reinvio: ' + (err.error || 'riprova più tardi.'));
       },
     });
   }

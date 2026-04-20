@@ -1,0 +1,27 @@
+.bg-orange {
+  background-color: #f27c21 !important;
+}
+
+.text-orange {
+  color: #f27c21 !important;
+}
+
+.btn-orange {
+  background-color: #f27c21;
+  color: white;
+  border: none;
+  transition: all 0.2s;
+}
+
+.btn-orange:hover {
+  background-color: #d66a1a;
+  color: white;
+  transform: scale(1.05);
+}
+
+/* Rimuove l'outline blu dai selettori per un look più pulito */
+.form-select:focus,
+.form-control:focus {
+  box-shadow: 0 0 0 0.2rem rgba(242, 124, 33, 0.15);
+  border-color: #f27c21;
+}

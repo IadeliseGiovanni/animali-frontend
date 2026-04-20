@@ -1,0 +1,24 @@
+/* --- STATO ATTIVO (DOPO IL CLICK) --- */
+/* Questa classe viene messa da Angular solo quando sei sulla pagina */
+.active-dropdown-item {
+  background-color: rgba(242, 124, 33, 0.1) !important; /* Sfondo arancio chiarissimo */
+  color: #f27c21 !important; /* Testo arancio */
+  font-weight: 600 !important;
+}
+
+/* Colora anche l'icona solo quando è attivo */
+.active-dropdown-item i {
+  color: #f27c21 !important;
+}
+
+/* --- STATO HOVER (SOLO PASSAGGIO MOUSE) --- */
+/* Quando passi il mouse, usiamo il grigio neutro di Bootstrap, NON l'arancione */
+.dropdown-item:hover:not(.active-dropdown-item) {
+  background-color: #f8f9fa;
+  color: #333;
+}
+
+/* Rimuoviamo i colori fissi dalle icone per farle cambiare con il testo */
+.dropdown-item i {
+  transition: color 0.2s;
+}

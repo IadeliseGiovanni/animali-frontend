@@ -16,6 +16,7 @@ export interface AnimaleDto {
   centroAdozione?: CentroAdozioneDto;
   visiteMediche: VisitaMedicaDto[]; //
   Adottante?: AdottanteDto;
+  fotoUrl?: string; // URL dell'immagine, se disponibile
 }
 
 export interface AdozioneRequestDto {

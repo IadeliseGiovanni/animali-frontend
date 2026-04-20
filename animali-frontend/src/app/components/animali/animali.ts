@@ -4,6 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { AnimaleService } from '../../services/animale';
 import { AnimaleDto } from '../../dto/animale';
 import { MappaComponent } from '../mappa-centri/mappa-centri'; // Importa la nuova mappa
+import { PraticaService } from '../../services/pratica';
 
 @Component({
   selector: 'app-animali',
@@ -14,7 +15,9 @@ import { MappaComponent } from '../mappa-centri/mappa-centri'; // Importa la nuo
 })
 export class AnimaliComponent implements OnInit {
   private animaleService = inject(AnimaleService);
+  private praticaService = inject(PraticaService);
 
+  isSendingPratica = signal(false);
   animali = signal<AnimaleDto[]>([]);
   isLoading = signal(false);
   animaleSelezionato = signal<AnimaleDto | null>(null);
@@ -24,6 +27,27 @@ export class AnimaliComponent implements OnInit {
 
   ngOnInit(): void {
     this.caricaTutti();
+  }
+
+  avviaPratica(animaleId: number) {
+    if (this.isSendingPratica()) return;
+
+    this.isSendingPratica.set(true);
+
+    this.praticaService.avviaPratica(animaleId).subscribe({
+      next: (res) => {
+        alert('Richiesta inviata con successo! Il centro adozioni esaminerà la tua pratica.');
+        this.isSendingPratica.set(false);
+        this.chiudiDettagli(); // Chiude la modale dopo il successo
+      },
+      error: (err) => {
+        // Qui catturiamo i messaggi di errore inviati dal backend (es. "Non sei idoneo")
+        const messaggioErrore =
+          err.error || "Si è verificato un errore durante l'avvio della pratica.";
+        alert(messaggioErrore);
+        this.isSendingPratica.set(false);
+      },
+    });
   }
 
   caricaTutti() {

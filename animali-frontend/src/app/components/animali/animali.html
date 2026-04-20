@@ -199,9 +199,26 @@
             </div>
 
             <div class="mt-auto">
-              <button class="btn btn-orange w-100 rounded-pill py-2 fw-bold shadow-sm border-0">
-                Avvia Pratica di Adozione
+              <button
+                class="btn btn-orange w-100 rounded-pill py-2 fw-bold shadow-sm border-0 d-flex align-items-center justify-content-center"
+                [disabled]="isSendingPratica() || selected.adottato"
+                (click)="avviaPratica(selected.id)"
+              >
+                @if (isSendingPratica()) {
+                  <span class="spinner-border spinner-border-sm me-2" role="status"></span>
+                  Invio in corso...
+                } @else if (selected.adottato) {
+                  Già Adottato 🐾
+                } @else {
+                  Avvia Pratica di Adozione
+                }
               </button>
+
+              @if (selected.adottato) {
+                <p class="text-center small text-muted mt-2 mb-0">
+                  Questo animale non è più disponibile per l'adozione.
+                </p>
+              }
             </div>
           </div>
         </div>

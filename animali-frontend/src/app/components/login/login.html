@@ -10,8 +10,26 @@
 
     @if (errorMessage()) {
       <div class="alert alert-danger border-0 rounded-3 small fw-bold mb-3 shadow-sm">
-        <i class="bi bi-exclamation-triangle-fill me-2"></i>
-        {{ errorMessage() }}
+        <div class="d-flex align-items-center">
+          <i class="bi bi-exclamation-triangle-fill me-2"></i>
+          <span>{{ errorMessage() }}</span>
+        </div>
+
+        @if (showResendButton()) {
+          <div
+            class="mt-2 pt-2 border-top border-danger-subtle d-flex justify-content-between align-items-center"
+          >
+            <span class="fw-normal">Non l'hai ricevuta?</span>
+            <button
+              type="button"
+              (click)="handleResend()"
+              class="btn btn-sm btn-link text-danger fw-bold text-decoration-none p-0"
+              [disabled]="isLoading()"
+            >
+              Reinvia link
+            </button>
+          </div>
+        }
       </div>
     }
 

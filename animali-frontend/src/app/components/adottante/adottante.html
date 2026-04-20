@@ -1,56 +1,245 @@
-<div class="container mt-4">
-  <div class="card shadow-sm">
-    <div
-      class="card-header bg-primary text-white d-flex justify-content-between align-items-center"
-    >
-      <h4 class="mb-0">Registro Adottanti</h4>
-      <div class="input-group w-50">
-        <input
-          type="text"
-          class="form-control"
-          placeholder="Cerca per cognome..."
-          [(ngModel)]="searchCognome"
-          (keyup.enter)="cerca()"
-        />
-        <button class="btn btn-light" (click)="cerca()">Cerca</button>
-      </div>
+<div class="container py-5">
+  @if (isLoading()) {
+    <div class="text-center py-5">
+      <div class="spinner-border text-orange" role="status"></div>
+      <p class="mt-2 text-muted">Sincronizzazione dati in corso...</p>
     </div>
+  } @else {
+    @if (isListaMode()) {
+      <div class="card border-0 shadow-sm rounded-4 overflow-hidden">
+        <div class="card-header bg-dark p-4 d-flex justify-content-between align-items-center">
+          <h4 class="text-white mb-0">Gestione Utenti</h4>
+          <span class="badge bg-orange px-3 py-2 rounded-pill">
+            {{ listaFiltrata().length }} Utenti Trovati
+          </span>
+        </div>
 
-    <div class="card-body p-0">
-      <table class="table table-striped mb-0">
-        <thead class="table-light">
-          <tr>
-            <th>Nominativo</th>
-            <th>Email</th>
-            <th>Codice Fiscale</th>
-            <th>Indirizzo</th>
-          </tr>
-        </thead>
-        <tbody>
-          @for (a of adottanti(); track a.id) {
-            <tr>
-              <td>
-                <strong>{{ a.cognome }} {{ a.nome }}</strong>
-              </td>
-              <td>{{ a.email }}</td>
-              <td>
-                <code>{{ a.codiceFiscale }}</code>
-              </td>
-              <td>{{ a.indirizzo || 'N/D' }}</td>
-            </tr>
-          } @empty {
-            <tr>
-              <td colspan="4" class="text-center p-4">
-                @if (isLoading()) {
-                  Caricamento in corso...
-                } @else {
-                  Nessun adottante trovato.
+        <div class="card-body bg-light border-bottom p-3">
+          <div class="row g-3">
+            <div class="col-md-4">
+              <div class="input-group shadow-sm rounded-pill overflow-hidden bg-white border">
+                <span class="input-group-text bg-white border-0 ps-3"
+                  ><i class="bi bi-search"></i
+                ></span>
+                <input
+                  type="text"
+                  class="form-control border-0 py-2"
+                  placeholder="Cerca..."
+                  (input)="searchTerm.set($any($event.target).value); paginaCorrente.set(1)"
+                />
+              </div>
+            </div>
+            <div class="col-md-4">
+              <select
+                class="form-select rounded-pill shadow-sm border py-2"
+                (change)="filtroIdoneita.set($any($event.target).value); paginaCorrente.set(1)"
+              >
+                <option value="TUTTI">Tutti gli stati</option>
+                <option value="IDONEI">✓ Solo Idonei</option>
+                <option value="NON_IDONEI">⏳ In Verifica</option>
+              </select>
+            </div>
+            <div class="col-md-4">
+              <select
+                class="form-select rounded-pill shadow-sm border py-2"
+                (change)="filtroRuolo.set($any($event.target).value); paginaCorrente.set(1)"
+              >
+                <option value="TUTTI">Tutti i ruoli</option>
+                <option value="USER">User</option>
+                <option value="ADMIN">Admin</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <div class="table-responsive">
+          <table class="table table-hover align-middle mb-0">
+            <thead class="table-light text-uppercase small fw-bold">
+              <tr>
+                <th class="ps-4">Nominativo</th>
+                <th>Contatti</th>
+                <th class="text-center">Stato</th>
+                <th class="text-center">Ruolo</th>
+                <th style="width: 50px"></th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (a of listaPaginata(); track a.id) {
+                <tr>
+                  <td class="ps-4">
+                    <div class="fw-bold text-dark">{{ a.cognome }} {{ a.nome }}</div>
+                    <div class="small text-muted">
+                      {{ getEta(a.dataNascita) }} anni • {{ a.indirizzo || 'N.D.' }}
+                    </div>
+                  </td>
+                  <td>
+                    <div class="small text-truncate" style="max-width: 180px">{{ a.email }}</div>
+                    <div class="small text-muted">{{ a.telefono || '---' }}</div>
+                  </td>
+                  <td class="text-center">
+                    <select
+                      class="form-select form-select-sm rounded-pill border-0 shadow-sm w-auto mx-auto fw-bold"
+                      [style.background-color]="a.isSchedato ? '#d1e7dd' : '#fff3cd'"
+                      [style.color]="a.isSchedato ? '#0f5132' : '#664d03'"
+                      (change)="cambiaIdoneita(a, $event)"
+                    >
+                      <option [value]="true" [selected]="a.isSchedato">Idoneo</option>
+                      <option [value]="false" [selected]="!a.isSchedato">Verifica</option>
+                    </select>
+                  </td>
+                  <td class="text-center">
+                    <select
+                      class="form-select form-select-sm rounded-pill border shadow-sm w-auto mx-auto"
+                      (change)="cambiaRuolo(a, $event)"
+                    >
+                      <option value="USER" [selected]="a.ruolo === 'USER'">User</option>
+                      <option value="ADMIN" [selected]="a.ruolo === 'ADMIN'">Admin</option>
+                    </select>
+                  </td>
+                  <td class="text-center pe-4">
+                    <button
+                      class="btn btn-link p-0 border-0 text-orange"
+                      (click)="selezionaProfilo(a)"
+                      title="Visualizza Profilo"
+                      style="transition: all 0.2s ease"
+                      onmouseover="this.style.transform = 'scale(1.2) translateX(3px)'"
+                      onmouseout="this.style.transform = 'scale(1) translateX(0)'"
+                    >
+                      <i class="bi bi-arrow-right-circle-fill fs-4"></i>
+                    </button>
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+
+        @if (totalePagine() > 1) {
+          <div class="card-footer bg-white p-3 d-flex justify-content-center">
+            <nav>
+              <ul class="pagination pagination-sm mb-0">
+                <li class="page-item" [class.disabled]="paginaCorrente() === 1">
+                  <button
+                    class="page-link rounded-start-pill px-3"
+                    (click)="paginaCorrente.update((p) => p - 1)"
+                  >
+                    ‹
+                  </button>
+                </li>
+                @for (p of getpagineArray(); track p) {
+                  <li class="page-item" [class.active]="paginaCorrente() === p">
+                    <button class="page-link" (click)="paginaCorrente.set(p)">{{ p }}</button>
+                  </li>
                 }
-              </td>
-            </tr>
-          }
-        </tbody>
-      </table>
-    </div>
-  </div>
+                <li class="page-item" [class.disabled]="paginaCorrente() === totalePagine()">
+                  <button
+                    class="page-link rounded-end-pill px-3"
+                    (click)="paginaCorrente.update((p) => p + 1)"
+                  >
+                    ›
+                  </button>
+                </li>
+              </ul>
+            </nav>
+          </div>
+        }
+      </div>
+    } @else {
+      @if (profilo(); as p) {
+        <div class="mb-3">
+          <button
+            *ngIf="provenienzaDaLista()"
+            (click)="tornaAllaLista()"
+            class="btn btn-sm btn-outline-dark rounded-pill px-3"
+          >
+            <i class="bi bi-arrow-left me-1"></i> Torna alla lista
+          </button>
+        </div>
+        <div class="row">
+          <div class="col-lg-4 mb-4">
+            <div class="card border-0 shadow-sm rounded-4 overflow-hidden">
+              <div class="card-header bg-orange p-4 text-center">
+                <div
+                  class="avatar-circle mx-auto mb-3"
+                  style="
+                    width: 80px;
+                    height: 80px;
+                    background: white;
+                    border-radius: 50%;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    font-size: 2rem;
+                    color: #f27c21;
+                    font-weight: bold;
+                  "
+                >
+                  {{ (p.nome.charAt(0) || '?').toUpperCase() }}
+                </div>
+                <h4 class="text-white mb-0">{{ p.nome }} {{ p.cognome }}</h4>
+              </div>
+              <div class="card-body p-4">
+                <p class="mb-2 d-flex align-items-center">
+                  <i class="bi bi-person-heart me-2 text-orange"></i> <strong>Età:</strong>
+                  <span class="ms-1 text-muted">{{ getTestoEta(p.dataNascita) }}</span>
+                </p>
+                <p class="mb-2 d-flex align-items-center">
+                  <i class="bi bi-geo-alt me-2 text-orange"></i>
+                  <span class="text-muted">{{ p.indirizzo || 'N.D.' }}</span>
+                </p>
+              </div>
+            </div>
+          </div>
+          <div class="col-lg-8">
+            <div class="card border-0 shadow-sm rounded-4 h-100">
+              <div
+                class="card-header bg-white p-4 border-0 d-flex justify-content-between align-items-center"
+              >
+                <h4 class="fw-bold mb-0">🐾 Animali Adottati</h4>
+                <span class="badge bg-light text-dark border rounded-pill"
+                  >{{ p.animaliAdottati.length }} animali</span
+                >
+              </div>
+              <div class="card-body p-4 pt-0">
+                <div class="row g-3">
+                  @for (animale of p.animaliAdottati; track animale.id) {
+                    <div class="col-md-6">
+                      <div
+                        class="card h-100 border-0 shadow-sm rounded-4 overflow-hidden bg-light border"
+                      >
+                        <img
+                          [src]="animale.fotoUrl || 'assets/placeholder-pet.png'"
+                          class="card-img-top"
+                          style="height: 150px; object-fit: cover"
+                        />
+                        <div class="card-body p-3">
+                          <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                              <h6 class="fw-bold text-orange mb-1">{{ animale.nome }}</h6>
+                              <small class="text-muted"
+                                >{{ animale.specie }} • {{ animale.razza }}</small
+                              >
+                            </div>
+                            <button
+                              (click)="scaricaContratto(animale, p)"
+                              class="btn btn-outline-danger btn-sm rounded-pill px-3 d-flex align-items-center gap-2"
+                            >
+                              <i class="bi bi-file-earmark-pdf-fill"></i>
+                              <span class="fw-bold">PDF</span>
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  } @empty {
+                    <div class="text-center py-5 text-muted w-100">Nessun animale associato.</div>
+                  }
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      }
+    }
+  }
 </div>

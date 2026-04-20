@@ -10,6 +10,12 @@ export class AdottanteService {
   private http = inject(HttpClient);
   private readonly apiUrl = 'http://localhost:8080/api/Adottante';
 
+  getProfilo(): Observable<AdottanteDto> {
+    // Questo chiama l'endpoint @GetMapping("/me")
+    // Non servono parametri perché il backend usa il Token JWT per capire chi sei
+    return this.http.get<AdottanteDto>(`${this.apiUrl}/me`);
+  }
+
   // Metodi CRUD standard
   getAll(): Observable<AdottanteDto[]> {
     return this.http.get<AdottanteDto[]>(`${this.apiUrl}/all`);
@@ -36,5 +42,13 @@ export class AdottanteService {
     return this.http.delete<void>(`${this.apiUrl}/delete`, {
       params: new HttpParams().set('id', id),
     });
+  }
+
+  updateIdoneita(id: number, stato: boolean): Observable<void> {
+    return this.http.patch<void>(`${this.apiUrl}/${id}/idoneita?stato=${stato}`, {});
+  }
+
+  updateRuolo(id: number, ruolo: string): Observable<void> {
+    return this.http.patch<void>(`${this.apiUrl}/${id}/ruolo?nuovoRuolo=${ruolo}`, {});
   }
 }

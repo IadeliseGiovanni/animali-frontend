@@ -47,8 +47,6 @@ export class MappaComponent implements AfterViewInit {
 
     this.centroService.getAll().subscribe({
       next: (centri) => {
-        console.log('Mappa: Centri caricati correttamente', centri);
-
         centri.forEach((c) => {
           if (c.latitudine && c.longitudine) {
             const m = L.marker([c.latitudine, c.longitudine], { icon: iconDefault }).addTo(map);
@@ -58,7 +56,6 @@ export class MappaComponent implements AfterViewInit {
 
             // Usiamo zone.run perché Leaflet lavora fuori dal rilevamento di Angular
             m.on('click', () => {
-              console.log('Mappa: Click rilevato sul centro ID:', c.id);
               this.zone.run(() => {
                 this.centroSelezionato.emit(c.id);
               });

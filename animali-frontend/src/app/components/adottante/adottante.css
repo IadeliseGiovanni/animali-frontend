@@ -1,0 +1,142 @@
+.bg-orange {
+  background-color: #f27c21;
+}
+.text-orange {
+  color: #f27c21;
+}
+.btn-orange {
+  background-color: #f27c21;
+  color: white;
+  border: none;
+}
+.btn-orange:hover {
+  background-color: #d66a1a;
+  color: white;
+}
+
+.avatar-circle {
+  width: 80px;
+  height: 80px;
+  background-color: white;
+  color: #f27c21;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2.5rem;
+  font-weight: bold;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+.pet-card {
+  transition: transform 0.2s;
+  border-radius: 15px;
+  overflow: hidden;
+}
+
+.pet-card:hover {
+  transform: translateY(-5px);
+}
+
+.pet-card img {
+  height: 180px;
+  object-fit: cover;
+}
+
+.bg-orange {
+  background-color: #f27c21 !important;
+}
+
+.avatar-circle {
+  width: 80px;
+  height: 80px;
+  background-color: white;
+  color: #f27c21;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2rem;
+  font-weight: bold;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+.pet-card {
+  transition: transform 0.2s;
+  cursor: pointer;
+}
+
+.pet-card:hover {
+  transform: translateY(-5px);
+}
+
+.text-orange {
+  color: #f27c21 !important;
+}
+
+.btn-orange {
+  background-color: #f27c21;
+  color: white;
+  border: none;
+}
+
+.btn-orange:hover {
+  background-color: #d66a1a;
+  color: white;
+}
+
+/* Colore dei numeri e dei bordi della paginazione */
+.pagination .page-link {
+  color: #f27c21; /* Il tuo arancione */
+  border-color: #dee2e6;
+  background-color: #fff;
+  transition: all 0.2s ease-in-out;
+}
+
+/* Colore quando passi sopra con il mouse (Hover) */
+.pagination .page-link:hover {
+  color: #d66a1a; /* Un arancione leggermente più scuro */
+  background-color: #fff3e0;
+  border-color: #f27c21;
+}
+
+/* Colore della pagina attiva */
+.pagination .page-item.active .page-link {
+  background-color: #f27c21 !important;
+  border-color: #f27c21 !important;
+  color: #fff !important; /* Testo bianco sulla pagina attiva */
+}
+
+/* Colore quando il pulsante è disabilitato */
+.pagination .page-item.disabled .page-link {
+  color: #6c757d;
+  background-color: #f8f9fa;
+  border-color: #dee2e6;
+}
+
+/* Rimuove l'alone blu (focus ring) di Bootstrap */
+.page-link:focus {
+  box-shadow: 0 0 0 0.25rem rgba(242, 124, 33, 0.25);
+}
+
+/* Effetto hover sulla riga per evidenziare la navigazione */
+.user-row {
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.user-row:hover {
+  background-color: rgba(242, 124, 33, 0.03) !important;
+}
+
+/* La freccia diventa arancione quando passi sopra la riga */
+.user-row:hover .bi-chevron-right {
+  color: #f27c21 !important;
+  transform: translateX(3px);
+  transition: all 0.2s ease;
+}
+
+/* Reset per il bottone freccia */
+.btn-link:focus {
+  box-shadow: none;
+}
