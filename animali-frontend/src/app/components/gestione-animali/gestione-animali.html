@@ -1,0 +1,106 @@
+<div class="container-fluid p-4" style="background-color: #d36e2d; min-height: 100vh">
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <h2 class="text-white fw-bold d-flex align-items-center">
+      <span class="me-2">🐾</span> Gestione Animali
+    </h2>
+    <div class="bg-white rounded-pill px-3 py-2 shadow-sm d-flex align-items-center w-25">
+      <i class="bi bi-search text-muted me-2"></i>
+      <input
+        type="text"
+        class="form-control border-0 shadow-none p-0"
+        placeholder="Cerca (Nome, Microchip...)"
+      />
+    </div>
+  </div>
+
+  <div class="card border-0 shadow-sm mb-5" style="border-radius: 15px">
+    <div class="card-header bg-dark text-white py-3 px-4">
+      <div class="d-flex justify-content-between align-items-center">
+        <h6 class="mb-0 fw-bold">REGISTRA NUOVO OSPITE</h6>
+        <small class="opacity-50">* Campi obbligatori</small>
+      </div>
+    </div>
+    <div class="card-body p-4">
+      <div class="row g-3">
+        <div class="col-md-3">
+          <label class="form-label small fw-bold text-muted">NOME *</label>
+          <input
+            type="text"
+            class="form-control bg-light border-0"
+            placeholder="Esempio: Rex"
+            [(ngModel)]="nuovoAnimale().nome"
+          />
+        </div>
+        <div class="col-md-3">
+          <label class="form-label small fw-bold text-muted">SPECIE *</label>
+          <select class="form-select bg-light border-0" [(ngModel)]="nuovoAnimale().specie">
+            <option value="Cane">Cane</option>
+            <option value="Gatto">Gatto</option>
+          </select>
+        </div>
+        <div class="col-md-3">
+          <label class="form-label small fw-bold text-muted">MICROCHIP *</label>
+          <input
+            type="text"
+            class="form-control bg-light border-0"
+            placeholder="CODICE..."
+            [(ngModel)]="nuovoAnimale().microchip"
+          />
+        </div>
+        <div class="col-md-3">
+          <label class="form-label small fw-bold text-muted">GENERE</label>
+          <select class="form-select bg-light border-0" [(ngModel)]="nuovoAnimale().genere">
+            <option value="Maschio">Maschio</option>
+            <option value="Femmina">Femmina</option>
+          </select>
+        </div>
+        <div class="col-md-9">
+          <label class="form-label small fw-bold text-muted">EMAIL CONTATTO / NOTE</label>
+          <input
+            type="text"
+            class="form-control bg-light border-0"
+            placeholder="Inserisci dettagli..."
+            [(ngModel)]="nuovoAnimale().descrizione"
+          />
+        </div>
+        <div class="col-md-3 d-flex align-items-end">
+          <button class="btn btn-success w-100 fw-bold py-2 rounded-3" (click)="aggiungi()">
+            Salva Animale
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card border-0 shadow-sm" style="border-radius: 15px">
+    <div class="table-responsive">
+      <table class="table table-hover align-middle mb-0">
+        <thead class="bg-light shadow-sm">
+          <tr>
+            <th class="ps-4 py-3 text-secondary small fw-bold">NOME</th>
+            <th class="py-3 text-secondary small fw-bold">MICROCHIP</th>
+            <th class="py-3 text-secondary small fw-bold">SPECIE</th>
+            <th class="py-3 text-secondary small fw-bold">GENERE</th>
+            <th class="pe-4 py-3 text-end text-secondary small fw-bold">AZIONI</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (a of animali(); track a.id) {
+            <tr>
+              <td class="ps-4">
+                <strong>{{ a.nome }}</strong>
+              </td>
+              <td>
+                <span class="badge bg-light text-dark border font-monospace">{{
+                  a.microchip
+                }}</span>
+              </td>
+              <td>{{ a.specie }}</td>
+              <td>{{ a.genere }}</td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>

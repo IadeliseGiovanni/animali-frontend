@@ -1,0 +1,44 @@
+.container-fluid {
+  font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+}
+
+.table thead th {
+  background-color: #f8f9fa;
+  border-bottom: 2px solid #dee2e6;
+  color: #6c757d;
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.table tbody td {
+  padding: 1rem 0.75rem;
+  color: #495057;
+}
+
+.card {
+  border: none;
+  transition: transform 0.2s;
+}
+
+.form-label {
+  margin-bottom: 0.4rem;
+}
+
+.form-control,
+.form-select {
+  border-radius: 8px;
+  padding: 0.6rem;
+}
+
+.btn-success {
+  background-color: #198754;
+  border: none;
+  border-radius: 8px;
+  transition: all 0.3s;
+}
+
+.btn-success:hover {
+  background-color: #157347;
+  transform: translateY(-1px);
+}

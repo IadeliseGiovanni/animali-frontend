@@ -9,6 +9,7 @@ import { RegisterComponent } from './components/register/register';
 import { authGuard } from './guards/auth.guard';
 // 1. IMPORTA IL NUOVO COMPONENTE
 import { GestionePraticheComponent } from './components/gestione-pratiche/gestione-pratiche';
+import { GestioneAnimaliComponent } from './components/gestione-animali/gestione-animali';
 
 export const routes: Routes = [
   { path: 'login', component: LoginComponent },
@@ -28,6 +29,6 @@ export const routes: Routes = [
 
   { path: 'registrati', component: RegisterComponent },
 
-  { path: '', redirectTo: '/animali', pathMatch: 'full' },
+  { path: 'gestione-animali', component: GestioneAnimaliComponent, canActivate: [authGuard] },
   { path: '**', redirectTo: '/animali' },
 ];
