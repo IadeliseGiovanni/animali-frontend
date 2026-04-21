@@ -14,9 +14,19 @@ import { VolontarioDto } from '../../dto/volontario';
 export class VolontarioComponent implements OnInit {
   private volontarioService = inject(VolontarioService);
 
+  // Signals per lo stato della pagina
   volontari = signal<VolontarioDto[]>([]);
   searchTerm = signal('');
   isLoading = signal(false);
+
+  // Signal per l'oggetto nel form di creazione
+  nuovoVolontario = signal<Partial<VolontarioDto>>({
+    nome: '',
+    cognome: '',
+    cf: '',
+    turno: '',
+    email: '',
+  });
 
   ngOnInit() {
     this.caricaTutti();
@@ -38,16 +48,53 @@ export class VolontarioComponent implements OnInit {
       this.caricaTutti();
       return;
     }
-    this.volontarioService.search(this.searchTerm()).subscribe((data) => {
-      this.volontari.set(data);
+    this.volontarioService.search(this.searchTerm()).subscribe({
+      next: (data) => this.volontari.set(data),
+      error: (err) => console.error('Errore ricerca:', err),
+    });
+  }
+
+  aggiungi() {
+    const dto = this.nuovoVolontario() as VolontarioDto;
+
+    // Validazione minima lato client
+    if (!dto.nome || !dto.cognome || !dto.cf) {
+      alert('Inserire almeno Nome, Cognome e Codice Fiscale.');
+      return;
+    }
+
+    this.volontarioService.insert(dto).subscribe({
+      next: (volontarioSalvato) => {
+        // Aggiorniamo la lista locale aggiungendo il nuovo oggetto restituito dal server
+        this.volontari.update((currentList) => [...currentList, volontarioSalvato]);
+        this.resetForm();
+        alert('Volontario registrato correttamente!');
+      },
+      error: (err) => {
+        console.error('Errore inserimento:', err);
+        alert('Impossibile salvare il volontario. Verifica i dati o i permessi.');
+      },
     });
   }
 
   elimina(id: number | undefined) {
     if (id && confirm('Sei sicuro di voler eliminare questo volontario?')) {
-      this.volontarioService.delete(id).subscribe(() => {
-        this.volontari.update((list) => list.filter((v) => v.id !== id));
+      this.volontarioService.delete(id).subscribe({
+        next: () => {
+          this.volontari.update((list) => list.filter((v) => v.id !== id));
+        },
+        error: (err) => alert("Errore durante l'eliminazione."),
       });
     }
+  }
+
+  private resetForm() {
+    this.nuovoVolontario.set({
+      nome: '',
+      cognome: '',
+      cf: '',
+      turno: '',
+      email: '',
+    });
   }
 }
