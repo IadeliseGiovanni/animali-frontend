@@ -1,36 +1,45 @@
+/* Wrapper con lo sfondo ARANCIONE identico al login */
 .register-wrapper {
-  min-height: 90vh;
-  background-color: #f8f9fa; /* Grigio chiarissimo per far risaltare la card */
+  min-height: 100vh; /* Copre tutta l'altezza dello schermo */
+  background-color: #f27c21; /* Arancione ufficiale PetFlow */
+  display: flex;
+  align-items: center;
+  justify-content: center;
   padding: 20px;
 }
 
 .register-card {
   width: 100%;
-  max-width: 480px;
+  max-width: 450px; /* Ridotto leggermente per matchare il login */
   border-radius: 24px !important;
+  background-color: #ffffff; /* La card rimane bianca per contrasto */
   overflow: hidden;
+  border: none;
 }
 
-/* Colore Arancione Personalizzato */
+/* Colore Arancione per i Pulsanti e Testi */
 .btn-orange {
-  background-color: #f27c21 !important; /* Arancione Empethy */
+  background-color: #f27c21 !important;
   color: white !important;
   border: none !important;
+  transition: all 0.3s ease;
 }
 
 .btn-orange:hover {
   background-color: #d96a1a !important;
   transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
 }
 
 .text-orange {
   color: #f27c21 !important;
 }
 
-/* Stile Input */
+/* Stile Input raffinato */
 .form-control {
   padding: 12px;
   border: 1px solid #dee2e6;
+  border-radius: 12px !important; /* Arrotondiamo gli angoli degli input */
 }
 
 .form-control:focus {
@@ -41,15 +50,7 @@
 .input-group-text {
   border-color: #dee2e6;
   color: #6c757d;
+  border-radius: 12px 0 0 12px !important;
 }
 
-/* Animazione transizione ruolo */
-.transition-all {
-  transition: all 0.3s ease;
-}
-
-.role-selector .btn {
-  border: none;
-  font-size: 0.9rem;
-  padding: 10px;
-}
+/* Rimuoviamo gli stili del role-selector che non serve più */

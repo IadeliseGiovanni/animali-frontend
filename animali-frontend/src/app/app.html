@@ -59,14 +59,15 @@
 
       <div class="d-flex align-items-center gap-2">
         @if (!authService.isAuthenticated()) {
-          <a routerLink="/login" class="btn btn-link text-decoration-none text-muted fw-bold"
-            >Accedi</a
-          >
+          <a routerLink="/login" class="btn btn-link text-decoration-none text-white fw-bold">
+            Accedi
+          </a>
           <a
             routerLink="/registrati"
             class="btn btn-orange px-4 py-2 rounded-pill fw-bold text-white shadow-sm"
-            >Registrati</a
           >
+            Registrati
+          </a>
         } @else {
           <div class="dropdown">
             <button
@@ -118,23 +119,19 @@
 
 <footer class="bg-dark text-white border-top py-5 mt-5">
   <div class="container text-center">
-
     <a
       class="footer-brand fw-bold d-inline-flex align-items-center text-decoration-none mb-3"
       routerLink="/animali"
-      style="cursor: pointer;"
+      style="cursor: pointer"
     >
       <span class="fs-3 me-2">🐶</span>
 
       <span class="brand-text">
-        <span style="color: #f27c21;">Pet</span>
-        <span style="color: #b5b0b0;">Flow</span>
+        <span style="color: #f27c21">Pet</span>
+        <span style="color: #b5b0b0">Flow</span>
       </span>
     </a>
 
-    <p class="small text-secondary mb-0">
-      © 2026 PetFlow Inc. • Progetto No-Profit
-    </p>
-
+    <p class="small text-secondary mb-0">© 2026 PetFlow Inc. • Progetto No-Profit</p>
   </div>
 </footer>
