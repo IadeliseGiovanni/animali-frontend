@@ -1,10 +1,10 @@
 import { Component, inject, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser'; 
+import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { AnimaleService } from '../../services/animale';
 import { AnimaleDto } from '../../dto/animale';
-import { MappaComponent } from '../mappa-centri/mappa-centri'; 
+import { MappaComponent } from '../mappa-centri/mappa-centri';
 import { PraticaService } from '../../services/pratica';
 
 @Component({
@@ -17,7 +17,7 @@ import { PraticaService } from '../../services/pratica';
 export class AnimaliComponent implements OnInit {
   public animaleService = inject(AnimaleService);
   private praticaService = inject(PraticaService);
-  private sanitizer = inject(DomSanitizer); 
+  private sanitizer = inject(DomSanitizer);
 
   // Stati Generali
   isSendingPratica = signal(false);
@@ -32,7 +32,16 @@ export class AnimaliComponent implements OnInit {
   filterRazza = signal(''); // Signal per la razza
 
   // Paginazione Preferiti
-  pagePreferiti = signal(0); 
+  pagePreferiti = signal(0);
+
+  nuovoAnimale = signal<Partial<AnimaleDto>>({
+    nome: '',
+    specie: '',
+    razza: '',
+    eta: 0,
+    genere: 'Maschio',
+    descrizione: '',
+  });
 
   ngOnInit(): void {
     this.caricaTutti();
@@ -42,18 +51,18 @@ export class AnimaliComponent implements OnInit {
   nextPreferiti() {
     const totale = this.animaleService.listaPreferiti().length;
     if ((this.pagePreferiti() + 1) * 4 < totale) {
-      this.pagePreferiti.update(v => v + 1);
+      this.pagePreferiti.update((v) => v + 1);
     }
   }
 
   prevPreferiti() {
     if (this.pagePreferiti() > 0) {
-      this.pagePreferiti.update(v => v - 1);
+      this.pagePreferiti.update((v) => v - 1);
     }
   }
 
   isPreferito(animale: AnimaleDto): boolean {
-    return this.animaleService.listaPreferiti().some(a => a.id === animale.id);
+    return this.animaleService.listaPreferiti().some((a) => a.id === animale.id);
   }
 
   // Logica Caricamento e Filtri
@@ -79,8 +88,8 @@ export class AnimaliComponent implements OnInit {
   private processaDati(data: AnimaleDto[]) {
     let filtrati = data;
     if (this.filterRazza()) {
-      filtrati = data.filter(a => 
-        a.razza?.toLowerCase().includes(this.filterRazza().toLowerCase())
+      filtrati = data.filter((a) =>
+        a.razza?.toLowerCase().includes(this.filterRazza().toLowerCase()),
       );
     }
     const ordinati = filtrati.sort((a, b) => (b.eta ?? 0) - (a.eta ?? 0));
@@ -111,9 +120,9 @@ export class AnimaliComponent implements OnInit {
         this.chiudiDettagli();
       },
       error: (err) => {
-        alert(err.error || "Errore");
+        alert(err.error || 'Errore');
         this.isSendingPratica.set(false);
-      }
+      },
     });
   }
 
@@ -122,6 +131,32 @@ export class AnimaliComponent implements OnInit {
     this.onFilterChange();
   }
 
-  apriDettagli(a: AnimaleDto) { this.animaleSelezionato.set(a); }
-  chiudiDettagli() { this.animaleSelezionato.set(null); }
+  apriDettagli(a: AnimaleDto) {
+    this.animaleSelezionato.set(a);
+  }
+  chiudiDettagli() {
+    this.animaleSelezionato.set(null);
+  }
+
+  aggiungi() {
+    this.animaleService.insert(this.nuovoAnimale() as AnimaleDto).subscribe({
+      next: (salvato) => {
+        this.animali.update((list) => [...list, salvato]);
+        this.resetForm();
+        alert('Animale registrato con successo!');
+      },
+      error: (err) => alert('Errore: ' + err.message),
+    });
+  }
+
+  private resetForm() {
+    this.nuovoAnimale.set({
+      nome: '',
+      specie: '',
+      razza: '',
+      eta: 0,
+      genere: 'Maschio',
+      descrizione: '',
+    });
+  }
 }
