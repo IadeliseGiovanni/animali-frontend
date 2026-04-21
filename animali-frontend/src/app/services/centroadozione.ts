@@ -30,4 +30,9 @@ export class CentroAdozioneService {
   findByNome(nome: string): Observable<CentroAdozioneDto> {
     return this.http.get<CentroAdozioneDto>(`${this.apiUrl}/nome/${nome}`);
   }
+
+  creaCentro(centro: CentroAdozioneDto): Observable<string> {
+    // Nota: il tuo controller restituisce una String, quindi usiamo { responseType: 'text' }
+    return this.http.post(`${this.apiUrl}/admin/crea`, centro, { responseType: 'text' });
+  }
 }
