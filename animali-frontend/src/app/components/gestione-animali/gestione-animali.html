@@ -27,7 +27,7 @@
           <input
             type="text"
             class="form-control bg-light border-0"
-            placeholder="Esempio: Rex"
+            placeholder="Rex"
             [(ngModel)]="nuovoAnimale().nome"
           />
         </div>
@@ -39,33 +39,70 @@
           </select>
         </div>
         <div class="col-md-3">
+          <label class="form-label small fw-bold text-muted">RAZZA</label>
+          <input
+            type="text"
+            class="form-control bg-light border-0"
+            placeholder="Es: Labrador"
+            [(ngModel)]="nuovoAnimale().razza"
+          />
+        </div>
+        <div class="col-md-3">
           <label class="form-label small fw-bold text-muted">MICROCHIP *</label>
           <input
             type="text"
             class="form-control bg-light border-0"
-            placeholder="CODICE..."
+            placeholder="Codice..."
             [(ngModel)]="nuovoAnimale().microchip"
           />
         </div>
-        <div class="col-md-3">
+
+        <div class="col-md-2">
+          <label class="form-label small fw-bold text-muted">ETÀ</label>
+          <input
+            type="number"
+            class="form-control bg-light border-0"
+            [(ngModel)]="nuovoAnimale().eta"
+          />
+        </div>
+        <div class="col-md-2">
           <label class="form-label small fw-bold text-muted">GENERE</label>
           <select class="form-select bg-light border-0" [(ngModel)]="nuovoAnimale().genere">
             <option value="Maschio">Maschio</option>
             <option value="Femmina">Femmina</option>
           </select>
         </div>
-        <div class="col-md-9">
-          <label class="form-label small fw-bold text-muted">EMAIL CONTATTO / NOTE</label>
+        <div class="col-md-4">
+          <label class="form-label small fw-bold text-muted">URL FOTO</label>
           <input
             type="text"
             class="form-control bg-light border-0"
-            placeholder="Inserisci dettagli..."
-            [(ngModel)]="nuovoAnimale().descrizione"
+            placeholder="http://..."
+            [(ngModel)]="nuovoAnimale().fotoUrl"
           />
+        </div>
+        <div class="col-md-4">
+          <label class="form-label small fw-bold text-muted">URL VIDEO</label>
+          <input
+            type="text"
+            class="form-control bg-light border-0"
+            placeholder="http://..."
+            [(ngModel)]="nuovoAnimale().videoUrl"
+          />
+        </div>
+
+        <div class="col-md-9">
+          <label class="form-label small fw-bold text-muted">DESCRIZIONE / NOTE</label>
+          <textarea
+            class="form-control bg-light border-0"
+            rows="1"
+            placeholder="Racconta la sua storia..."
+            [(ngModel)]="nuovoAnimale().descrizione"
+          ></textarea>
         </div>
         <div class="col-md-3 d-flex align-items-end">
           <button class="btn btn-success w-100 fw-bold py-2 rounded-3" (click)="aggiungi()">
-            Salva Animale
+            <i class="bi bi-save me-2"></i>Salva Animale
           </button>
         </div>
       </div>
@@ -78,9 +115,9 @@
         <thead class="bg-light shadow-sm">
           <tr>
             <th class="ps-4 py-3 text-secondary small fw-bold">NOME</th>
+            <th class="py-3 text-secondary small fw-bold">RAZZA / SPECIE</th>
             <th class="py-3 text-secondary small fw-bold">MICROCHIP</th>
-            <th class="py-3 text-secondary small fw-bold">SPECIE</th>
-            <th class="py-3 text-secondary small fw-bold">GENERE</th>
+            <th class="py-3 text-secondary small fw-bold">ETÀ / GENERE</th>
             <th class="pe-4 py-3 text-end text-secondary small fw-bold">AZIONI</th>
           </tr>
         </thead>
@@ -88,15 +125,27 @@
           @for (a of animali(); track a.id) {
             <tr>
               <td class="ps-4">
-                <strong>{{ a.nome }}</strong>
+                <div class="d-flex align-items-center">
+                  <div
+                    class="rounded-circle bg-orange-light me-3 d-flex align-items-center justify-content-center"
+                    style="width: 35px; height: 35px; background-color: #fef0e6"
+                  >
+                    <span class="small">{{ a.specie === 'Cane' ? '🐶' : '🐱' }}</span>
+                  </div>
+                  <strong>{{ a.nome }}</strong>
+                </div>
+              </td>
+              <td>
+                <span class="text-dark">{{ a.razza || 'N/D' }}</span
+                ><br />
+                <small class="text-muted">{{ a.specie }}</small>
               </td>
               <td>
                 <span class="badge bg-light text-dark border font-monospace">{{
                   a.microchip
                 }}</span>
               </td>
-              <td>{{ a.specie }}</td>
-              <td>{{ a.genere }}</td>
+              <td>{{ a.eta }} anni - {{ a.genere }}</td>
             </tr>
           }
         </tbody>
