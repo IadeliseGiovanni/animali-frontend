@@ -9,7 +9,7 @@ export interface AdottanteDto {
   codiceFiscale: string;
   indirizzo?: string;
   telefono?: string;
-  dataNascita?: Date;
+  dataDiNascita?: Date;
   isSchedato: boolean;
   ruolo?: string; // Aggiunto per gestire il ruolo dell'animale (se necessario)
 

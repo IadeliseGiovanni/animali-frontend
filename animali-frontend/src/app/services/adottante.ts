@@ -51,4 +51,8 @@ export class AdottanteService {
   updateRuolo(id: number, ruolo: string): Observable<void> {
     return this.http.patch<void>(`${this.apiUrl}/${id}/ruolo?nuovoRuolo=${ruolo}`, {});
   }
+
+  patch(id: number, dto: any): Observable<any> {
+    return this.http.patch(`${this.apiUrl}/${id}`, dto);
+  }
 }

@@ -26,19 +26,24 @@ export class AdottanteComponent implements OnInit {
   isLoading = signal(true);
   isListaMode = signal(false);
   provenienzaDaLista = signal(false);
+  isEditMode = signal(false);
 
-  // Stato per il Cambio Password (REINSERITO)
+  // Stato per il Cambio Password
   isUpdatingPwd = signal(false);
   pwdData = { old: '', new: '' };
 
-  // Filtri e Paginazione
+  // Filtri e Paginazione Lista Utenti
   searchTerm = signal('');
   filtroIdoneita = signal<'TUTTI' | 'IDONEI' | 'NON_IDONEI'>('TUTTI');
   filtroRuolo = signal<string>('TUTTI');
   paginaCorrente = signal(1);
   elementiPerPagina = 15;
 
-  // LOGICA DI FILTRO REATTIVA
+  // Paginazione Animali Adottati (Nuovo)
+  paginaAnimali = signal(1);
+  animaliPerPagina = 6;
+
+  // --- LOGICA REATTIVA LISTA UTENTI ---
   listaFiltrata = computed(() => {
     let list = this.listaAdottanti();
     const search = this.searchTerm().toLowerCase();
@@ -57,10 +62,7 @@ export class AdottanteComponent implements OnInit {
 
     if (idoneita === 'IDONEI') list = list.filter((a) => a.isSchedato);
     if (idoneita === 'NON_IDONEI') list = list.filter((a) => !a.isSchedato);
-
-    if (ruolo !== 'TUTTI') {
-      list = list.filter((a) => a.ruolo === ruolo);
-    }
+    if (ruolo !== 'TUTTI') list = list.filter((a) => a.ruolo === ruolo);
 
     return list;
   });
@@ -71,6 +73,20 @@ export class AdottanteComponent implements OnInit {
   });
 
   totalePagine = computed(() => Math.ceil(this.listaFiltrata().length / this.elementiPerPagina));
+
+  // --- LOGICA REATTIVA ANIMALI ADOTTATI ---
+  animaliPaginati = computed(() => {
+    const p = this.profilo();
+    if (!p || !p.animaliAdottati) return [];
+    const inizio = (this.paginaAnimali() - 1) * this.animaliPerPagina;
+    return p.animaliAdottati.slice(inizio, inizio + this.animaliPerPagina);
+  });
+
+  totalePagineAnimali = computed(() => {
+    const p = this.profilo();
+    if (!p || !p.animaliAdottati) return 0;
+    return Math.ceil(p.animaliAdottati.length / this.animaliPerPagina);
+  });
 
   ngOnInit() {
     this.caricamentoIniziale();
@@ -109,10 +125,8 @@ export class AdottanteComponent implements OnInit {
     });
   }
 
-  // NUOVO METODO: Gestione Cambio Password
   aggiornaPassword() {
     if (!this.pwdData.old || !this.pwdData.new) return;
-
     this.isUpdatingPwd.set(true);
     this.authService.changePassword(this.pwdData.old, this.pwdData.new).subscribe({
       next: (res) => {
@@ -121,9 +135,7 @@ export class AdottanteComponent implements OnInit {
         this.isUpdatingPwd.set(false);
       },
       error: (err) => {
-        console.error('ERRORE:', err);
-        const msg = err.error?.message || "Errore durante l'aggiornamento";
-        alert('Errore: ' + msg);
+        alert('Errore: ' + (err.error?.message || "Errore durante l'aggiornamento"));
         this.isUpdatingPwd.set(false);
       },
     });
@@ -131,6 +143,7 @@ export class AdottanteComponent implements OnInit {
 
   selezionaProfilo(adottante: AdottanteDto) {
     this.profilo.set(adottante);
+    this.paginaAnimali.set(1); // Reset della paginazione animali
     this.provenienzaDaLista.set(true);
     this.isListaMode.set(false);
   }
@@ -166,16 +179,16 @@ export class AdottanteComponent implements OnInit {
     }
   }
 
-  getEta(dataNascita: any): number {
-    if (!dataNascita) return 0;
-    let dataConvertita = dataNascita;
-    if (typeof dataNascita === 'string' && dataNascita.includes('/')) {
-      const parti = dataNascita.split('/');
-      dataConvertita = `${parti[2]}-${parti[1]}-${parti[0]}`;
-    }
-    const nascita = new Date(dataConvertita);
+  getEta(dataDiNascita: any): number {
+    // Il tuo DTO Java usa 'dataDiNascita'
+    if (!dataDiNascita) return 0;
+
+    // Gestione se la data arriva come stringa o array dal backend (LocalDateTime)
+    const nascita = new Date(dataDiNascita);
     const oggi = new Date();
+
     if (isNaN(nascita.getTime())) return 0;
+
     let eta = oggi.getFullYear() - nascita.getFullYear();
     const m = oggi.getMonth() - nascita.getMonth();
     if (m < 0 || (m === 0 && oggi.getDate() < nascita.getDate())) {
@@ -184,13 +197,17 @@ export class AdottanteComponent implements OnInit {
     return eta;
   }
 
-  getTestoEta(dataNascita: any): string {
-    const anni = this.getEta(dataNascita);
+  getTestoEta(dataDiNascita: any): string {
+    const anni = this.getEta(dataDiNascita);
     return anni <= 0 ? 'Non specificata' : `${anni} anni`;
   }
 
   getpagineArray() {
     return Array.from({ length: this.totalePagine() }, (_, i) => i + 1);
+  }
+
+  getpagineAnimaliArray() {
+    return Array.from({ length: this.totalePagineAnimali() }, (_, i) => i + 1);
   }
 
   scaricaContratto(animale: any, utente: any) {
@@ -212,7 +229,36 @@ export class AdottanteComponent implements OnInit {
             window.URL.revokeObjectURL(url);
           }
         },
-        error: (err) => alert('Errore durante la generazione del contratto.'),
+        error: () => alert('Errore durante la generazione del contratto.'),
       });
+  }
+
+  cancellaAccount() {
+    const p = this.profilo();
+    if (!p || !p.id) return;
+
+    if (confirm("Sei sicuro di voler cancellare il tuo account? L'azione è irreversibile.")) {
+      this.adottanteService.delete(p.id).subscribe({
+        next: () => {
+          alert('Account eliminato.');
+          this.authService.logout(); // Reindirizza alla login
+        },
+        error: () => alert('Errore durante la cancellazione.'),
+      });
+    }
+  }
+
+  salvaProfilo() {
+    const p = this.profilo();
+    if (!p || !p.id) return;
+
+    this.adottanteService.patch(p.id, p).subscribe({
+      next: (datoAggiornato) => {
+        this.profilo.set(datoAggiornato);
+        this.isEditMode.set(false);
+        alert('Profilo aggiornato con successo!');
+      },
+      error: () => alert("Errore durante l'aggiornamento."),
+    });
   }
 }
