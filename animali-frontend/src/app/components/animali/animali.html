@@ -1,5 +1,6 @@
 <div class="container-fluid p-0">
   <div class="d-flex">
+    
     <aside class="sidebar-dark">
       <div class="sticky-content p-3">
         <div class="pt-4 mb-4 px-2">
@@ -8,47 +9,26 @@
 
         <div class="nav-section mb-4">
           <div class="d-flex justify-content-between align-items-center px-2 mb-2">
-            <h6 class="nav-header-light m-0">❤️ I MIEI PREFERITI</h6>
+            <h6 class="nav-header-light m-0">⭐ SALVATI</h6>
             <div class="pagination-arrows" *ngIf="animaleService.listaPreferiti().length > 4">
-              <button
-                class="btn-arrow"
-                (click)="prevPreferiti()"
-                [disabled]="pagePreferiti() === 0"
-              >
-                ❮
-              </button>
-              <button
-                class="btn-arrow"
-                (click)="nextPreferiti()"
-                [disabled]="(pagePreferiti() + 1) * 4 >= animaleService.listaPreferiti().length"
-              >
-                ❯
-              </button>
+              <button class="btn-arrow" (click)="prevPreferiti()" [disabled]="pagePreferiti() === 0">❮</button>
+              <button class="btn-arrow" (click)="nextPreferiti()" [disabled]="(pagePreferiti() + 1) * 4 >= animaleService.listaPreferiti().length">❯</button>
             </div>
           </div>
 
           <div class="nav-list">
             @if (animaleService.listaPreferiti().length === 0) {
-              <p class="text-secondary px-3 small">Nessun salvataggio</p>
+              <p class="text-secondary px-3 small">Nessun preferito</p>
             } @else {
-              @for (
-                p of animaleService
-                  .listaPreferiti()
-                  .slice(pagePreferiti() * 4, pagePreferiti() * 4 + 4);
-                track p.id
-              ) {
+              @for (p of animaleService.listaPreferiti().slice(pagePreferiti() * 4, pagePreferiti() * 4 + 4); track p.id) {
                 <div class="nav-item-dark animate-fade">
                   <img [src]="p.fotoUrl" class="nav-thumb-small" />
                   <span class="nav-text-light">{{ p.nome }}</span>
-                  <button class="btn-remove-light" (click)="animaleService.togglePreferito(p)">
-                    ×
-                  </button>
+                  <button class="btn-remove-light" (click)="animaleService.togglePreferito(p)">×</button>
                 </div>
               }
               <div class="px-2 mt-1">
-                <small class="text-muted" style="font-size: 0.6rem"
-                  >Pagina {{ pagePreferiti() + 1 }}</small
-                >
+                <small class="text-muted" style="font-size: 0.6rem">Pagina {{ pagePreferiti() + 1 }}</small>
               </div>
             }
           </div>
@@ -58,9 +38,15 @@
 
         <div class="nav-section mb-4 px-2">
           <h6 class="nav-header-light px-0">📍 POSIZIONE CENTRI</h6>
-          <div class="map-container-mini border-dark shadow">
+          <div class="map-container-mini border-dark shadow mb-2">
             <app-mappa (centroSelezionato)="filtraPerCentro($event)"></app-mappa>
           </div>
+          
+          @if (selectedCentroId()) {
+            <button class="btn-reset-map animate-fade" (click)="resetFiltroCentro()">
+              ❌ Rimuovi filtro mappa
+            </button>
+          }
         </div>
 
         <hr class="border-secondary opacity-25" />
@@ -70,11 +56,9 @@
 
           <div class="mb-3">
             <label class="form-label small text-secondary fw-bold mb-1">SPECIE</label>
-            <select
-              class="form-select form-select-sm border-0 bg-dark text-white shadow-none"
-              [ngModel]="selectedSpecie()"
-              (change)="selectedSpecie.set($any($event.target).value); onFilterChange()"
-            >
+            <select class="form-select form-select-sm border-0 bg-dark text-white shadow-none"
+                    [ngModel]="selectedSpecie()"
+                    (change)="selectedSpecie.set($any($event.target).value); onFilterChange()">
               <option value="">Tutte le specie</option>
               <option value="Cane">Cani</option>
               <option value="Gatto">Gatti</option>
@@ -84,13 +68,10 @@
 
           <div class="mb-3">
             <label class="form-label small text-secondary fw-bold mb-1">RAZZA</label>
-            <input
-              type="text"
-              class="form-control form-control-sm border-0 bg-dark text-white shadow-none"
-              placeholder="Es: Pastore..."
-              [ngModel]="filterRazza()"
-              (input)="filterRazza.set($any($event.target).value); onFilterChange()"
-            />
+            <input type="text" class="form-control form-control-sm border-0 bg-dark text-white shadow-none"
+                   placeholder="Es: Pastore..."
+                   [ngModel]="filterRazza()"
+                   (input)="filterRazza.set($any($event.target).value); onFilterChange()" />
           </div>
 
           <button class="btn btn-light w-100 btn-sm fw-bold py-2 shadow" (click)="resetFiltri()">
@@ -116,17 +97,14 @@
         <div class="row g-4 px-3">
           @for (animale of animali(); track animale.id) {
             <div class="col-12 col-md-6 col-lg-4 col-xxl-3">
-              <div
-                class="animal-card-white shadow position-relative"
-                (click)="apriDettagli(animale)"
-                style="cursor: pointer"
-              >
-                <button
-                  class="btn-heart"
-                  (click)="$event.stopPropagation(); animaleService.togglePreferito(animale)"
-                  [class.active]="isPreferito(animale)"
-                >
-                  <i [class]="isPreferito(animale) ? 'bi bi-heart-fill' : 'bi bi-heart'"></i>
+              <div class="animal-card-white shadow position-relative" 
+                   (click)="apriDettagli(animale)" 
+                   style="cursor: pointer">
+                
+                <button class="btn-favorite" 
+                        (click)="$event.stopPropagation(); animaleService.togglePreferito(animale)" 
+                        [class.active]="isPreferito(animale)">
+                  <i [class]="isPreferito(animale) ? 'bi bi-star-fill' : 'bi bi-star'"></i>
                 </button>
 
                 <div class="image-box">
@@ -156,49 +134,47 @@
 
 @if (animaleSelezionato()) {
   @let selected = animaleSelezionato()!;
-  <div class="modal-backdrop fade show" (click)="chiudiDettagli()" style="z-index: 1050"></div>
-  <div class="modal fade show d-block" (click)="chiudiDettagli()" style="z-index: 1060">
+  <div class="modal-backdrop fade show" (click)="chiudiDettagli()" style="z-index: 2000"></div>
+  <div class="modal fade show d-block" (click)="chiudiDettagli()" style="z-index: 2001">
     <div class="modal-dialog modal-dialog-centered modal-lg" (click)="$event.stopPropagation()">
       <div class="modal-content border-0 shadow-lg overflow-hidden" style="border-radius: 20px">
         <div class="row g-0">
-          <div class="col-md-5 bg-dark d-flex align-items-center">
+          
+          <div class="col-md-5 bg-dark d-flex align-items-center justify-content-center" style="min-height: 400px">
             @if (selected.videoUrl) {
-              <video
-                controls
-                autoplay
-                muted
-                loop
-                class="w-100 h-100 object-fit-cover"
-                style="min-height: 400px"
-              >
-                <source [src]="selected.videoUrl" type="video/mp4" />
+              <video 
+                [src]="getSafeVideoUrl(selected.videoUrl)"
+                controls 
+                autoplay 
+                muted 
+                loop 
+                class="w-100 h-100 object-fit-cover">
+                Il tuo browser non supporta il video.
               </video>
             } @else {
-              <img
-                [src]="selected.fotoUrl"
-                class="img-fluid h-100 object-fit-cover"
-                style="min-height: 400px"
-              />
+              <img [src]="selected.fotoUrl" class="img-fluid h-100 object-fit-cover" />
             }
           </div>
+
           <div class="col-md-7 p-4 bg-white d-flex flex-column">
-            <div class="d-flex justify-content-between">
+            <div class="d-flex justify-content-between mb-2">
               <h2 class="fw-bold mb-0 text-dark">{{ selected.nome }}</h2>
               <button class="btn-close shadow-none" (click)="chiudiDettagli()"></button>
             </div>
             <p class="text-orange fw-bold mb-4">{{ selected.razza }}</p>
+            
             <div class="mb-4">
               <h6 class="text-secondary small fw-bold text-uppercase">La sua storia</h6>
               <p class="text-muted small lh-lg">
-                {{ selected.descrizione || 'Nessuna descrizione.' }}
+                {{ selected.descrizione || 'Nessuna descrizione disponibile.' }}
               </p>
             </div>
-            <button
-              class="btn btn-dark w-100 rounded-pill py-2 mt-auto fw-bold"
-              [disabled]="isSendingPratica() || selected.adottato"
-              (click)="avviaPratica(selected.id)"
-            >
-              {{ selected.adottato ? 'Già Adottato' : 'Avvia Pratica Adozione' }}
+
+            <button 
+              class="btn btn-dark w-100 rounded-pill py-2 mt-auto fw-bold" 
+              [disabled]="isSendingPratica()"
+              (click)="avviaPratica(selected.id)">
+              {{ isSendingPratica() ? 'Invio in corso...' : 'Avvia Pratica Adozione' }}
             </button>
           </div>
         </div>

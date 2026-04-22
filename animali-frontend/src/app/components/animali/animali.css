@@ -1,4 +1,7 @@
-/* SIDEBAR NERA */
+/* =========================================
+   STRUTTURA LAYOUT (SIDEBAR + MAIN)
+   ========================================= */
+
 .sidebar-dark {
   width: 280px;
   background-color: #0f0f0f;
@@ -6,33 +9,24 @@
   position: fixed;
   left: 0;
   top: 0;
-  z-index: 100; /* Sidebar fissa */
+  z-index: 1000; /* Sidebar sempre sopra */
   border-right: 1px solid #222;
+  overflow-y: auto; /* Permette lo scroll se hai troppi preferiti */
 }
 
-.brand-title-light {
-  color: #ff9f43;
-  font-weight: 800;
-  font-size: 1.5rem;
-}
-.nav-header-light {
-  font-size: 0.65rem;
-  font-weight: 700;
-  color: #aaaaaa;
-  text-transform: uppercase;
+.main-content-orange {
+  margin-left: 280px; /* Deve corrispondere alla larghezza sidebar */
+  background-color: #db7134;
+  min-height: 100vh;
+  padding: 20px;
+  width: calc(100% - 280px);
+  position: relative;
+  z-index: 1; /* Sotto la sidebar per non coprirla */
 }
 
-/* PAGINAZIONE PREFERITI */
-.btn-arrow {
-  background: none;
-  border: none;
-  color: #ff9f43;
-  font-size: 0.8rem;
-  cursor: pointer;
-}
-.btn-arrow:disabled {
-  color: #444;
-}
+/* =========================================
+   SEZIONE PREFERITI (SIDEBAR)
+   ========================================= */
 
 .nav-item-dark {
   display: flex;
@@ -41,7 +35,15 @@
   border-radius: 8px;
   color: white;
   margin-bottom: 4px;
+  position: relative; /* <--- Vincola la X dentro la riga */
+  background: rgba(255, 255, 255, 0.03);
+  transition: background 0.2s;
 }
+
+.nav-item-dark:hover {
+  background: rgba(255, 255, 255, 0.08);
+}
+
 .nav-thumb-small {
   width: 32px;
   height: 32px;
@@ -49,49 +51,82 @@
   object-fit: cover;
   margin-right: 12px;
 }
-.nav-text-light {
-  font-size: 0.85rem;
-  flex-grow: 1;
-  white-space: nowrap;
+
+.btn-remove-light {
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  color: #ff4757; /* Rosso per eliminare */
+  font-size: 1.2rem;
+  cursor: pointer;
+  padding: 0;
+  line-height: 1;
+}
+
+/* =========================================
+   MAPPA E RESET FILTRO
+   ========================================= */
+
+.map-container-mini {
+  height: 150px;
+  border-radius: 12px;
   overflow: hidden;
-  text-overflow: ellipsis;
+  border: 1px solid #333;
 }
 
-/* AREA ARANCIONE (MAIN) */
-.main-content-orange {
-  margin-left: 280px; /* Spazio per la sidebar */
-  background-color: #db7134;
-  min-height: 100vh;
-  padding: 20px;
-  width: calc(100% - 280px);
-  position: relative;
-  z-index: 1; /* Sotto la sidebar ma sopra eventuali sfondi */
+.btn-reset-map {
+  width: 100%;
+  background-color: rgba(255, 159, 67, 0.1);
+  color: #ff9f43;
+  border: 1px solid #ff9f43;
+  padding: 6px;
+  border-radius: 8px;
+  font-size: 0.75rem;
+  font-weight: bold;
+  cursor: pointer;
+  margin-top: 8px;
+  transition: all 0.3s ease;
 }
 
-/* CARDS */
+.btn-reset-map:hover {
+  background-color: #ff9f43;
+  color: #0f0f0f;
+}
+
+/* =========================================
+   CARDS ANIMALI (GALLERY)
+   ========================================= */
+
 .animal-card-white {
   background: white;
   border-radius: 16px;
   overflow: hidden;
   transition: transform 0.3s;
   position: relative;
-  z-index: 2; /* Importante per ricevere il click */
+  z-index: 10; /* <--- Assicura che la card sia cliccabile */
+  cursor: pointer;
 }
 
 .animal-card-white:hover {
   transform: translateY(-5px);
+  box-shadow: 0 10px 20px rgba(0,0,0,0.2);
 }
 
 .image-box {
   height: 180px;
   position: relative;
 }
+
 .card-img {
   width: 100%;
   height: 100%;
   object-fit: cover;
 }
 
+/* Badge Specie (es: Gatto) */
 .specie-badge-dark {
   position: absolute;
   top: 10px;
@@ -104,41 +139,64 @@
   font-weight: bold;
 }
 
-.btn-heart {
+/* PULSANTE STELLA (PREFERITI SULLA CARD) */
+.btn-favorite {
   position: absolute;
   top: 10px;
   left: 10px;
-  z-index: 10; /* Sopra la card */
+  z-index: 20; /* Sopra l'immagine */
   background: white;
   border: none;
   border-radius: 50%;
   width: 32px;
   height: 32px;
-  color: #ddd;
+  color: #ccc; /* Stella grigia se non selezionata */
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
   display: flex;
   align-items: center;
   justify-content: center;
-}
-.btn-heart.active {
-  color: #ff4757;
+  transition: all 0.2s ease;
 }
 
-/* UTILITY */
+.btn-favorite.active {
+  color: #f1c40f; /* Giallo Oro per la stella attiva */
+  transform: scale(1.1);
+}
+
+.btn-favorite:hover {
+  transform: scale(1.15);
+}
+
+/* =========================================
+   UTILITY E ANIMAZIONI
+   ========================================= */
+
+.animate-fade {
+  animation: fadeIn 0.3s ease-in;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(-5px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
 .text-orange {
   color: #ff9f43;
 }
-.object-fit-cover {
-  object-fit: cover;
-}
-.map-container-mini {
-  height: 150px;
-  border-radius: 12px;
-  overflow: hidden;
-  border: 1px solid #333;
+
+.text-shadow {
+  text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
 }
 
-/* FIX MODALE */
-.modal-backdrop {
-  background-color: rgba(0, 0, 0, 0.7);
+.brand-title-light {
+  color: #ff9f43;
+  font-weight: 800;
+  font-size: 1.5rem;
+}
+
+.nav-header-light {
+  font-size: 0.65rem;
+  font-weight: 700;
+  color: #aaaaaa;
+  text-transform: uppercase;
 }
