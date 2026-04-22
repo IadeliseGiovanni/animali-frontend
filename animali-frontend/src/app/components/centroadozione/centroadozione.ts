@@ -1,6 +1,8 @@
 import { Component, inject, signal, OnInit, AfterViewInit, PLATFORM_ID } from '@angular/core';
+
 import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+
 import { CentroAdozioneService } from '../../services/centroadozione';
 import { CentroAdozioneDto } from '../../dto/centroadozioni';
 
@@ -19,23 +21,25 @@ export class CentroAdozioneComponent implements OnInit, AfterViewInit {
   isLoading = signal(false);
   cercaCitta = signal('');
 
-  // Signal per il form di creazione
   nuovoCentro = signal<Partial<CentroAdozioneDto>>({
     nomeCentro: '',
-    indirizzo: '',
     citta: '',
+    indirizzo: '',
     capacitaMassima: 0,
+    latitudine: 40.8518,
+    longitudine: 14.2681,
     isNoProfit: false,
   });
 
   private map: any;
-  private markers: any[] = []; // Per pulire/aggiornare i marker
+  private markers: any[] = [];
+  private mapReady = false;
 
-  ngOnInit() {
+  ngOnInit(): void {
     this.caricaTutti();
   }
 
-  ngAfterViewInit() {
+  ngAfterViewInit(): void {
     if (isPlatformBrowser(this.platformId)) {
       this.initMap();
     }
@@ -43,35 +47,54 @@ export class CentroAdozioneComponent implements OnInit, AfterViewInit {
 
   private async initMap() {
     const L = await import('leaflet');
-    this.map = L.map('map').setView([41.9028, 12.4964], 5);
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(this.map);
-    this.aggiornaMarkerSuMappa();
+
+    this.map = L.map('map').setView([41.9028, 12.4964], 6);
+
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution: '© OpenStreetMap',
+    }).addTo(this.map);
+
+    this.mapReady = true;
+    this.aggiornaMarker();
   }
 
-  private async aggiornaMarkerSuMappa() {
-    if (!this.map || !isPlatformBrowser(this.platformId)) return;
+  private async aggiornaMarker() {
+    if (!this.map || !this.mapReady) return;
+
     const L = await import('leaflet');
 
-    // Rimuovi marker vecchi
     this.markers.forEach((m) => this.map.removeLayer(m));
     this.markers = [];
 
-    this.centri().forEach((centro) => {
-      if (centro.latitudine && centro.longitudine) {
-        const marker = L.marker([centro.latitudine, centro.longitudine])
-          .addTo(this.map)
-          .bindPopup(`<b>${centro.nomeCentro}</b><br>${centro.citta}`);
+    const bounds: any[] = [];
+
+    this.centri().forEach((c) => {
+      if (c.latitudine != null && c.longitudine != null) {
+        const marker = L.marker([c.latitudine, c.longitudine]).addTo(this.map).bindPopup(`
+            <b>${c.nomeCentro}</b><br>
+            ${c.citta}
+          `);
+
         this.markers.push(marker);
+
+        bounds.push([c.latitudine, c.longitudine]);
       }
     });
+
+    if (bounds.length > 0) {
+      this.map.fitBounds(bounds, {
+        padding: [30, 30],
+      });
+    }
   }
 
   caricaTutti() {
     this.isLoading.set(true);
+
     this.centroService.getAll().subscribe({
       next: (data) => {
         this.centri.set(data);
-        this.aggiornaMarkerSuMappa();
+        this.aggiornaMarker();
         this.isLoading.set(false);
       },
       error: () => this.isLoading.set(false),
@@ -80,33 +103,36 @@ export class CentroAdozioneComponent implements OnInit, AfterViewInit {
 
   aggiungiCentro() {
     this.centroService.creaCentro(this.nuovoCentro() as CentroAdozioneDto).subscribe({
-      next: (messaggio) => {
-        alert(messaggio); // Mostra il log dell'admin
-        this.caricaTutti(); // Ricarica lista e mappa
+      next: () => {
         this.resetForm();
+        this.caricaTutti();
       },
-      error: (err) => alert('Errore durante la creazione: ' + err.status),
     });
   }
 
-  private resetForm() {
+  resetForm() {
     this.nuovoCentro.set({
       nomeCentro: '',
-      indirizzo: '',
       citta: '',
+      indirizzo: '',
       capacitaMassima: 0,
+      latitudine: 0,
+      longitudine: 0,
       isNoProfit: false,
     });
   }
 
   filtraPerCitta() {
-    if (this.cercaCitta().trim() === '') {
+    const q = this.cercaCitta().trim();
+
+    if (!q) {
       this.caricaTutti();
       return;
     }
-    this.centroService.findByCitta(this.cercaCitta()).subscribe((data) => {
+
+    this.centroService.findByCitta(q).subscribe((data) => {
       this.centri.set(data);
-      this.aggiornaMarkerSuMappa();
+      this.aggiornaMarker();
     });
   }
 }
