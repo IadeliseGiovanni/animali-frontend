@@ -1,23 +1,22 @@
 import { inject, Injectable, signal, effect, PLATFORM_ID } from '@angular/core';
-import { isPlatformBrowser } from '@angular/common'; // Importante per il controllo browser
-import { HttpClient } from '@angular/common/http';
+import { isPlatformBrowser } from '@angular/common'; 
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { AnimaleDto, AdozioneRequestDto } from '../dto/animale';
-import { HttpParams } from '@angular/common/http';
 
 @Injectable({
   providedIn: 'root',
 })
 export class AnimaleService {
   private http = inject(HttpClient);
-  private platformId = inject(PLATFORM_ID); // Identifica dove sta girando il codice
+  private platformId = inject(PLATFORM_ID); 
   private readonly apiUrl = 'http://localhost:8080/api/animali';
 
-  // Inizializziamo con un array vuoto, caricheremo i dati dopo
+  // Signal per la gestione dei preferiti
   listaPreferiti = signal<AnimaleDto[]>([]);
 
   constructor() {
-    // 1. Carichiamo i dati solo se siamo nel Browser
+    // 1. Carichiamo i dati dal localStorage all'avvio (solo se siamo nel Browser)
     if (isPlatformBrowser(this.platformId)) {
       const datiSalvati = localStorage.getItem('preferiti_animali');
       if (datiSalvati) {
@@ -25,7 +24,7 @@ export class AnimaleService {
       }
     }
 
-    // 2. Salviamo i dati solo se siamo nel Browser
+    // 2. Ogni volta che la lista cambia, salviamo nel localStorage
     effect(() => {
       if (isPlatformBrowser(this.platformId)) {
         localStorage.setItem('preferiti_animali', JSON.stringify(this.listaPreferiti()));
@@ -33,6 +32,7 @@ export class AnimaleService {
     });
   }
 
+  // Metodo per aggiungere/rimuovere dai preferiti
   togglePreferito(animale: AnimaleDto) {
     this.listaPreferiti.update((lista) => {
       const giaPresente = lista.find((a) => a.id === animale.id);
@@ -44,7 +44,8 @@ export class AnimaleService {
     });
   }
 
-  // --- RESTO DEI METODI (getAll, getFiltered, etc.) ---
+  // --- METODI API BACKEND ---
+
   getAll(): Observable<AnimaleDto[]> {
     return this.http.get<AnimaleDto[]>(`${this.apiUrl}/all`);
   }
@@ -57,17 +58,7 @@ export class AnimaleService {
     return this.http.get<AnimaleDto>(`${this.apiUrl}/${id}`);
   }
 
-  generaContratto(dto: AdozioneRequestDto): Observable<Blob> {
-    return this.http.post(`${this.apiUrl}/genera-contratto`, dto, {
-      responseType: 'blob',
-    });
-  }
-
-  getFiltered(
-    specie: string,
-    genere: string,
-    centroId: number | null = null,
-  ): Observable<AnimaleDto[]> {
+  getFiltered(specie: string, genere: string, centroId: number | null = null): Observable<AnimaleDto[]> {
     let params = new HttpParams();
     if (specie) params = params.set('specie', specie);
     if (genere) params = params.set('genere', genere);
@@ -85,5 +76,11 @@ export class AnimaleService {
 
   delete(id: number): Observable<void> {
     return this.http.delete<void>(`${this.apiUrl}/${id}`);
+  }
+
+  generaContratto(dto: AdozioneRequestDto): Observable<Blob> {
+    return this.http.post(`${this.apiUrl}/genera-contratto`, dto, {
+      responseType: 'blob',
+    });
   }
 }
