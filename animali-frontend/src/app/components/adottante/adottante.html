@@ -18,9 +18,9 @@
           <div class="row g-3">
             <div class="col-md-4">
               <div class="input-group shadow-sm rounded-pill overflow-hidden bg-white border">
-                <span class="input-group-text bg-white border-0 ps-3"
-                  ><i class="bi bi-search"></i
-                ></span>
+                <span class="input-group-text bg-white border-0 ps-3">
+                  <i class="bi bi-search"></i>
+                </span>
                 <input
                   type="text"
                   class="form-control border-0 py-2"
@@ -69,7 +69,7 @@
                   <td class="ps-4">
                     <div class="fw-bold text-dark">{{ a.cognome }} {{ a.nome }}</div>
                     <div class="small text-muted">
-                      {{ getEta(a.dataNascita) }} anni • {{ a.indirizzo || 'N.D.' }}
+                      {{ getEta(a.dataDiNascita) }} anni • {{ a.indirizzo || 'N.D.' }}
                     </div>
                   </td>
                   <td>
@@ -83,21 +83,8 @@
                       [style.color]="a.isSchedato ? '#0f5132' : '#664d03'"
                       (change)="cambiaIdoneita(a, $event)"
                     >
-                      <option
-                        [value]="true"
-                        [selected]="a.isSchedato"
-                        style="background-color: #d1e7dd; color: #0f5132"
-                      >
-                        Idoneo
-                      </option>
-
-                      <option
-                        [value]="false"
-                        [selected]="!a.isSchedato"
-                        style="background-color: #fff3cd; color: #664d03"
-                      >
-                        Verifica
-                      </option>
+                      <option [value]="true" [selected]="a.isSchedato">Idoneo</option>
+                      <option [value]="false" [selected]="!a.isSchedato">Verifica</option>
                     </select>
                   </td>
                   <td class="text-center">
@@ -114,9 +101,6 @@
                       class="btn btn-link p-0 border-0 text-orange"
                       (click)="selezionaProfilo(a)"
                       title="Visualizza Profilo"
-                      style="transition: all 0.2s ease"
-                      onmouseover="this.style.transform = 'scale(1.2) translateX(3px)'"
-                      onmouseout="this.style.transform = 'scale(1) translateX(0)'"
                     >
                       <i class="bi bi-arrow-right-circle-fill fs-4"></i>
                     </button>
@@ -160,14 +144,16 @@
     } @else {
       @if (profilo(); as p) {
         <div class="mb-3">
-          <button
-            *ngIf="provenienzaDaLista()"
-            (click)="tornaAllaLista()"
-            class="btn btn-sm btn-outline-dark rounded-pill px-3"
-          >
-            <i class="bi bi-arrow-left me-1"></i> Torna alla lista
-          </button>
+          @if (provenienzaDaLista()) {
+            <button
+              (click)="tornaAllaLista()"
+              class="btn btn-sm btn-outline-dark rounded-pill px-3"
+            >
+              <i class="bi bi-arrow-left me-1"></i> Torna alla lista
+            </button>
+          }
         </div>
+
         <div class="row">
           <div class="col-lg-4 mb-4">
             <div class="card border-0 shadow-sm rounded-4 overflow-hidden">
@@ -187,35 +173,113 @@
                     font-weight: bold;
                   "
                 >
-                  {{ (p.nome.charAt(0) || '?').toUpperCase() }}
+                  {{ (p.nome?.charAt(0) || '?').toUpperCase() }}
                 </div>
                 <h4 class="text-white mb-0">{{ p.nome }} {{ p.cognome }}</h4>
+                <p class="text-white-50 small mb-0">{{ getEta(p.dataDiNascita) }} anni</p>
               </div>
+
               <div class="card-body p-4">
-                <p class="mb-2 d-flex align-items-center">
-                  <i class="bi bi-person-heart me-2 text-orange"></i> <strong>Età:</strong>
-                  <span class="ms-1 text-muted">{{ getTestoEta(p.dataNascita) }}</span>
-                </p>
-                <p class="mb-2 d-flex align-items-center">
-                  <i class="bi bi-geo-alt me-2 text-orange"></i>
-                  <span class="text-muted">{{ p.indirizzo || 'N.D.' }}</span>
-                </p>
+                <div class="mb-3">
+                  <label class="small fw-bold text-muted text-uppercase mb-1"
+                    >Email Accreditata</label
+                  >
+                  <div class="input-group input-group-sm">
+                    <span class="input-group-text bg-light border-light-subtle"
+                      ><i class="bi bi-envelope-at"></i
+                    ></span>
+                    <input
+                      type="email"
+                      class="form-control form-control-sm rounded-end-3 border-light-subtle bg-light"
+                      [(ngModel)]="p.email"
+                      placeholder="email@esempio.it"
+                    />
+                  </div>
+                </div>
+
+                <div class="mb-3">
+                  <label class="small fw-bold text-muted text-uppercase mb-1">Codice Fiscale</label>
+                  <div class="input-group input-group-sm">
+                    <span class="input-group-text bg-light border-light-subtle"
+                      ><i class="bi bi-card-text"></i
+                    ></span>
+                    <input
+                      type="text"
+                      class="form-control form-control-sm rounded-end-3 border-light-subtle bg-light"
+                      [(ngModel)]="p.codiceFiscale"
+                      placeholder="Inserisci CF"
+                    />
+                  </div>
+                </div>
+
+                <div class="row">
+                  <div class="col-12 mb-3">
+                    <label class="small fw-bold text-muted text-uppercase mb-1">Telefono</label>
+                    <div class="input-group input-group-sm">
+                      <span class="input-group-text bg-light border-light-subtle"
+                        ><i class="bi bi-telephone"></i
+                      ></span>
+                      <input
+                        type="text"
+                        class="form-control form-control-sm rounded-end-3 border-light-subtle bg-light"
+                        [(ngModel)]="p.telefono"
+                        placeholder="Inserisci numero"
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                <div class="mb-3">
+                  <label class="small fw-bold text-muted text-uppercase mb-1"
+                    >Indirizzo di Residenza</label
+                  >
+                  <div class="input-group input-group-sm">
+                    <span class="input-group-text bg-light border-light-subtle"
+                      ><i class="bi bi-geo-alt"></i
+                    ></span>
+                    <textarea
+                      class="form-control form-control-sm rounded-end-3 border-light-subtle bg-light"
+                      [(ngModel)]="p.indirizzo"
+                      rows="2"
+                      placeholder="Via, Città, CAP"
+                    ></textarea>
+                  </div>
+                </div>
+
+                <div class="d-grid mt-4">
+                  <button class="btn btn-orange rounded-pill shadow-sm" (click)="salvaProfilo()">
+                    <i class="bi bi-check-circle me-1"></i> Salva Modifiche
+                  </button>
+                </div>
+
+                <hr class="my-4 opacity-25" />
+
+                <div class="text-center">
+                  <button
+                    class="btn btn-link text-danger btn-sm text-decoration-none"
+                    (click)="cancellaAccount()"
+                  >
+                    <i class="bi bi-trash3 me-1"></i> Elimina profilo definitivamente
+                  </button>
+                </div>
               </div>
             </div>
           </div>
+
           <div class="col-lg-8">
             <div class="card border-0 shadow-sm rounded-4 h-100">
               <div
                 class="card-header bg-white p-4 border-0 d-flex justify-content-between align-items-center"
               >
                 <h4 class="fw-bold mb-0">🐶 Animali Adottati</h4>
-                <span class="badge bg-light text-dark border rounded-pill"
-                  >{{ p.animaliAdottati.length }} animali</span
-                >
+                <span class="badge bg-light text-dark border rounded-pill">
+                  {{ p.animaliAdottati.length }} animali
+                </span>
               </div>
+
               <div class="card-body p-4 pt-0">
                 <div class="row g-3">
-                  @for (animale of p.animaliAdottati; track animale.id) {
+                  @for (animale of animaliPaginati(); track animale.id) {
                     <div class="col-md-6">
                       <div
                         class="card h-100 border-0 shadow-sm rounded-4 overflow-hidden bg-light border"
@@ -235,10 +299,9 @@
                             </div>
                             <button
                               (click)="scaricaContratto(animale, p)"
-                              class="btn btn-outline-danger btn-sm rounded-pill px-3 d-flex align-items-center gap-2"
+                              class="btn btn-outline-danger btn-sm rounded-pill px-3"
                             >
-                              <i class="bi bi-file-earmark-pdf-fill"></i>
-                              <span class="fw-bold">PDF</span>
+                              <i class="bi bi-file-earmark-pdf-fill"></i> PDF
                             </button>
                           </div>
                         </div>
@@ -248,6 +311,41 @@
                     <div class="text-center py-5 text-muted w-100">Nessun animale associato.</div>
                   }
                 </div>
+
+                @if (totalePagineAnimali() > 1) {
+                  <div class="mt-4 d-flex justify-content-center">
+                    <nav>
+                      <ul class="pagination pagination-sm mb-0">
+                        <li class="page-item" [class.disabled]="paginaAnimali() === 1">
+                          <button
+                            class="page-link rounded-start-pill"
+                            (click)="paginaAnimali.update((n) => n - 1)"
+                          >
+                            <i class="bi bi-chevron-left"></i>
+                          </button>
+                        </li>
+                        @for (page of getpagineAnimaliArray(); track page) {
+                          <li class="page-item" [class.active]="paginaAnimali() === page">
+                            <button class="page-link" (click)="paginaAnimali.set(page)">
+                              {{ page }}
+                            </button>
+                          </li>
+                        }
+                        <li
+                          class="page-item"
+                          [class.disabled]="paginaAnimali() === totalePagineAnimali()"
+                        >
+                          <button
+                            class="page-link rounded-end-pill"
+                            (click)="paginaAnimali.update((n) => n + 1)"
+                          >
+                            <i class="bi bi-chevron-right"></i>
+                          </button>
+                        </li>
+                      </ul>
+                    </nav>
+                  </div>
+                }
               </div>
             </div>
           </div>
