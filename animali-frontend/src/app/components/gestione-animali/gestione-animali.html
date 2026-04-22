@@ -9,6 +9,8 @@
         type="text"
         class="form-control border-0 shadow-none p-0"
         placeholder="Cerca (Nome, Microchip...)"
+        [ngModel]="filtroTesto()"
+        (input)="filtroTesto.set($any($event.target).value)"
       />
     </div>
   </div>
@@ -27,7 +29,6 @@
           <input
             type="text"
             class="form-control bg-light border-0"
-            placeholder="Rex"
             [(ngModel)]="nuovoAnimale().nome"
           />
         </div>
@@ -39,25 +40,32 @@
           </select>
         </div>
         <div class="col-md-3">
-          <label class="form-label small fw-bold text-muted">RAZZA</label>
-          <input
-            type="text"
-            class="form-control bg-light border-0"
-            placeholder="Es: Labrador"
-            [(ngModel)]="nuovoAnimale().razza"
-          />
+          <label class="form-label small fw-bold text-muted">CENTRO DI ACCOGLIENZA *</label>
+          <select class="form-select bg-light border-0" [(ngModel)]="nuovoAnimale().centroAdozione">
+            <option [ngValue]="undefined" disabled selected>Seleziona centro...</option>
+            @for (c of centri(); track c.id) {
+              <option [ngValue]="c">{{ c.nomeCentro }} ({{ c.citta }})</option>
+            }
+          </select>
         </div>
         <div class="col-md-3">
           <label class="form-label small fw-bold text-muted">MICROCHIP *</label>
           <input
             type="text"
             class="form-control bg-light border-0"
-            placeholder="Codice..."
             [(ngModel)]="nuovoAnimale().microchip"
           />
         </div>
 
         <div class="col-md-2">
+          <label class="form-label small fw-bold text-muted">RAZZA</label>
+          <input
+            type="text"
+            class="form-control bg-light border-0"
+            [(ngModel)]="nuovoAnimale().razza"
+          />
+        </div>
+        <div class="col-md-1">
           <label class="form-label small fw-bold text-muted">ETÀ</label>
           <input
             type="number"
@@ -72,31 +80,19 @@
             <option value="Femmina">Femmina</option>
           </select>
         </div>
-        <div class="col-md-4">
+        <div class="col-md-3">
           <label class="form-label small fw-bold text-muted">URL FOTO</label>
           <input
             type="text"
             class="form-control bg-light border-0"
-            placeholder="http://..."
             [(ngModel)]="nuovoAnimale().fotoUrl"
           />
         </div>
         <div class="col-md-4">
-          <label class="form-label small fw-bold text-muted">URL VIDEO</label>
-          <input
-            type="text"
-            class="form-control bg-light border-0"
-            placeholder="http://..."
-            [(ngModel)]="nuovoAnimale().videoUrl"
-          />
-        </div>
-
-        <div class="col-md-9">
-          <label class="form-label small fw-bold text-muted">DESCRIZIONE / NOTE</label>
+          <label class="form-label small fw-bold text-muted">DESCRIZIONE</label>
           <textarea
             class="form-control bg-light border-0"
             rows="1"
-            placeholder="Racconta la sua storia..."
             [(ngModel)]="nuovoAnimale().descrizione"
           ></textarea>
         </div>
@@ -109,43 +105,80 @@
     </div>
   </div>
 
+  <div class="d-flex justify-content-end mb-3">
+    <div class="form-check form-switch bg-white p-2 px-4 rounded-pill shadow-sm">
+      <input
+        class="form-check-input"
+        type="checkbox"
+        id="checkDisp"
+        (change)="mostraSoloDisponibili.set(!mostraSoloDisponibili())"
+      />
+      <label class="form-check-label fw-bold small text-muted" for="checkDisp"
+        >MOSTRA SOLO DISPONIBILI</label
+      >
+    </div>
+  </div>
+
   <div class="card border-0 shadow-sm" style="border-radius: 15px">
     <div class="table-responsive">
       <table class="table table-hover align-middle mb-0">
-        <thead class="bg-light shadow-sm">
+        <thead class="bg-light">
           <tr>
             <th class="ps-4 py-3 text-secondary small fw-bold">NOME</th>
+            <th class="py-3 text-secondary small fw-bold">CENTRO</th>
             <th class="py-3 text-secondary small fw-bold">RAZZA / SPECIE</th>
             <th class="py-3 text-secondary small fw-bold">MICROCHIP</th>
-            <th class="py-3 text-secondary small fw-bold">ETÀ / GENERE</th>
+            <th class="py-3 text-secondary small fw-bold">STATO</th>
             <th class="pe-4 py-3 text-end text-secondary small fw-bold">AZIONI</th>
           </tr>
         </thead>
         <tbody>
-          @for (a of animali(); track a.id) {
-            <tr>
+          @for (a of animaliFiltrati(); track a.id) {
+            <tr [style.opacity]="a.adottato ? '0.7' : '1'">
               <td class="ps-4">
                 <div class="d-flex align-items-center">
+                  <img
+                    *ngIf="a.fotoUrl"
+                    [src]="a.fotoUrl"
+                    class="rounded-circle me-3 object-fit-cover"
+                    style="width: 35px; height: 35px"
+                  />
                   <div
-                    class="rounded-circle bg-orange-light me-3 d-flex align-items-center justify-content-center"
+                    *ngIf="!a.fotoUrl"
+                    class="rounded-circle me-3 d-flex align-items-center justify-content-center"
                     style="width: 35px; height: 35px; background-color: #fef0e6"
                   >
-                    <span class="small">{{ a.specie === 'Cane' ? '🐶' : '🐱' }}</span>
+                    <span>{{ a.specie === 'Cane' ? '🐶' : '🐱' }}</span>
                   </div>
                   <strong>{{ a.nome }}</strong>
                 </div>
               </td>
               <td>
-                <span class="text-dark">{{ a.razza || 'N/D' }}</span
-                ><br />
-                <small class="text-muted">{{ a.specie }}</small>
+                <span class="text-primary small fw-bold">{{
+                  a.centroAdozione?.nomeCentro || 'N/D'
+                }}</span>
+              </td>
+              <td>
+                {{ a.razza || 'N/D' }}<br /><small class="text-muted">{{ a.specie }}</small>
               </td>
               <td>
                 <span class="badge bg-light text-dark border font-monospace">{{
                   a.microchip
                 }}</span>
               </td>
-              <td>{{ a.eta }} anni - {{ a.genere }}</td>
+              <td>
+                <span
+                  class="badge rounded-pill"
+                  [ngClass]="a.adottato ? 'bg-success' : 'bg-warning text-dark'"
+                >
+                  {{ a.adottato ? 'Adottato' : 'In attesa' }}
+                </span>
+              </td>
+              <td class="pe-4 text-end">
+                <button class="btn btn-sm btn-outline-danger rounded-pill" (click)="elimina(a.id!)">
+                  Elimina
+                </button>
+              </td>
             </tr>
           }
         </tbody>

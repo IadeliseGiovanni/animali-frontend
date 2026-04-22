@@ -1,75 +1,82 @@
-<div class="container mt-4">
+<div class="container-fluid p-4" style="background-color: #d36e2d; min-height: 100vh">
   <div class="d-flex justify-content-between align-items-center mb-4">
-    <h2 class="text-primary"><i class="bi bi-people-fill"></i> Gestione Volontari</h2>
+    <h2 class="text-white fw-bold"><i class="bi bi-people-fill"></i> Gestione Volontari</h2>
 
-    <div class="d-flex gap-2 w-25">
-      <div class="input-group">
-        <span class="input-group-text bg-white"><i class="bi bi-search"></i></span>
-        <input
-          type="text"
-          class="form-control border-start-0"
-          placeholder="Cerca (Nome, CF...)"
-          [(ngModel)]="searchTerm"
-          (input)="onSearch()"
-        />
-      </div>
+    <div class="bg-white rounded-pill px-3 py-2 shadow-sm d-flex align-items-center w-25">
+      <i class="bi bi-search text-muted me-2"></i>
+      <input
+        type="text"
+        class="form-control border-0 shadow-none p-0"
+        placeholder="Cerca (Nome, CF...)"
+        [(ngModel)]="searchTerm"
+        (input)="onSearch()"
+      />
     </div>
   </div>
 
-  <div class="card mb-5 border-0 shadow-sm bg-light">
-    <div class="card-header bg-dark text-white d-flex justify-content-between align-items-center">
-      <h5 class="mb-0">Registra Nuovo Volontario</h5>
-      <small class="text-secondary">* Campi obbligatori</small>
+  <div class="card border-0 shadow-sm mb-5" style="border-radius: 15px">
+    <div class="card-header bg-dark text-white py-3 px-4">
+      <h6 class="mb-0 fw-bold">REGISTRA NUOVO VOLONTARIO</h6>
     </div>
     <div class="card-body p-4">
       <div class="row g-3">
         <div class="col-md-3">
-          <label class="form-label fw-bold">Nome *</label>
+          <label class="form-label small fw-bold text-muted">NOME *</label>
           <input
             type="text"
-            class="form-control"
-            placeholder="Inserisci nome"
+            class="form-control bg-light border-0"
             [(ngModel)]="nuovoVolontario().nome"
           />
         </div>
         <div class="col-md-3">
-          <label class="form-label fw-bold">Cognome *</label>
+          <label class="form-label small fw-bold text-muted">COGNOME *</label>
           <input
             type="text"
-            class="form-control"
-            placeholder="Inserisci cognome"
+            class="form-control bg-light border-0"
             [(ngModel)]="nuovoVolontario().cognome"
           />
         </div>
         <div class="col-md-3">
-          <label class="form-label fw-bold">Codice Fiscale *</label>
+          <label class="form-label small fw-bold text-muted">CODICE FISCALE *</label>
           <input
             type="text"
-            class="form-control text-uppercase"
-            placeholder="Codice Fiscale"
+            class="form-control bg-light border-0 text-uppercase"
             [(ngModel)]="nuovoVolontario().cf"
           />
         </div>
+
         <div class="col-md-3">
-          <label class="form-label fw-bold">Turno Predefinito</label>
-          <select class="form-select" [(ngModel)]="nuovoVolontario().turno">
-            <option value="">Seleziona turno...</option>
+          <label class="form-label small fw-bold text-muted">CENTRO DI LAVORO *</label>
+          <select
+            class="form-select bg-light border-0"
+            [(ngModel)]="nuovoVolontario().centroAdozione"
+          >
+            <option [ngValue]="undefined" disabled selected>Scegli un centro...</option>
+            @for (c of centri(); track c.id) {
+              <option [ngValue]="c">{{ c.nomeCentro }} ({{ c.citta }})</option>
+            }
+          </select>
+        </div>
+
+        <div class="col-md-3">
+          <label class="form-label small fw-bold text-muted">TURNO PREDEFINITO</label>
+          <select class="form-select bg-light border-0" [(ngModel)]="nuovoVolontario().turno">
             <option value="MATTINA">Mattina</option>
             <option value="POMERIGGIO">Pomeriggio</option>
             <option value="NOTTE">Notte</option>
           </select>
         </div>
-        <div class="col-md-9">
-          <label class="form-label fw-bold">Email</label>
+        <div class="col-md-6">
+          <label class="form-label small fw-bold text-muted">EMAIL</label>
           <input
             type="email"
-            class="form-control"
+            class="form-control bg-light border-0"
             placeholder="esempio@email.com"
             [(ngModel)]="nuovoVolontario().email"
           />
         </div>
         <div class="col-md-3 d-flex align-items-end">
-          <button class="btn btn-success w-100 shadow-sm" (click)="aggiungi()">
+          <button class="btn btn-success w-100 fw-bold py-2 shadow-sm" (click)="aggiungi()">
             Salva Volontario
           </button>
         </div>
@@ -77,62 +84,55 @@
     </div>
   </div>
 
-  @if (isLoading()) {
-    <div class="text-center my-5">
-      <div class="spinner-border text-primary" role="status"></div>
-      <p class="mt-2 text-muted">Aggiornamento lista in corso...</p>
+  <div class="card border-0 shadow-sm" style="border-radius: 15px">
+    <div class="table-responsive">
+      <table class="table table-hover align-middle mb-0">
+        <thead class="bg-light shadow-sm">
+          <tr>
+            <th class="ps-4">VOLONTARIO</th>
+            <th>CENTRO</th>
+            <th>TURNO</th>
+            <th>CONTATTI</th>
+            <th class="text-end pe-4">AZIONI</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (v of volontari(); track v.id) {
+            <tr>
+              <td class="ps-4">
+                <strong>{{ v.nome }} {{ v.cognome }}</strong
+                ><br />
+                <small class="text-muted font-monospace">{{ v.cf }}</small>
+              </td>
+              <td>
+                <span class="badge bg-primary-subtle text-primary border px-3">
+                  <i class="bi bi-geo-alt-fill me-1"></i>{{ v.centroAdozione?.nomeCentro || 'N/D' }}
+                </span>
+              </td>
+              <td>
+                <span
+                  class="badge"
+                  [ngClass]="{
+                    'bg-warning text-dark': v.turno === 'MATTINA',
+                    'bg-info text-white': v.turno === 'POMERIGGIO',
+                    'bg-secondary text-white': v.turno === 'NOTTE',
+                  }"
+                  >{{ v.turno || 'NON SPEC.' }}</span
+                >
+              </td>
+              <td class="small">{{ v.email || '-' }}</td>
+              <td class="text-end pe-4">
+                <button
+                  class="btn btn-sm btn-outline-danger rounded-pill px-3"
+                  (click)="elimina(v.id)"
+                >
+                  Elimina
+                </button>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
     </div>
-  }
-
-  <div class="table-responsive shadow-sm rounded-3">
-    <table class="table table-hover align-middle mb-0 bg-white">
-      <thead class="table-primary text-dark">
-        <tr>
-          <th style="width: 25%">Nome e Cognome</th>
-          <th style="width: 20%">Codice Fiscale</th>
-          <th style="width: 15%">Turno</th>
-          <th style="width: 25%">Contatto Email</th>
-          <th class="text-end" style="width: 15%">Azioni</th>
-        </tr>
-      </thead>
-      <tbody>
-        @for (v of volontari(); track v.id) {
-          <tr>
-            <td>
-              <div class="d-flex align-items-center">
-                <div class="avatar-circle me-2">{{ v.nome?.charAt(0) }}</div>
-                <strong>{{ v.nome }} {{ v.cognome }}</strong>
-              </div>
-            </td>
-            <td>
-              <span class="badge bg-light text-dark font-monospace border">{{ v.cf }}</span>
-            </td>
-            <td>
-              <span
-                class="badge"
-                [ngClass]="{
-                  'bg-warning text-dark': v.turno === 'MATTINA',
-                  'bg-info text-white': v.turno === 'POMERIGGIO',
-                  'bg-secondary text-white': v.turno === 'NOTTE',
-                }"
-              >
-                {{ v.turno || 'NON SPEC.' }}
-              </span>
-            </td>
-            <td>{{ v.email || '-' }}</td>
-            <td class="text-end">
-              <button class="btn btn-sm btn-outline-danger" (click)="elimina(v.id)">Elimina</button>
-            </td>
-          </tr>
-        } @empty {
-          <tr>
-            <td colspan="5" class="text-center py-5 text-muted">
-              <i class="bi bi-person-x fs-2"></i>
-              <p class="mt-2">Nessun volontario trovato nel database.</p>
-            </td>
-          </tr>
-        }
-      </tbody>
-    </table>
   </div>
 </div>

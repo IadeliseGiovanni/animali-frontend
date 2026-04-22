@@ -69,7 +69,7 @@ export class AnimaliComponent implements OnInit {
   caricaTutti() {
     this.selectedCentroId.set(null);
     this.isLoading.set(true);
-    this.animaleService.getAll().subscribe({
+    this.animaleService.getAllFiltrati().subscribe({
       next: (data) => this.processaDati(data),
       error: () => this.isLoading.set(false),
     });

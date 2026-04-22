@@ -1,28 +1,164 @@
-<div class="container">
-  <h2>Elenco Visite Mediche</h2>
+<div class="container-fluid p-4" style="background-color: #d36e2d; min-height: 100vh">
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <h2 class="text-white fw-bold d-flex align-items-center">
+      <span class="me-2">🩺</span> Gestione Visite Mediche
+    </h2>
+  </div>
 
-  <div class="table-responsive">
-    <table class="table">
-      <thead>
-        <tr>
-          <th>Data</th>
-          <th>Veterinario</th>
-          <th>Esito</th>
-        </tr>
-      </thead>
-      <tbody>
-        @for (visita of visite(); track visita.id) {
-          <tr>
-            <td>{{ visita.data | date: 'short' }}</td>
-            <td>{{ visita.veterinario }}</td>
-            <td>{{ visita.esito }}</td>
-          </tr>
-        } @empty {
-          <tr>
-            <td colspan="3">Nessuna visita trovata.</td>
-          </tr>
-        }
-      </tbody>
-    </table>
+  <div class="row g-4">
+    <div class="col-lg-5">
+      <div class="card border-0 shadow-sm h-100" style="border-radius: 15px">
+        <div class="card-header bg-dark text-white py-3">
+          <h6 class="mb-0 fw-bold">NUOVA VISITA</h6>
+        </div>
+        <div class="card-body p-4">
+          <div class="mb-4">
+            <label class="form-label small fw-bold text-muted">CERCA E SELEZIONA OSPITE *</label>
+            <div class="input-group mb-2">
+              <span class="input-group-text bg-light border-0"><i class="bi bi-search"></i></span>
+              <input
+                type="text"
+                class="form-control bg-light border-0"
+                placeholder="Nome o Microchip..."
+                [ngModel]="filtroAnimale()"
+                (input)="filtroAnimale.set($any($event.target).value)"
+              />
+            </div>
+
+            <div
+              class="list-group shadow-sm overflow-auto"
+              style="max-height: 200px"
+              *ngIf="filtroAnimale()"
+            >
+              @for (a of animaliFiltrati(); track a.id) {
+                <button
+                  class="list-group-item list-group-item-action d-flex align-items-center gap-3 border-0 py-2"
+                  (click)="selezionaAnimale(a)"
+                >
+                  <img
+                    [src]="a.fotoUrl || 'assets/placeholder-pet.png'"
+                    class="rounded-circle object-fit-cover"
+                    style="width: 40px; height: 40px"
+                  />
+                  <div>
+                    <div class="fw-bold small">{{ a.nome }}</div>
+                    <div class="text-muted" style="font-size: 0.75rem">{{ a.microchip }}</div>
+                  </div>
+                </button>
+              }
+            </div>
+          </div>
+
+          <div
+            class="p-3 border rounded-4 mb-4 d-flex align-items-center gap-3 bg-light"
+            *ngIf="nuovaVisita().animale"
+          >
+            <img
+              [src]="nuovaVisita().animale.fotoUrl || 'assets/placeholder-pet.png'"
+              class="rounded-4 object-fit-cover shadow-sm"
+              style="width: 70px; height: 70px"
+            />
+            <div>
+              <h5 class="mb-0 fw-bold text-dark">{{ nuovaVisita().animale.nome }}</h5>
+              <span class="badge bg-dark">{{ nuovaVisita().animale.razza }}</span>
+            </div>
+            <button class="btn btn-sm btn-link text-danger ms-auto" (click)="rimuoviAnimale()">
+              <i class="bi bi-x-circle fs-5"></i>
+            </button>
+          </div>
+
+          <div class="row g-3">
+            <div class="col-md-6">
+              <label class="form-label small fw-bold text-muted">DATA E ORA *</label>
+              <input
+                type="datetime-local"
+                class="form-control bg-light border-0"
+                [(ngModel)]="nuovaVisita().data"
+              />
+            </div>
+            <div class="col-md-6">
+              <label class="form-label small fw-bold text-muted">VETERINARIO *</label>
+              <input
+                type="text"
+                class="form-control bg-light border-0"
+                [(ngModel)]="nuovaVisita().veterinario"
+              />
+            </div>
+            <div class="col-12">
+              <label class="form-label small fw-bold text-muted">ESITO</label>
+              <input
+                type="text"
+                class="form-control bg-light border-0"
+                [(ngModel)]="nuovaVisita().esito"
+              />
+            </div>
+            <div class="col-12">
+              <label class="form-label small fw-bold text-muted">NOTE</label>
+              <textarea
+                class="form-control bg-light border-0"
+                rows="2"
+                [(ngModel)]="nuovaVisita().note"
+              ></textarea>
+            </div>
+            <div class="col-12">
+              <button class="btn btn-success w-100 fw-bold py-2 mt-2" (click)="aggiungi()">
+                SALVA INTERVENTO
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-lg-7">
+      <div class="card border-0 shadow-sm h-100" style="border-radius: 15px">
+        <div class="card-header bg-white py-3">
+          <h6 class="mb-0 fw-bold text-secondary text-uppercase small">Ultime Visite Effettuate</h6>
+        </div>
+        <div class="table-responsive">
+          <table class="table table-hover align-middle mb-0">
+            <thead>
+              <tr class="text-secondary small">
+                <th class="ps-4">PAZIENTE</th>
+                <th>DATA</th>
+                <th>VETERINARIO</th>
+                <th>ESITO</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (v of visite(); track v.id) {
+                <tr>
+                  <td class="ps-4">
+                    @if (v.animale) {
+                      <div class="d-flex align-items-center gap-2">
+                        <img
+                          [src]="v.animale.fotoUrl || 'assets/placeholder-pet.png'"
+                          class="rounded-circle"
+                          style="width: 30px; height: 30px; object-fit: cover"
+                        />
+                        <span class="fw-bold">{{ v.animale.nome }}</span>
+                      </div>
+                    } @else {
+                      <span class="text-muted small"><i>Dato non disponibile</i></span>
+                    }
+                  </td>
+                  <td class="small">{{ v.data | date: 'dd/MM HH:mm' }}</td>
+                  <td>
+                    <span class="text-info small fw-bold">Dr. {{ v.veterinario }}</span>
+                  </td>
+                  <td class="small text-truncate" style="max-width: 150px">{{ v.esito }}</td>
+                </tr>
+              } @empty {
+                <tr>
+                  <td colspan="4" class="text-center py-5 text-muted">
+                    Nessuna visita registrata.
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
   </div>
 </div>

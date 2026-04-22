@@ -49,6 +49,10 @@ export class AnimaleService {
     return this.http.get<AnimaleDto[]>(`${this.apiUrl}/all`);
   }
 
+  getAllFiltrati(): Observable<AnimaleDto[]> {
+    return this.http.get<AnimaleDto[]>(`${this.apiUrl}/allFiltrati`);
+  }
+
   getById(id: number): Observable<AnimaleDto> {
     return this.http.get<AnimaleDto>(`${this.apiUrl}/${id}`);
   }
@@ -77,5 +81,9 @@ export class AnimaleService {
 
   insert(dto: AnimaleDto): Observable<AnimaleDto> {
     return this.http.post<AnimaleDto>(`${this.apiUrl}/insert`, dto);
+  }
+
+  delete(id: number): Observable<void> {
+    return this.http.delete<void>(`${this.apiUrl}/${id}`);
   }
 }

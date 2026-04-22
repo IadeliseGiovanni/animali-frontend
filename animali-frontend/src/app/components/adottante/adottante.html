@@ -83,8 +83,21 @@
                       [style.color]="a.isSchedato ? '#0f5132' : '#664d03'"
                       (change)="cambiaIdoneita(a, $event)"
                     >
-                      <option [value]="true" [selected]="a.isSchedato">Idoneo</option>
-                      <option [value]="false" [selected]="!a.isSchedato">Verifica</option>
+                      <option
+                        [value]="true"
+                        [selected]="a.isSchedato"
+                        style="background-color: #d1e7dd; color: #0f5132"
+                      >
+                        Idoneo
+                      </option>
+
+                      <option
+                        [value]="false"
+                        [selected]="!a.isSchedato"
+                        style="background-color: #fff3cd; color: #664d03"
+                      >
+                        Verifica
+                      </option>
                     </select>
                   </td>
                   <td class="text-center">

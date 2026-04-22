@@ -7,5 +7,5 @@ export interface VisitaMedicaDto {
   veterinario: string;
   note?: string;
 
-  animali: AnimaleDto[]; // Associazione con AnimaleDto
+  animale: AnimaleDto; // Associazione con AnimaleDto
 }

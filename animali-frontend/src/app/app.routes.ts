@@ -24,6 +24,8 @@ export const routes: Routes = [
   { path: 'volontari', component: VolontarioComponent, canActivate: [authGuard] },
   { path: 'centri', component: CentroAdozioneComponent, canActivate: [authGuard] },
 
+  { path: 'visitaMedica', component: VisitaMedicaComponent, canActivate: [authGuard] },
+
   // 2. AGGIUNGI LA ROTTA PER LE PRATICHE
   { path: 'gestione-pratiche', component: GestionePraticheComponent, canActivate: [authGuard] },
 

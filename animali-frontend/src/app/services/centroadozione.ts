@@ -35,4 +35,8 @@ export class CentroAdozioneService {
     // Nota: il tuo controller restituisce una String, quindi usiamo { responseType: 'text' }
     return this.http.post(`${this.apiUrl}/admin/crea`, centro, { responseType: 'text' });
   }
+
+  delete(id: number): Observable<void> {
+    return this.http.delete<void>(`${this.apiUrl}/${id}`);
+  }
 }

@@ -12,7 +12,7 @@ export class VisitaMedicaService {
 
   // Metodi standard (ereditati dal tuo AbstractController in Java)
   getAll(): Observable<VisitaMedicaDto[]> {
-    return this.http.get<VisitaMedicaDto[]>(this.apiUrl);
+    return this.http.get<VisitaMedicaDto[]>(this.apiUrl + '/all');
   }
 
   // Metodi specifici del controller
@@ -37,5 +37,13 @@ export class VisitaMedicaService {
   findByDataAndVeterinario(data: string, veterinario: string): Observable<VisitaMedicaDto[]> {
     const params = new HttpParams().set('data', data).set('veterinario', veterinario);
     return this.http.get<VisitaMedicaDto[]>(`${this.apiUrl}/findByDataAndVeterinario`, { params });
+  }
+
+  insert(visita: VisitaMedicaDto): Observable<VisitaMedicaDto> {
+    return this.http.post<VisitaMedicaDto>(`${this.apiUrl}/insert`, visita);
+  }
+
+  delete(id: number): Observable<void> {
+    return this.http.delete<void>(`${this.apiUrl}/${id}`);
   }
 }
