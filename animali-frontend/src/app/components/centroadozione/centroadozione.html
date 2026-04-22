@@ -1,115 +1,135 @@
-<div class="container-fluid p-4" style="background-color: #d36e2d; min-height: 100vh">
-  <div class="card shadow-sm mb-4 border-0" style="border-radius: 12px">
-    <div class="card-header bg-primary text-white py-3">
-      <h4 class="mb-0 fw-bold">Gestione Admin: Configurazione Completa Centro</h4>
+<div class="page">
+
+  <header class="header">
+    <h1>Gestione Centri di Adozione</h1>
+    <p>Dashboard amministrativa per registrazione e monitoraggio centri</p>
+  </header>
+
+  <!-- FORM -->
+  <div class="form-card">
+
+    <h2>Nuovo Centro</h2>
+
+    <div class="grid-form">
+
+      <input
+        type="text"
+        placeholder="Nome centro"
+        [ngModel]="nuovoCentro().nomeCentro"
+        (ngModelChange)="nuovoCentro.update(c => ({ ...c, nomeCentro: $event }))"
+      />
+
+      <input
+        type="text"
+        placeholder="Città"
+        [ngModel]="nuovoCentro().citta"
+        (ngModelChange)="nuovoCentro.update(c => ({ ...c, citta: $event }))"
+      />
+
+      <input
+        type="text"
+        placeholder="Indirizzo"
+        [ngModel]="nuovoCentro().indirizzo"
+        (ngModelChange)="nuovoCentro.update(c => ({ ...c, indirizzo: $event }))"
+      />
+
+      <input
+        type="number"
+        placeholder="Capacità"
+        [ngModel]="nuovoCentro().capacitaMassima"
+        (ngModelChange)="nuovoCentro.update(c => ({ ...c, capacitaMassima: +$event }))"
+      />
+
+      <input
+        type="number"
+        step="any"
+        placeholder="Latitudine"
+        [ngModel]="nuovoCentro().latitudine"
+        (ngModelChange)="nuovoCentro.update(c => ({ ...c, latitudine: +$event }))"
+      />
+
+      <input
+        type="number"
+        step="any"
+        placeholder="Longitudine"
+        [ngModel]="nuovoCentro().longitudine"
+        (ngModelChange)="nuovoCentro.update(c => ({ ...c, longitudine: +$event }))"
+      />
+
+      <label class="checkbox">
+        <input
+          type="checkbox"
+          [ngModel]="nuovoCentro().isNoProfit"
+          (ngModelChange)="nuovoCentro.update(c => ({ ...c, isNoProfit: $event }))"
+        />
+        Ente No-Profit
+      </label>
+
     </div>
-    <div class="card-body p-4">
-      <div class="row g-3">
-        <div class="col-md-4">
-          <label class="form-label small fw-bold text-secondary">NOME CENTRO *</label>
-          <input
-            type="text"
-            class="form-control"
-            [(ngModel)]="nuovoCentro().nomeCentro"
-            placeholder="Es: Rifugio del Sole"
-          />
-        </div>
-        <div class="col-md-4">
-          <label class="form-label small fw-bold text-secondary">CITTÀ *</label>
-          <input
-            type="text"
-            class="form-control"
-            [(ngModel)]="nuovoCentro().citta"
-            placeholder="Es: Roma"
-          />
-        </div>
-        <div class="col-md-4">
-          <label class="form-label small fw-bold text-secondary">INDIRIZZO *</label>
-          <input
-            type="text"
-            class="form-control"
-            [(ngModel)]="nuovoCentro().indirizzo"
-            placeholder="Via Appia 1"
-          />
-        </div>
 
-        <div class="col-md-3">
-          <label class="form-label small fw-bold text-secondary">CAPACITÀ MASSIMA</label>
-          <input type="number" class="form-control" [(ngModel)]="nuovoCentro().capacitaMassima" />
-        </div>
+    <button class="btn-primary" (click)="aggiungiCentro()">
+      ➕ Registra Centro
+    </button>
 
-        <div class="col-md-3">
-          <label class="form-label small fw-bold text-secondary">LATITUDINE</label>
-          <input
-            type="number"
-            step="any"
-            class="form-control"
-            [(ngModel)]="nuovoCentro().latitudine"
-            placeholder="Es: 41.8902"
-          />
-        </div>
-        <div class="col-md-3">
-          <label class="form-label small fw-bold text-secondary">LONGITUDINE</label>
-          <input
-            type="number"
-            step="any"
-            class="form-control"
-            [(ngModel)]="nuovoCentro().longitudine"
-            placeholder="Es: 12.4922"
-          />
-        </div>
-
-        <div class="col-md-3 d-flex align-items-end justify-content-between">
-          <div class="form-check mb-2">
-            <input
-              class="form-check-input"
-              type="checkbox"
-              id="noProfit"
-              [(ngModel)]="nuovoCentro().isNoProfit"
-            />
-            <label class="form-check-label fw-bold" for="noProfit">Ente No-Profit</label>
-          </div>
-          <button class="btn btn-success px-4 fw-bold" (click)="aggiungiCentro()">
-            REGISTRA CENTRO
-          </button>
-        </div>
-      </div>
-    </div>
   </div>
 
-  <div class="row g-4">
-    <div class="col-md-8">
-      <div id="map" style="height: 500px" class="rounded shadow border-0"></div>
-    </div>
-    <div class="col-md-4">
-      <div class="card border-0 shadow-sm h-100">
-        <div class="card-body">
-          <h5 class="fw-bold mb-3">Cerca per Città</h5>
-          <input
-            type="text"
-            class="form-control mb-3"
-            [(ngModel)]="cercaCitta"
-            (input)="filtraPerCitta()"
-            placeholder="Filtra lista..."
-          />
-          <div class="list-group list-group-flush overflow-auto" style="max-height: 380px">
-            @for (centro of centri(); track centro.id) {
-              <div class="list-group-item px-0">
-                <h6 class="mb-0 fw-bold text-dark">{{ centro.nomeCentro }}</h6>
-                <p class="mb-0 small text-muted">{{ centro.indirizzo }} - {{ centro.citta }}</p>
-                <div class="mt-1">
-                  <span class="badge bg-light text-primary border small"
-                    >Capacità: {{ centro.capacitaMassima }}</span
-                  >
-                  @if (centro.isNoProfit) {
-                    <span class="badge bg-info-subtle text-info ms-1 small">No-Profit</span>
-                  }
-                </div>
-              </div>
-            }
-          </div>
-        </div>
-      </div>
-    </div>
+  <!-- TOOLBAR -->
+  <div class="toolbar">
+
+    <input
+      type="text"
+      placeholder="🔎 Cerca città..."
+      [ngModel]="cercaCitta()"
+      (ngModelChange)="cercaCitta.set($event)"
+      (input)="filtraPerCitta()"
+    />
+
+    <button class="btn-reset" (click)="caricaTutti()">
+      🔄 Reset
+    </button>
+
   </div>
+
+  <!-- MAIN -->
+  <div class="layout">
+
+    <!-- LISTA -->
+    <div class="list">
+
+      @for (centro of centri(); track centro.id) {
+        <div class="card">
+
+          <div class="title">
+            {{ centro.nomeCentro }}
+          </div>
+
+          <div class="info">
+            📍 {{ centro.citta }} <br>
+            🏠 {{ centro.indirizzo }} <br>
+            🌍 {{ centro.latitudine }} , {{ centro.longitudine }}
+          </div>
+
+          <div class="footer">
+            <span>Capacità</span>
+            <strong>{{ centro.capacitaMassima }}</strong>
+          </div>
+
+        </div>
+      }
+
+      @empty {
+        <div class="empty">
+          Nessun centro trovato
+        </div>
+      }
+
+    </div>
+
+    <!-- MAPPA -->
+    <div class="map">
+      <div id="map"></div>
+    </div>
+
+  </div>
+
 </div>
