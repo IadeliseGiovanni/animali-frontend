@@ -1,10 +1,10 @@
-import { Component, inject, signal, OnInit } from '@angular/core';
+import { Component, inject, signal, OnInit, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { VolontarioService } from '../../services/volontario';
-import { CentroAdozioneService } from '../../services/centroadozione'; // Importa il service dei centri
+import { CentroAdozioneService } from '../../services/centroadozione';
 import { VolontarioDto } from '../../dto/volontario';
-import { CentroAdozioneDto } from '../../dto/centroadozioni'; // Importa il DTO dei centri
+import { CentroAdozioneDto } from '../../dto/centroadozioni';
 
 @Component({
   selector: 'app-volontario',
@@ -15,11 +15,16 @@ import { CentroAdozioneDto } from '../../dto/centroadozioni'; // Importa il DTO 
 })
 export class VolontarioComponent implements OnInit {
   private volontarioService = inject(VolontarioService);
-  private centroService = inject(CentroAdozioneService); // Iniettiamo il service centri
+  private centroService = inject(CentroAdozioneService);
 
   volontari = signal<VolontarioDto[]>([]);
-  centri = signal<CentroAdozioneDto[]>([]); // Signal per la lista dei centri
+  centri = signal<CentroAdozioneDto[]>([]);
+
+  // Segnali per i filtri
   searchTerm = signal('');
+  filtroCentroId = signal<string>('TUTTI');
+  filtroTurno = signal<string>('TUTTI');
+
   isLoading = signal(false);
 
   nuovoVolontario = signal<Partial<VolontarioDto>>({
@@ -28,12 +33,43 @@ export class VolontarioComponent implements OnInit {
     cf: '',
     turno: '',
     email: '',
-    centroAdozione: undefined, // Campo per l'associazione dell'oggetto centro
+    centroAdozione: undefined,
+    password: '',
+  });
+
+  // LOGICA DI FILTRAGGIO COMBINATA
+  volontariFiltrati = computed(() => {
+    let lista = this.volontari();
+
+    // 1. Filtro per testo (Nome, Cognome o CF)
+    const search = this.searchTerm().toLowerCase().trim();
+    if (search) {
+      lista = lista.filter(
+        (v) =>
+          v.nome.toLowerCase().includes(search) ||
+          v.cognome.toLowerCase().includes(search) ||
+          v.cf.toLowerCase().includes(search),
+      );
+    }
+
+    // 2. Filtro per Centro
+    const centroId = this.filtroCentroId();
+    if (centroId !== 'TUTTI') {
+      lista = lista.filter((v) => v.centroAdozione?.id === +centroId);
+    }
+
+    // 3. Filtro per Turno
+    const turno = this.filtroTurno();
+    if (turno !== 'TUTTI') {
+      lista = lista.filter((v) => v.turno === turno);
+    }
+
+    return lista;
   });
 
   ngOnInit() {
     this.caricaTutti();
-    this.caricaCentri(); // Carichiamo i centri all'avvio
+    this.caricaCentri();
   }
 
   caricaTutti() {
@@ -54,15 +90,10 @@ export class VolontarioComponent implements OnInit {
     });
   }
 
+  // Nota: onSearch() ora può essere vuoto o rimosso se usiamo il filtro lato client
+  // con computed, ma lo lasciamo per compatibilità con l'evento (input)
   onSearch() {
-    if (this.searchTerm().trim() === '') {
-      this.caricaTutti();
-      return;
-    }
-    this.volontarioService.search(this.searchTerm()).subscribe({
-      next: (data) => this.volontari.set(data),
-      error: (err) => console.error('Errore ricerca:', err),
-    });
+    // Il filtraggio avviene automaticamente tramite il computed 'volontariFiltrati'
   }
 
   aggiungi() {

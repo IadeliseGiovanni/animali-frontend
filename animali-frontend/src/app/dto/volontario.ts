@@ -8,6 +8,7 @@ export interface VolontarioDto {
   cf: string;
   turno: string;
   ruolo: string;
+  password?: string;
 
   centroAdozione?: CentroAdozioneDto;
 }

@@ -17,16 +17,39 @@ export class VisitaMedicaComponent implements OnInit {
   private visitaService = inject(VisitaMedicaService);
   private animaleService = inject(AnimaleService);
 
+  // Dati
   visite = signal<VisitaMedicaDto[]>([]);
   elencoAnimali = signal<AnimaleDto[]>([]);
+
+  // Filtri per il form di inserimento
   filtroAnimale = signal('');
 
+  // Filtri per la tabella dello storico
+  termineRicercaVisite = signal('');
+  filtroVeterinario = signal('');
+
+  // 1. Filtraggio per la ricerca rapida nel form
   animaliFiltrati = computed(() => {
     const term = this.filtroAnimale().toLowerCase().trim();
     if (!term) return [];
     return this.elencoAnimali().filter(
       (a) => a.nome?.toLowerCase().includes(term) || a.microchip?.includes(term),
     );
+  });
+
+  // 2. Filtraggio per la tabella delle visite effettuate
+  visiteFiltrate = computed(() => {
+    let lista = this.visite();
+    const search = this.termineRicercaVisite().toLowerCase().trim();
+    const vet = this.filtroVeterinario().toLowerCase().trim();
+
+    if (search) {
+      lista = lista.filter((v) => v.animale?.nome?.toLowerCase().includes(search));
+    }
+    if (vet) {
+      lista = lista.filter((v) => v.veterinario?.toLowerCase().includes(vet));
+    }
+    return lista;
   });
 
   nuovaVisita = signal<VisitaMedicaDto>({
@@ -45,9 +68,7 @@ export class VisitaMedicaComponent implements OnInit {
 
   caricaTutte() {
     this.visitaService.getAll().subscribe({
-      next: (data) => {
-        this.visite.set(data);
-      },
+      next: (data) => this.visite.set(data),
       error: (err) => console.error('Errore caricamento visite', err),
     });
   }
@@ -76,23 +97,25 @@ export class VisitaMedicaComponent implements OnInit {
       return;
     }
 
-    const dataVisita = new Date(data.data);
-    const anno = dataVisita.getFullYear();
-    if (anno > 2100 || anno < 2000) {
-      alert("La data inserita non è valida (controlla l'anno)!");
-      return;
-    }
-
     this.visitaService.insert(data).subscribe({
       next: (res) => {
         this.visite.update((list) => [res, ...list]);
         this.resetForm();
+        alert('Visita salvata correttamente!');
       },
-      error: (err) => {
-        console.error('Errore nel salvataggio:', err);
-        alert('Errore nel salvataggio. Riprova o controlla la sessione.');
-      },
+      error: (err) => alert('Errore nel salvataggio.'),
     });
+  }
+
+  elimina(id: number | undefined) {
+    if (id && confirm('Sei sicuro di voler eliminare questa visita medica?')) {
+      this.visitaService.delete(id).subscribe({
+        next: () => {
+          this.visite.update((list) => list.filter((v) => v.id !== id));
+        },
+        error: (err) => alert("Errore durante l'eliminazione."),
+      });
+    }
   }
 
   private resetForm() {

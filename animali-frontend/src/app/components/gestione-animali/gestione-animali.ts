@@ -23,18 +23,32 @@ export class GestioneAnimaliComponent implements OnInit {
   // Filtri UI
   filtroTesto = signal('');
   mostraSoloDisponibili = signal(false);
+  filtroSpecie = signal('TUTTE');
+  filtroCentroId = signal('TUTTI');
 
   // Calcola la lista da visualizzare in base ai filtri
   animaliFiltrati = computed(() => {
     let lista = this.animali();
     const cerca = this.filtroTesto().toLowerCase().trim();
+    const specie = this.filtroSpecie();
+    const centroId = this.filtroCentroId();
 
-    // Filtro Disponibilità
+    // 1. Filtro Disponibilità
     if (this.mostraSoloDisponibili()) {
       lista = lista.filter((a) => !a.adottato);
     }
 
-    // Filtro Ricerca Testuale
+    // 2. Filtro Specie
+    if (specie !== 'TUTTE') {
+      lista = lista.filter((a) => a.specie === specie);
+    }
+
+    // 3. Filtro Centro (converte in stringa per confronto sicuro)
+    if (centroId !== 'TUTTI') {
+      lista = lista.filter((a) => a.centroAdozione?.id?.toString() === centroId);
+    }
+
+    // 4. Filtro Ricerca Testuale (Nome o Microchip)
     if (cerca) {
       lista = lista.filter(
         (a) => a.nome?.toLowerCase().includes(cerca) || a.microchip?.includes(cerca),
@@ -52,6 +66,9 @@ export class GestioneAnimaliComponent implements OnInit {
     descrizione: '',
     adottato: false,
     eta: 0,
+    razza: '',
+    fotoUrl: '',
+    videoUrl: '',
     centroAdozione: undefined,
   });
 
@@ -110,6 +127,9 @@ export class GestioneAnimaliComponent implements OnInit {
       descrizione: '',
       adottato: false,
       eta: 0,
+      razza: '',
+      fotoUrl: '',
+      videoUrl: '',
       centroAdozione: undefined,
     });
   }

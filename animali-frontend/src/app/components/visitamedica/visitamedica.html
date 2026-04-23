@@ -1,108 +1,134 @@
-<div class="container-fluid p-4" style="background-color: #d36e2d; min-height: 100vh">
+<div class="container py-4">
   <div class="d-flex justify-content-between align-items-center mb-4">
-    <h2 class="text-white fw-bold d-flex align-items-center">
-      <span class="me-2">🩺</span> Gestione Visite Mediche
+    <h2 class="text-white fw-bold mb-0">
+      <i class="bi bi-heart-pulse-fill me-2"></i>Gestione Visite Mediche
     </h2>
   </div>
 
   <div class="row g-4">
     <div class="col-lg-5">
-      <div class="card border-0 shadow-sm h-100" style="border-radius: 15px">
-        <div class="card-header bg-dark text-white py-3">
+      <div class="card border-0 shadow-sm rounded-4 overflow-hidden h-100">
+        <div
+          class="card-header bg-dark text-white p-3 d-flex justify-content-between align-items-center"
+        >
           <h6 class="mb-0 fw-bold">NUOVA VISITA</h6>
+          <small class="text-white-50">* Campi obbligatori</small>
         </div>
-        <div class="card-body p-4">
+
+        <div class="card-body p-4 bg-white">
           <div class="mb-4">
-            <label class="form-label small fw-bold text-muted">CERCA E SELEZIONA OSPITE *</label>
-            <div class="input-group mb-2">
-              <span class="input-group-text bg-light border-0"><i class="bi bi-search"></i></span>
+            <label class="form-label small fw-bold text-muted mb-1"
+              >CERCA E SELEZIONA OSPITE *</label
+            >
+            <div class="input-group shadow-sm rounded-pill overflow-hidden border">
+              <span class="input-group-text bg-white border-0 ps-3">
+                <i class="bi bi-search text-muted"></i>
+              </span>
               <input
                 type="text"
-                class="form-control bg-light border-0"
+                class="form-control border-0 py-2 shadow-none small"
                 placeholder="Nome o Microchip..."
-                [ngModel]="filtroAnimale()"
-                (input)="filtroAnimale.set($any($event.target).value)"
+                [(ngModel)]="filtroAnimale"
               />
             </div>
 
-            <div
-              class="list-group shadow-sm overflow-auto"
-              style="max-height: 200px"
-              *ngIf="filtroAnimale()"
-            >
-              @for (a of animaliFiltrati(); track a.id) {
-                <button
-                  class="list-group-item list-group-item-action d-flex align-items-center gap-3 border-0 py-2"
-                  (click)="selezionaAnimale(a)"
-                >
-                  <img
-                    [src]="a.fotoUrl || 'assets/placeholder-pet.png'"
-                    class="rounded-circle object-fit-cover"
-                    style="width: 40px; height: 40px"
-                  />
-                  <div>
-                    <div class="fw-bold small">{{ a.nome }}</div>
-                    <div class="text-muted" style="font-size: 0.75rem">{{ a.microchip }}</div>
-                  </div>
-                </button>
-              }
-            </div>
+            @if (filtroAnimale() && !nuovaVisita().animale) {
+              <div
+                class="list-group shadow-sm mt-2 border rounded-4 overflow-auto"
+                style="max-height: 180px"
+              >
+                @for (a of animaliFiltrati(); track a.id) {
+                  <button
+                    class="list-group-item list-group-item-action d-flex align-items-center gap-3 border-0 py-2"
+                    (click)="selezionaAnimale(a)"
+                  >
+                    <div
+                      class="rounded-circle bg-light d-flex align-items-center justify-content-center border"
+                      style="width: 40px; height: 40px"
+                    >
+                      {{ a.specie === 'Cane' ? '🐶' : '🐱' }}
+                    </div>
+                    <div>
+                      <div class="fw-bold small text-dark">{{ a.nome }}</div>
+                      <div class="text-muted font-monospace" style="font-size: 0.7rem">
+                        {{ a.microchip }}
+                      </div>
+                    </div>
+                  </button>
+                }
+              </div>
+            }
           </div>
 
-          <div
-            class="p-3 border rounded-4 mb-4 d-flex align-items-center gap-3 bg-light"
-            *ngIf="nuovaVisita().animale"
-          >
-            <img
-              [src]="nuovaVisita().animale.fotoUrl || 'assets/placeholder-pet.png'"
-              class="rounded-4 object-fit-cover shadow-sm"
-              style="width: 70px; height: 70px"
-            />
-            <div>
-              <h5 class="mb-0 fw-bold text-dark">{{ nuovaVisita().animale.nome }}</h5>
-              <span class="badge bg-dark">{{ nuovaVisita().animale.razza }}</span>
+          @if (nuovaVisita().animale) {
+            <div
+              class="p-3 border rounded-4 mb-4 d-flex align-items-center gap-3 bg-light shadow-sm animate__animated animate__fadeIn"
+            >
+              <div
+                class="rounded-circle bg-white d-flex align-items-center justify-content-center border shadow-sm"
+                style="width: 55px; height: 55px; font-size: 1.5rem"
+              >
+                {{ nuovaVisita().animale.specie === 'Cane' ? '🐶' : '🐱' }}
+              </div>
+              <div>
+                <h6 class="mb-0 fw-bold text-dark">{{ nuovaVisita().animale.nome }}</h6>
+                <span
+                  class="badge bg-dark-subtle text-dark rounded-pill"
+                  style="font-size: 0.65rem"
+                >
+                  {{ nuovaVisita().animale.razza || 'Meticcio' }}
+                </span>
+              </div>
+              <button
+                class="btn btn-sm btn-outline-danger border-0 ms-auto rounded-circle"
+                (click)="rimuoviAnimale()"
+              >
+                <i class="bi bi-x-lg"></i>
+              </button>
             </div>
-            <button class="btn btn-sm btn-link text-danger ms-auto" (click)="rimuoviAnimale()">
-              <i class="bi bi-x-circle fs-5"></i>
-            </button>
-          </div>
+          }
 
           <div class="row g-3">
             <div class="col-md-6">
-              <label class="form-label small fw-bold text-muted">DATA E ORA *</label>
+              <label class="form-label small fw-bold text-muted mb-1">DATA E ORA *</label>
               <input
                 type="datetime-local"
-                class="form-control bg-light border-0"
+                class="form-control form-control-sm bg-light border-0"
                 [(ngModel)]="nuovaVisita().data"
               />
             </div>
             <div class="col-md-6">
-              <label class="form-label small fw-bold text-muted">VETERINARIO *</label>
+              <label class="form-label small fw-bold text-muted mb-1">VETERINARIO *</label>
               <input
                 type="text"
-                class="form-control bg-light border-0"
+                class="form-control form-control-sm bg-light border-0"
+                placeholder="Dr. Nome"
                 [(ngModel)]="nuovaVisita().veterinario"
               />
             </div>
             <div class="col-12">
-              <label class="form-label small fw-bold text-muted">ESITO</label>
+              <label class="form-label small fw-bold text-muted mb-1">ESITO / DIAGNOSI</label>
               <input
                 type="text"
-                class="form-control bg-light border-0"
+                class="form-control form-control-sm bg-light border-0"
+                placeholder="Esito..."
                 [(ngModel)]="nuovaVisita().esito"
               />
             </div>
             <div class="col-12">
-              <label class="form-label small fw-bold text-muted">NOTE</label>
+              <label class="form-label small fw-bold text-muted mb-1">NOTE</label>
               <textarea
-                class="form-control bg-light border-0"
+                class="form-control form-control-sm bg-light border-0"
                 rows="2"
                 [(ngModel)]="nuovaVisita().note"
               ></textarea>
             </div>
-            <div class="col-12">
-              <button class="btn btn-success w-100 fw-bold py-2 mt-2" (click)="aggiungi()">
-                SALVA INTERVENTO
+            <div class="col-12 pt-2">
+              <button
+                class="btn btn-success w-100 fw-bold py-2 rounded-pill shadow-sm"
+                (click)="aggiungi()"
+              >
+                <i class="bi bi-check-circle me-2"></i>SALVA INTERVENTO
               </button>
             </div>
           </div>
@@ -111,48 +137,72 @@
     </div>
 
     <div class="col-lg-7">
-      <div class="card border-0 shadow-sm h-100" style="border-radius: 15px">
-        <div class="card-header bg-white py-3">
-          <h6 class="mb-0 fw-bold text-secondary text-uppercase small">Ultime Visite Effettuate</h6>
+      <div class="card border-0 shadow-sm rounded-4 overflow-hidden h-100">
+        <div class="card-header bg-dark p-3 d-flex justify-content-between align-items-center">
+          <h6 class="text-white mb-0 fw-bold text-uppercase small">Ultime Visite Effettuate</h6>
+          <div class="d-flex gap-2">
+            <input
+              type="text"
+              class="form-control form-control-sm rounded-pill border-0 px-3"
+              style="width: 150px"
+              placeholder="Filtra animale..."
+              [(ngModel)]="termineRicercaVisite"
+            />
+          </div>
         </div>
+
         <div class="table-responsive">
           <table class="table table-hover align-middle mb-0">
-            <thead>
-              <tr class="text-secondary small">
-                <th class="ps-4">PAZIENTE</th>
-                <th>DATA</th>
-                <th>VETERINARIO</th>
-                <th>ESITO</th>
+            <thead class="bg-light text-uppercase" style="font-size: 0.7rem">
+              <tr>
+                <th class="ps-4 py-3">Paziente</th>
+                <th class="py-3">Data</th>
+                <th class="py-3">Veterinario</th>
+                <th class="py-3">Esito</th>
+                <th class="py-3 text-center">Azioni</th>
               </tr>
             </thead>
-            <tbody>
-              @for (v of visite(); track v.id) {
-                <tr>
-                  <td class="ps-4">
-                    @if (v.animale) {
-                      <div class="d-flex align-items-center gap-2">
-                        <img
-                          [src]="v.animale.fotoUrl || 'assets/placeholder-pet.png'"
-                          class="rounded-circle"
-                          style="width: 30px; height: 30px; object-fit: cover"
-                        />
-                        <span class="fw-bold">{{ v.animale.nome }}</span>
-                      </div>
-                    } @else {
-                      <span class="text-muted small"><i>Dato non disponibile</i></span>
-                    }
+            <tbody style="font-size: 0.85rem">
+              @for (v of visiteFiltrate(); track v.id) {
+                <tr class="bg-white">
+                  <td class="ps-4 py-3">
+                    <div class="d-flex align-items-center gap-2">
+                      <span class="small">{{ v.animale?.specie === 'Cane' ? '🐶' : '🐱' }}</span>
+                      <span class="fw-bold text-dark">{{ v.animale?.nome || 'N/D' }}</span>
+                    </div>
                   </td>
-                  <td class="small">{{ v.data | date: 'dd/MM HH:mm' }}</td>
-                  <td>
-                    <span class="text-info small fw-bold">Dr. {{ v.veterinario }}</span>
+                  <td class="py-3">
+                    <div class="text-dark fw-semibold">{{ v.data | date: 'dd/MM/yyyy' }}</div>
+                    <div class="text-muted small">{{ v.data | date: 'HH:mm' }}</div>
                   </td>
-                  <td class="small text-truncate" style="max-width: 150px">{{ v.esito }}</td>
+                  <td class="py-3">
+                    <span
+                      class="badge bg-info-subtle text-info border border-info-subtle px-2 py-1"
+                    >
+                      Dr. {{ v.veterinario }}
+                    </span>
+                  </td>
+                  <td class="py-3">
+                    <div
+                      class="text-truncate text-muted"
+                      style="max-width: 120px"
+                      [title]="v.esito"
+                    >
+                      {{ v.esito || 'Nessun esito' }}
+                    </div>
+                  </td>
+                  <td class="py-3 text-center">
+                    <button
+                      class="btn btn-sm btn-outline-danger border-0 rounded-pill"
+                      (click)="elimina(v.id)"
+                    >
+                      <i class="bi bi-trash3"></i>
+                    </button>
+                  </td>
                 </tr>
               } @empty {
                 <tr>
-                  <td colspan="4" class="text-center py-5 text-muted">
-                    Nessuna visita registrata.
-                  </td>
+                  <td colspan="5" class="text-center py-5 text-muted">Nessuna visita trovata.</td>
                 </tr>
               }
             </tbody>

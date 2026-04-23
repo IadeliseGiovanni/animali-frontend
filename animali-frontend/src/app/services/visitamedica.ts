@@ -44,6 +44,9 @@ export class VisitaMedicaService {
   }
 
   delete(id: number): Observable<void> {
-    return this.http.delete<void>(`${this.apiUrl}/${id}`);
+    // Passiamo l'id come parametro di ricerca (?id=...)
+    return this.http.delete<void>(`${this.apiUrl}/delete`, {
+      params: { id: id.toString() },
+    });
   }
 }

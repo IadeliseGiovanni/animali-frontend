@@ -1,5 +1,5 @@
 import { inject, Injectable, signal, effect, PLATFORM_ID } from '@angular/core';
-import { isPlatformBrowser } from '@angular/common'; 
+import { isPlatformBrowser } from '@angular/common';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { AnimaleDto, AdozioneRequestDto } from '../dto/animale';
@@ -9,7 +9,7 @@ import { AnimaleDto, AdozioneRequestDto } from '../dto/animale';
 })
 export class AnimaleService {
   private http = inject(HttpClient);
-  private platformId = inject(PLATFORM_ID); 
+  private platformId = inject(PLATFORM_ID);
   private readonly apiUrl = 'http://localhost:8080/api/animali';
 
   // Signal per la gestione dei preferiti
@@ -58,7 +58,11 @@ export class AnimaleService {
     return this.http.get<AnimaleDto>(`${this.apiUrl}/${id}`);
   }
 
-  getFiltered(specie: string, genere: string, centroId: number | null = null): Observable<AnimaleDto[]> {
+  getFiltered(
+    specie: string,
+    genere: string,
+    centroId: number | null = null,
+  ): Observable<AnimaleDto[]> {
     let params = new HttpParams();
     if (specie) params = params.set('specie', specie);
     if (genere) params = params.set('genere', genere);
@@ -75,7 +79,10 @@ export class AnimaleService {
   }
 
   delete(id: number): Observable<void> {
-    return this.http.delete<void>(`${this.apiUrl}/${id}`);
+    // Passiamo l'id come parametro di ricerca (?id=...)
+    return this.http.delete<void>(`${this.apiUrl}/delete`, {
+      params: { id: id.toString() },
+    });
   }
 
   generaContratto(dto: AdozioneRequestDto): Observable<Blob> {
