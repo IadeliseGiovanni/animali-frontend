@@ -92,7 +92,7 @@
         </div>
 
         <div class="col-md-4">
-          <label class="form-label small fw-bold text-muted mb-1">URL VIDEO (YouTube/Vimeo)</label>
+          <label class="form-label small fw-bold text-muted mb-1">URL VIDEO</label>
           <input
             type="text"
             class="form-control form-control-sm bg-light border-0"
@@ -114,6 +114,71 @@
           <button class="btn btn-success px-5 fw-bold rounded-pill shadow-sm" (click)="aggiungi()">
             <i class="bi bi-plus-circle me-2"></i>Registra Ospite
           </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card border-0 shadow-sm rounded-4 mb-4 bg-dark text-white">
+    <div class="card-body p-3">
+      <div class="row g-3 align-items-end">
+        <div class="col-md-4">
+          <label class="form-label small fw-bold text-white-50">CERCA (NOME O MICROCHIP)</label>
+          <div class="input-group input-group-sm">
+            <span class="input-group-text bg-light border-0"><i class="bi bi-search"></i></span>
+            <input
+              type="text"
+              class="form-control bg-light border-0"
+              placeholder="Filtra pazienti..."
+              [ngModel]="filtroTesto()"
+              (ngModelChange)="filtroTesto.set($event)"
+            />
+          </div>
+        </div>
+
+        <div class="col-md-2">
+          <label class="form-label small fw-bold text-white-50">SPECIE</label>
+          <select
+            class="form-select form-select-sm bg-light border-0"
+            [ngModel]="filtroSpecie()"
+            (ngModelChange)="filtroSpecie.set($event)"
+          >
+            <option value="TUTTE">Tutte</option>
+            <option value="Cane">Cane</option>
+            <option value="Gatto">Gatto</option>
+            <option value="Coniglio">Coniglio</option>
+            <option value="Altro">Altro</option>
+          </select>
+        </div>
+
+        <div class="col-md-3">
+          <label class="form-label small fw-bold text-white-50">CENTRO</label>
+          <select
+            class="form-select form-select-sm bg-light border-0"
+            [ngModel]="filtroCentroId()"
+            (ngModelChange)="filtroCentroId.set($event)"
+          >
+            <option value="TUTTI">Tutti i centri</option>
+            @for (c of centri(); track c.id) {
+              <option [value]="c.id">{{ c.nomeCentro }}</option>
+            }
+          </select>
+        </div>
+
+        <div class="col-md-3 d-flex align-items-center pb-1">
+          <div class="form-check form-switch">
+            <input
+              class="form-check-input"
+              type="checkbox"
+              role="switch"
+              id="switchDisponibili"
+              [checked]="mostraSoloDisponibili()"
+              (change)="mostraSoloDisponibili.set(!mostraSoloDisponibili())"
+            />
+            <label class="form-check-label small fw-bold ms-2" for="switchDisponibili">
+              SOLO DISPONIBILI
+            </label>
+          </div>
         </div>
       </div>
     </div>
@@ -153,9 +218,9 @@
                 <div class="text-muted small">{{ a.specie }}</div>
               </td>
               <td class="py-3">
-                <span class="badge bg-secondary-subtle text-dark border-0">{{
-                  a.centroAdozione?.nomeCentro
-                }}</span>
+                <span class="badge bg-secondary-subtle text-dark border-0">
+                  {{ a.centroAdozione?.nomeCentro }}
+                </span>
               </td>
               <td class="py-3 text-center font-monospace">{{ a.microchip }}</td>
               <td class="py-3 text-center">
@@ -175,6 +240,13 @@
                 >
                   <i class="bi bi-trash3"></i>
                 </button>
+              </td>
+            </tr>
+          } @empty {
+            <tr>
+              <td colspan="6" class="text-center py-5 text-muted">
+                <i class="bi bi-info-circle me-2"></i>Nessun animale corrisponde ai filtri
+                selezionati.
               </td>
             </tr>
           }
