@@ -1,7 +1,6 @@
 /* =========================================
    STRUTTURA LAYOUT (SIDEBAR + MAIN)
    ========================================= */
-
 .sidebar-dark {
   width: 280px;
   background-color: #0f0f0f;
@@ -9,45 +8,44 @@
   position: fixed;
   left: 0;
   top: 0;
-  z-index: 1000; /* Sidebar sempre sopra */
+  z-index: 1000;
   border-right: 1px solid #222;
-  overflow-y: auto; /* Permette lo scroll se hai troppi preferiti */
+  overflow-y: auto;
 }
 
 .main-content-orange {
-  margin-left: 280px; /* Deve corrispondere alla larghezza sidebar */
+  margin-left: 280px;
   background-color: #db7134;
   min-height: 100vh;
-  padding: 20px;
+  padding: 40px;
   width: calc(100% - 280px);
   position: relative;
-  z-index: 1; /* Sotto la sidebar per non coprirla */
 }
 
 /* =========================================
-   SEZIONE PREFERITI (SIDEBAR)
+   SIDEBAR & PREFERITI
    ========================================= */
-
 .nav-item-dark {
   display: flex;
   align-items: center;
-  padding: 8px 12px;
-  border-radius: 8px;
+  padding: 10px 15px;
+  border-radius: 12px;
   color: white;
-  margin-bottom: 4px;
-  position: relative; /* <--- Vincola la X dentro la riga */
-  background: rgba(255, 255, 255, 0.03);
-  transition: background 0.2s;
+  margin-bottom: 8px;
+  position: relative;
+  background: rgba(255, 255, 255, 0.05);
+  transition: all 0.2s ease;
 }
 
 .nav-item-dark:hover {
-  background: rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.1);
+  transform: translateX(5px);
 }
 
 .nav-thumb-small {
-  width: 32px;
-  height: 32px;
-  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
   object-fit: cover;
   margin-right: 12px;
 }
@@ -55,68 +53,34 @@
 .btn-remove-light {
   position: absolute;
   right: 10px;
-  top: 50%;
-  transform: translateY(-50%);
   background: none;
   border: none;
-  color: #ff4757; /* Rosso per eliminare */
+  color: #ff4757;
   font-size: 1.2rem;
   cursor: pointer;
-  padding: 0;
-  line-height: 1;
+  opacity: 0.6;
 }
+
+.btn-remove-light:hover { opacity: 1; }
 
 /* =========================================
-   MAPPA E RESET FILTRO
+   GALLERY CARDS
    ========================================= */
-
-.map-container-mini {
-  height: 150px;
-  border-radius: 12px;
-  overflow: hidden;
-  border: 1px solid #333;
-}
-
-.btn-reset-map {
-  width: 100%;
-  background-color: rgba(255, 159, 67, 0.1);
-  color: #ff9f43;
-  border: 1px solid #ff9f43;
-  padding: 6px;
-  border-radius: 8px;
-  font-size: 0.75rem;
-  font-weight: bold;
-  cursor: pointer;
-  margin-top: 8px;
-  transition: all 0.3s ease;
-}
-
-.btn-reset-map:hover {
-  background-color: #ff9f43;
-  color: #0f0f0f;
-}
-
-/* =========================================
-   CARDS ANIMALI (GALLERY)
-   ========================================= */
-
 .animal-card-white {
   background: white;
-  border-radius: 16px;
+  border-radius: 24px;
   overflow: hidden;
-  transition: transform 0.3s;
-  position: relative;
-  z-index: 10; /* <--- Assicura che la card sia cliccabile */
-  cursor: pointer;
+  transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  border: none;
 }
 
 .animal-card-white:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+  transform: translateY(-10px);
+  box-shadow: 0 20px 40px rgba(0,0,0,0.3);
 }
 
 .image-box {
-  height: 180px;
+  height: 220px;
   position: relative;
 }
 
@@ -126,77 +90,103 @@
   object-fit: cover;
 }
 
-/* Badge Specie (es: Gatto) */
 .specie-badge-dark {
   position: absolute;
-  top: 10px;
-  right: 10px;
-  background: #0f0f0f;
+  top: 15px;
+  right: 15px;
+  background: rgba(15, 15, 15, 0.8);
+  backdrop-filter: blur(5px);
   color: white;
-  padding: 3px 10px;
-  border-radius: 20px;
-  font-size: 0.65rem;
-  font-weight: bold;
+  padding: 5px 12px;
+  border-radius: 30px;
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
 }
 
-/* PULSANTE STELLA (PREFERITI SULLA CARD) */
 .btn-favorite {
   position: absolute;
-  top: 10px;
-  left: 10px;
-  z-index: 20; /* Sopra l'immagine */
+  top: 15px;
+  left: 15px;
+  z-index: 20;
   background: white;
   border: none;
   border-radius: 50%;
-  width: 32px;
-  height: 32px;
-  color: #ccc; /* Stella grigia se non selezionata */
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+  width: 38px;
+  height: 38px;
+  color: #ddd;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.1);
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: all 0.2s ease;
+  transition: all 0.3s ease;
 }
 
-.btn-favorite.active {
-  color: #f1c40f; /* Giallo Oro per la stella attiva */
-  transform: scale(1.1);
-}
-
-.btn-favorite:hover {
-  transform: scale(1.15);
-}
+.btn-favorite.active { color: #f1c40f; }
 
 /* =========================================
-   UTILITY E ANIMAZIONI
+   MODAL DETTAGLI (PREMIUM LOOK)
    ========================================= */
+.modal-xl { max-width: 1100px; }
 
+.modal-content {
+  border-radius: 30px !important;
+  border: none;
+}
+
+.info-pill {
+  background: #f8f9fa;
+  border: 1px solid #eee;
+  padding: 12px;
+  border-radius: 18px;
+  text-align: center;
+  transition: all 0.3s;
+}
+
+.info-pill:hover {
+  background: #fff;
+  border-color: #ff9f43;
+  box-shadow: 0 5px 15px rgba(255, 159, 67, 0.1);
+}
+
+.text-orange { color: #ff9f43; }
+.btn-orange { 
+  background: #ff9f43; 
+  color: white; 
+  border: none; 
+  transition: 0.3s;
+}
+.btn-orange:hover { background: #e67e22; transform: translateY(-2px); }
+
+/* Sezione Storia e Visite */
+.history-section {
+  max-height: 250px;
+  overflow-y: auto;
+  padding-right: 10px;
+}
+
+/* Scrollbar personalizzata */
+.history-section::-webkit-scrollbar { width: 4px; }
+.history-section::-webkit-scrollbar-thumb { background: #ddd; border-radius: 10px; }
+
+/* =========================================
+   ANIMAZIONI
+   ========================================= */
 .animate-fade {
-  animation: fadeIn 0.3s ease-in;
+  animation: fadeIn 0.4s ease-out;
 }
 
 @keyframes fadeIn {
-  from { opacity: 0; transform: translateY(-5px); }
+  from { opacity: 0; transform: translateY(10px); }
   to { opacity: 1; transform: translateY(0); }
 }
 
-.text-orange {
-  color: #ff9f43;
-}
-
 .text-shadow {
-  text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+  text-shadow: 0 4px 8px rgba(0,0,0,0.2);
 }
 
-.brand-title-light {
-  color: #ff9f43;
-  font-weight: 800;
-  font-size: 1.5rem;
-}
-
-.nav-header-light {
-  font-size: 0.65rem;
-  font-weight: 700;
-  color: #aaaaaa;
-  text-transform: uppercase;
+.map-container-mini {
+  height: 180px;
+  border-radius: 20px;
+  overflow: hidden;
 }
