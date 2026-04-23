@@ -1,6 +1,5 @@
 <div class="container-fluid p-0">
   <div class="d-flex">
-    
     <aside class="sidebar-dark">
       <div class="sticky-content p-3">
         <div class="pt-4 mb-4 px-2">
@@ -11,8 +10,20 @@
           <div class="d-flex justify-content-between align-items-center px-2 mb-2">
             <h6 class="nav-header-light m-0">⭐ SALVATI</h6>
             <div class="pagination-arrows" *ngIf="animaleService.listaPreferiti().length > 4">
-              <button class="btn-arrow" (click)="prevPreferiti()" [disabled]="pagePreferiti() === 0">❮</button>
-              <button class="btn-arrow" (click)="nextPreferiti()" [disabled]="(pagePreferiti() + 1) * 4 >= animaleService.listaPreferiti().length">❯</button>
+              <button
+                class="btn-arrow"
+                (click)="prevPreferiti()"
+                [disabled]="pagePreferiti() === 0"
+              >
+                ❮
+              </button>
+              <button
+                class="btn-arrow"
+                (click)="nextPreferiti()"
+                [disabled]="(pagePreferiti() + 1) * 4 >= animaleService.listaPreferiti().length"
+              >
+                ❯
+              </button>
             </div>
           </div>
 
@@ -20,15 +31,24 @@
             @if (animaleService.listaPreferiti().length === 0) {
               <p class="text-secondary px-3 small">Nessun preferito</p>
             } @else {
-              @for (p of animaleService.listaPreferiti().slice(pagePreferiti() * 4, pagePreferiti() * 4 + 4); track p.id) {
+              @for (
+                p of animaleService
+                  .listaPreferiti()
+                  .slice(pagePreferiti() * 4, pagePreferiti() * 4 + 4);
+                track p.id
+              ) {
                 <div class="nav-item-dark animate-fade">
                   <img [src]="p.fotoUrl" class="nav-thumb-small" />
                   <span class="nav-text-light">{{ p.nome }}</span>
-                  <button class="btn-remove-light" (click)="animaleService.togglePreferito(p)">×</button>
+                  <button class="btn-remove-light" (click)="animaleService.togglePreferito(p)">
+                    ×
+                  </button>
                 </div>
               }
               <div class="px-2 mt-1">
-                <small class="text-muted" style="font-size: 0.6rem">Pagina {{ pagePreferiti() + 1 }}</small>
+                <small class="text-muted" style="font-size: 0.6rem"
+                  >Pagina {{ pagePreferiti() + 1 }}</small
+                >
               </div>
             }
           </div>
@@ -41,7 +61,7 @@
           <div class="map-container-mini border-dark shadow mb-2">
             <app-mappa (centroSelezionato)="filtraPerCentro($event)"></app-mappa>
           </div>
-          
+
           @if (selectedCentroId()) {
             <button class="btn-reset-map animate-fade" (click)="resetFiltroCentro()">
               ❌ Rimuovi filtro mappa
@@ -56,9 +76,11 @@
 
           <div class="mb-3">
             <label class="form-label small text-secondary fw-bold mb-1">SPECIE</label>
-            <select class="form-select form-select-sm border-0 bg-dark text-white shadow-none"
-                    [ngModel]="selectedSpecie()"
-                    (change)="selectedSpecie.set($any($event.target).value); onFilterChange()">
+            <select
+              class="form-select form-select-sm border-0 bg-dark text-white shadow-none"
+              [ngModel]="selectedSpecie()"
+              (change)="selectedSpecie.set($any($event.target).value); onFilterChange()"
+            >
               <option value="">Tutte le specie</option>
               <option value="Cane">Cani</option>
               <option value="Gatto">Gatti</option>
@@ -68,10 +90,13 @@
 
           <div class="mb-3">
             <label class="form-label small text-secondary fw-bold mb-1">RAZZA</label>
-            <input type="text" class="form-control form-control-sm border-0 bg-dark text-white shadow-none"
-                   placeholder="Es: Pastore..."
-                   [ngModel]="filterRazza()"
-                   (input)="filterRazza.set($any($event.target).value); onFilterChange()" />
+            <input
+              type="text"
+              class="form-control form-control-sm border-0 bg-dark text-white shadow-none"
+              placeholder="Es: Pastore..."
+              [ngModel]="filterRazza()"
+              (input)="filterRazza.set($any($event.target).value); onFilterChange()"
+            />
           </div>
 
           <button class="btn btn-light w-100 btn-sm fw-bold py-2 shadow" (click)="resetFiltri()">
@@ -97,13 +122,16 @@
         <div class="row g-4 px-3">
           @for (animale of animali(); track animale.id) {
             <div class="col-12 col-md-6 col-lg-4 col-xxl-3">
-              <div class="animal-card-white shadow position-relative" 
-                   (click)="apriDettagli(animale)" 
-                   style="cursor: pointer">
-                
-                <button class="btn-favorite" 
-                        (click)="$event.stopPropagation(); animaleService.togglePreferito(animale)" 
-                        [class.active]="isPreferito(animale)">
+              <div
+                class="animal-card-white shadow position-relative"
+                (click)="apriDettagli(animale)"
+                style="cursor: pointer"
+              >
+                <button
+                  class="btn-favorite"
+                  (click)="$event.stopPropagation(); animaleService.togglePreferito(animale)"
+                  [class.active]="isPreferito(animale)"
+                >
                   <i [class]="isPreferito(animale) ? 'bi bi-star-fill' : 'bi bi-star'"></i>
                 </button>
 
@@ -139,16 +167,19 @@
     <div class="modal-dialog modal-dialog-centered modal-lg" (click)="$event.stopPropagation()">
       <div class="modal-content border-0 shadow-lg overflow-hidden" style="border-radius: 20px">
         <div class="row g-0">
-          
-          <div class="col-md-5 bg-dark d-flex align-items-center justify-content-center" style="min-height: 400px">
+          <div
+            class="col-md-5 bg-dark d-flex align-items-center justify-content-center"
+            style="min-height: 400px"
+          >
             @if (selected.videoUrl) {
-              <video 
+              <video
                 [src]="getSafeVideoUrl(selected.videoUrl)"
-                controls 
-                autoplay 
-                muted 
-                loop 
-                class="w-100 h-100 object-fit-cover">
+                controls
+                autoplay
+                muted
+                loop
+                class="w-100 h-100 object-fit-cover"
+              >
                 Il tuo browser non supporta il video.
               </video>
             } @else {
@@ -162,7 +193,7 @@
               <button class="btn-close shadow-none" (click)="chiudiDettagli()"></button>
             </div>
             <p class="text-orange fw-bold mb-4">{{ selected.razza }}</p>
-            
+
             <div class="mb-4">
               <h6 class="text-secondary small fw-bold text-uppercase">La sua storia</h6>
               <p class="text-muted small lh-lg">
@@ -170,12 +201,39 @@
               </p>
             </div>
 
-            <button 
-              class="btn btn-dark w-100 rounded-pill py-2 mt-auto fw-bold" 
-              [disabled]="isSendingPratica()"
-              (click)="avviaPratica(selected.id)">
-              {{ isSendingPratica() ? 'Invio in corso...' : 'Avvia Pratica Adozione' }}
-            </button>
+            <div class="mt-auto">
+              @let p = profilo();
+
+              @if (p && (p.isSchedato === true || $any(p.statoIdoneita) === 'IDONEO')) {
+                <button
+                  class="btn btn-dark w-100 rounded-pill py-2 fw-bold"
+                  [disabled]="isSendingPratica()"
+                  (click)="avviaPratica(selected.id)"
+                >
+                  {{ isSendingPratica() ? 'Invio in corso...' : 'Avvia Pratica Adozione' }}
+                </button>
+              } @else {
+                <div
+                  class="text-center p-3 bg-light rounded-4 border border-warning-subtle animate-fade"
+                >
+                  <p class="small text-muted mb-2">
+                    Devi essere un adottante certificato per procedere.
+                  </p>
+                  <button
+                    class="btn btn-orange w-100 rounded-pill py-2 fw-bold"
+                    [disabled]="isLoading() || $any(p?.statoIdoneita) === 'IN_ATTESA'"
+                    (click)="inviaRichiestaIdoneita()"
+                  >
+                    <i class="bi bi-patch-check me-1"></i>
+                    @if ($any(p?.statoIdoneita) === 'IN_ATTESA') {
+                      Richiesta in valutazione...
+                    } @else {
+                      Richiedi Idoneità
+                    }
+                  </button>
+                </div>
+              }
+            </div>
           </div>
         </div>
       </div>

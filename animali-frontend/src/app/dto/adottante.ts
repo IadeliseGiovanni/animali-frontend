@@ -11,6 +11,7 @@ export interface AdottanteDto {
   telefono?: string;
   dataDiNascita?: Date;
   isSchedato: boolean;
+  statoIdoneita?: 'NON_RICHIESTA' | 'IN_ATTESA' | 'IDONEO' | 'NON_IDONEO'; // Aggiungi questo
   ruolo?: string; // Aggiunto per gestire il ruolo dell'animale (se necessario)
 
   animaliAdottati: AnimaleDto[];

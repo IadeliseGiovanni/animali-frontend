@@ -252,6 +252,55 @@
                   </button>
                 </div>
 
+                <div style="height: 25px"></div>
+
+                <div class="card bg-light border-0 rounded-4 p-3 mb-3">
+                  <label class="small fw-bold text-muted text-uppercase mb-2 d-block"
+                    >Certificazione Idoneità</label
+                  >
+
+                  @if (p.statoIdoneita === 'NON_RICHIESTA' || !p.statoIdoneita) {
+                    <div class="text-center">
+                      <p class="small text-muted mb-3">
+                        Diventa un adottante certificato per velocizzare le tue pratiche.
+                      </p>
+                      <button
+                        class="btn btn-sm btn-orange rounded-pill px-4 fw-bold w-100"
+                        (click)="inviaRichiestaIdoneita()"
+                        [disabled]="p.isSchedato || $any(p.statoIdoneita) === 'IN_ATTESA'"
+                      >
+                        <i class="bi bi-patch-check me-1"></i>
+                        {{
+                          p.isSchedato || $any(p.statoIdoneita) === 'IDONEO'
+                            ? 'Già Idoneo'
+                            : 'Richiedi Idoneità'
+                        }}
+                      </button>
+                    </div>
+                  }
+
+                  @if (p.statoIdoneita === 'IN_ATTESA') {
+                    <div
+                      class="alert alert-warning border-0 rounded-3 mb-0 d-flex align-items-center"
+                    >
+                      <div
+                        class="spinner-grow spinner-grow-sm text-warning me-2"
+                        role="status"
+                      ></div>
+                      <span class="small fw-bold text-dark">Valutazione in corso...</span>
+                    </div>
+                  }
+
+                  @if (p.statoIdoneita === 'IDONEO' || p.isSchedato) {
+                    <div
+                      class="alert alert-success border-0 rounded-3 mb-0 d-flex align-items-center"
+                    >
+                      <i class="bi bi-check-circle-fill me-2 fs-5"></i>
+                      <span class="small fw-bold text-dark">Adottante Certificato PetFlow</span>
+                    </div>
+                  }
+                </div>
+
                 <hr class="my-4 opacity-25" />
 
                 <div class="text-center">

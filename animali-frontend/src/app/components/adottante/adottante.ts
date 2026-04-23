@@ -155,17 +155,28 @@ export class AdottanteComponent implements OnInit {
 
   cambiaIdoneita(adottante: AdottanteDto, event: any) {
     const nuovoStato = event.target.value === 'true';
+
     if (adottante.id) {
       this.adottanteService.updateIdoneita(adottante.id, nuovoStato).subscribe({
         next: () => {
           this.listaAdottanti.update((lista) =>
-            lista.map((a) => (a.id === adottante.id ? { ...a, isSchedato: nuovoStato } : a)),
+            lista.map((a) => {
+              if (a.id === adottante.id) {
+                return {
+                  ...a,
+                  isSchedato: nuovoStato,
+                  // SE l'admin toglie l'idoneità (false), resettiamo lo stato testuale
+                  // altrimenti lo impostiamo su IDONEO
+                  statoIdoneita: nuovoStato ? 'IDONEO' : 'NON_RICHIESTA',
+                };
+              }
+              return a;
+            }),
           );
         },
       });
     }
   }
-
   cambiaRuolo(adottante: AdottanteDto, event: any) {
     const nuovoRuolo = event.target.value;
     if (adottante.id) {
@@ -259,6 +270,25 @@ export class AdottanteComponent implements OnInit {
         alert('Profilo aggiornato con successo!');
       },
       error: () => alert("Errore durante l'aggiornamento."),
+    });
+  }
+
+  inviaRichiestaIdoneita() {
+    const p = this.profilo();
+    if (!p || !p.id) return;
+
+    this.isLoading.set(true); // Feedback visivo
+    this.adottanteService.richiediIdoneita(p.id).subscribe({
+      next: (res) => {
+        // Aggiorniamo il profilo locale per nascondere il bottone e mostrare lo stato
+        this.profilo.update((old) => (old ? { ...old, statoIdoneita: 'IN_ATTESA' } : null));
+        this.isLoading.set(false);
+        alert('Richiesta inviata! Controlla la tua email per la conferma 🐾');
+      },
+      error: (err) => {
+        this.isLoading.set(false);
+        alert('Errore: ' + (err.error?.message || 'Impossibile inviare la richiesta.'));
+      },
     });
   }
 }

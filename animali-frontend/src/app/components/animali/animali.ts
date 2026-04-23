@@ -6,6 +6,8 @@ import { AnimaleService } from '../../services/animale';
 import { AnimaleDto } from '../../dto/animale';
 import { MappaComponent } from '../mappa-centri/mappa-centri';
 import { PraticaService } from '../../services/pratica';
+import { AdottanteDto } from '../../dto/adottante';
+import { AdottanteService } from '../../services/adottante';
 
 @Component({
   selector: 'app-animali',
@@ -19,12 +21,14 @@ export class AnimaliComponent implements OnInit {
   public animaleService = inject(AnimaleService);
   private praticaService = inject(PraticaService);
   private sanitizer = inject(DomSanitizer);
+  private adottanteService = inject(AdottanteService);
 
   // Stato dell'applicazione (Signals)
   animali = signal<AnimaleDto[]>([]);
   isLoading = signal(false);
   isSendingPratica = signal(false);
   animaleSelezionato = signal<AnimaleDto | null>(null);
+  profilo = signal<AdottanteDto | null>(null);
 
   // Filtri
   selectedSpecie = signal('');
@@ -37,6 +41,7 @@ export class AnimaliComponent implements OnInit {
 
   ngOnInit(): void {
     this.caricaTutti();
+    this.caricaProfilo();
   }
 
   // --- GESTIONE VIDEO ---
@@ -48,7 +53,7 @@ export class AnimaliComponent implements OnInit {
 
   // --- APERTURA E CHIUSURA DETTAGLI ---
   apriDettagli(a: AnimaleDto) {
-    console.log("Apertura dettagli per:", a.nome);
+    console.log('Apertura dettagli per:', a.nome);
     this.animaleSelezionato.set(a);
   }
 
@@ -67,7 +72,7 @@ export class AnimaliComponent implements OnInit {
         this.isLoading.set(false);
       },
       error: (err) => {
-        console.error("Errore nel caricamento:", err);
+        console.error('Errore nel caricamento:', err);
         this.isLoading.set(false);
       },
     });
@@ -83,7 +88,7 @@ export class AnimaliComponent implements OnInit {
           // Filtro aggiuntivo per razza testuale
           if (this.filterRazza()) {
             filtrati = data.filter((a) =>
-              a.razza?.toLowerCase().includes(this.filterRazza().toLowerCase())
+              a.razza?.toLowerCase().includes(this.filterRazza().toLowerCase()),
             );
           }
           this.animali.set(filtrati);
@@ -139,10 +144,36 @@ export class AnimaliComponent implements OnInit {
         this.chiudiDettagli();
       },
       error: (err) => {
-        console.error("Errore invio pratica:", err);
+        console.error('Errore invio pratica:', err);
         alert("Errore durante l'invio della richiesta.");
         this.isSendingPratica.set(false);
       },
+    });
+  }
+
+  inviaRichiestaIdoneita() {
+    const p = this.profilo();
+    if (!p?.id) return;
+
+    this.adottanteService.richiediIdoneita(p.id).subscribe({
+      next: () => {
+        // Se arrivi qui, il server ha risposto 200 OK
+        this.profilo.update((curr) => (curr ? { ...curr, statoIdoneita: 'IN_ATTESA' } : null));
+      },
+      error: (err) => {
+        alert('Errore server: i dati non sono stati salvati.');
+      },
+    });
+  }
+
+  caricaProfilo() {
+    this.adottanteService.getProfilo().subscribe({
+      next: (data) => {
+        console.log('Dati ricevuti dal DB:', data);
+        // CONTROLLA IN CONSOLE: statoIdoneita deve essere 'IN_ATTESA'
+        this.profilo.set(data);
+      },
+      error: (err) => console.error('Errore nel caricamento profilo:', err),
     });
   }
 }

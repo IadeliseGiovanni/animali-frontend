@@ -55,4 +55,9 @@ export class AdottanteService {
   patch(id: number, dto: any): Observable<any> {
     return this.http.patch(`${this.apiUrl}/${id}`, dto);
   }
+
+  richiediIdoneita(id: number): Observable<any> {
+    // Chiamata all'endpoint POST che abbiamo creato nel controller Java
+    return this.http.post(`${this.apiUrl}/${id}/richiedi-idoneita`, null);
+  }
 }
