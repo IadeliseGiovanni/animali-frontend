@@ -78,23 +78,15 @@
   padding: 8px 0;
 }
 
-/* Pulsante Registra (Nero/Arancione) */
 .btn-primary {
-  margin: 0 28px 28px 28px;
-  padding: 0 32px;
+  margin: 4px 28px 10px 28px;
   height: 50px;
   border: none;
   border-radius: 12px;
-  background: #1a1a1a;
-  color: #ffffff;
   font-weight: 700;
   font-size: 15px;
   cursor: pointer;
   transition: background 0.2s;
-}
-
-.btn-primary:hover {
-  background: #f67206; /* Cambia in arancione al passaggio */
 }
 
 /* --- TOOLBAR DI RICERCA --- */
