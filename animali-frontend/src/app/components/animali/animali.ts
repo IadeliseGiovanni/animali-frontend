@@ -1,5 +1,5 @@
-import { Component, inject, OnInit, signal } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { Component, inject, OnInit, PLATFORM_ID, signal } from '@angular/core';
+import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { AnimaleService } from '../../services/animale';
@@ -17,6 +17,7 @@ import { AdottanteService } from '../../services/adottante';
   styleUrls: ['./animali.css'],
 })
 export class AnimaliComponent implements OnInit {
+  private platformId = inject(PLATFORM_ID);
   public animaleService = inject(AnimaleService);
   private praticaService = inject(PraticaService);
   private sanitizer = inject(DomSanitizer);
@@ -35,8 +36,10 @@ export class AnimaliComponent implements OnInit {
   pagePreferiti = signal(0);
 
   ngOnInit(): void {
-    this.caricaTutti();
-    this.caricaProfilo();
+    if (isPlatformBrowser(this.platformId)) {
+      this.caricaTutti();
+      this.caricaProfilo();
+    }
   }
 
   getSafeVideoUrl(url: string | undefined): SafeResourceUrl {
@@ -48,7 +51,9 @@ export class AnimaliComponent implements OnInit {
     this.animaleSelezionato.set(a);
   }
 
-  chiudiDettagli() { this.animaleSelezionato.set(null); }
+  chiudiDettagli() {
+    this.animaleSelezionato.set(null);
+  }
 
   caricaTutti() {
     this.isLoading.set(true);
@@ -57,33 +62,65 @@ export class AnimaliComponent implements OnInit {
         this.animali.set(data.sort((a, b) => (b.eta ?? 0) - (a.eta ?? 0)));
         this.isLoading.set(false);
       },
-      error: () => this.isLoading.set(false)
+      error: () => this.isLoading.set(false),
     });
   }
 
   onFilterChange() {
     this.isLoading.set(true);
-    this.animaleService.getFiltered(this.selectedSpecie(), this.selectedGenere(), this.selectedCentroId()).subscribe({
-      next: (data) => {
-        this.animali.set(this.filterRazza() ? data.filter(a => a.razza?.toLowerCase().includes(this.filterRazza().toLowerCase())) : data);
-        this.isLoading.set(false);
-      },
-      error: () => this.isLoading.set(false)
-    });
+    this.animaleService
+      .getFiltered(this.selectedSpecie(), this.selectedGenere(), this.selectedCentroId())
+      .subscribe({
+        next: (data) => {
+          this.animali.set(
+            this.filterRazza()
+              ? data.filter((a) =>
+                  a.razza?.toLowerCase().includes(this.filterRazza().toLowerCase()),
+                )
+              : data,
+          );
+          this.isLoading.set(false);
+        },
+        error: () => this.isLoading.set(false),
+      });
   }
 
-  filtraPerCentro(id: number) { this.selectedCentroId.set(id); this.onFilterChange(); }
-  resetFiltroCentro() { this.selectedCentroId.set(null); this.onFilterChange(); }
-  resetFiltri() { this.selectedSpecie.set(''); this.filterRazza.set(''); this.selectedCentroId.set(null); this.caricaTutti(); }
-  isPreferito(a: AnimaleDto) { return this.animaleService.listaPreferiti().some(p => p.id === a.id); }
-  nextPreferiti() { this.pagePreferiti.update(v => v + 1); }
-  prevPreferiti() { this.pagePreferiti.update(v => v - 1); }
+  filtraPerCentro(id: number) {
+    this.selectedCentroId.set(id);
+    this.onFilterChange();
+  }
+  resetFiltroCentro() {
+    this.selectedCentroId.set(null);
+    this.onFilterChange();
+  }
+  resetFiltri() {
+    this.selectedSpecie.set('');
+    this.filterRazza.set('');
+    this.selectedCentroId.set(null);
+    this.caricaTutti();
+  }
+  isPreferito(a: AnimaleDto) {
+    return this.animaleService.listaPreferiti().some((p) => p.id === a.id);
+  }
+  nextPreferiti() {
+    this.pagePreferiti.update((v) => v + 1);
+  }
+  prevPreferiti() {
+    this.pagePreferiti.update((v) => v - 1);
+  }
 
   avviaPratica(id: number) {
     this.isSendingPratica.set(true);
     this.praticaService.avviaPratica(id).subscribe({
-      next: () => { alert('Successo!'); this.isSendingPratica.set(false); this.chiudiDettagli(); },
-      error: () => { alert('Errore!'); this.isSendingPratica.set(false); }
+      next: () => {
+        alert('Successo!');
+        this.isSendingPratica.set(false);
+        this.chiudiDettagli();
+      },
+      error: () => {
+        alert('Errore!');
+        this.isSendingPratica.set(false);
+      },
     });
   }
 
@@ -91,7 +128,7 @@ export class AnimaliComponent implements OnInit {
     const p = this.profilo();
     if (p?.id) {
       this.adottanteService.richiediIdoneita(p.id).subscribe({
-        next: () => this.profilo.update(c => c ? {...c, statoIdoneita: 'IN_ATTESA'} : null)
+        next: () => this.profilo.update((c) => (c ? { ...c, statoIdoneita: 'IN_ATTESA' } : null)),
       });
     }
   }
@@ -99,7 +136,7 @@ export class AnimaliComponent implements OnInit {
   caricaProfilo() {
     this.adottanteService.getProfilo().subscribe({
       next: (data) => this.profilo.set(data),
-      error: (err) => console.error(err)
+      error: (err) => console.error(err),
     });
   }
 }
