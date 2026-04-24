@@ -1,56 +1,61 @@
-/* Wrapper con lo sfondo ARANCIONE identico al login */
 .register-wrapper {
-  min-height: 100vh; /* Copre tutta l'altezza dello schermo */
-  background-color: #f27c21; /* Arancione ufficiale PetFlow */
+  min-height: 100vh;
+  width: 100%;
   display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 20px;
+  align-items: center;     /* Centra verticalmente */
+  justify-content: center;  /* Centra orizzontalmente */
+  padding: 20px;           /* Spazio di sicurezza per mobile */
+  margin: 0;
 }
 
 .register-card {
   width: 100%;
-  max-width: 450px; /* Ridotto leggermente per matchare il login */
+  max-width: 450px;
   border-radius: 24px !important;
-  background-color: #ffffff; /* La card rimane bianca per contrasto */
-  overflow: hidden;
+  background-color: #ffffff;
   border: none;
+  /* Rimuove eventuali margini che spostano la card */
+  margin: auto; 
 }
 
-/* Colore Arancione per i Pulsanti e Testi */
+/* Fix per gli input-group arrotondati correttamente */
+.input-group {
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.input-group-text {
+  border-radius: 12px 0 0 12px !important;
+  background-color: #ffffff;
+}
+
+.form-control {
+  border-radius: 0 12px 12px 0 !important;
+  padding: 12px;
+}
+
+.form-control:focus {
+  border-color: #f27c21;
+  box-shadow: none;
+}
+
+/* Pulsante */
 .btn-orange {
   background-color: #f27c21 !important;
-  color: white !important;
-  border: none !important;
+  border-radius: 50px !important; /* Arrotondato pillola */
   transition: all 0.3s ease;
-}
-
-.btn-orange:hover {
-  background-color: #d96a1a !important;
-  transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
 }
 
 .text-orange {
   color: #f27c21 !important;
 }
 
-/* Stile Input raffinato */
-.form-control {
-  padding: 12px;
-  border: 1px solid #dee2e6;
-  border-radius: 12px !important; /* Arrotondiamo gli angoli degli input */
+/* Media query per dispositivi molto piccoli */
+@media (max-width: 576px) {
+  .register-wrapper {
+    padding: 10px;
+  }
+  .card-body {
+    padding: 30px 20px !important;
+  }
 }
-
-.form-control:focus {
-  border-color: #f27c21;
-  box-shadow: 0 0 0 0.25rem rgba(242, 124, 33, 0.15);
-}
-
-.input-group-text {
-  border-color: #dee2e6;
-  color: #6c757d;
-  border-radius: 12px 0 0 12px !important;
-}
-
-/* Rimuoviamo gli stili del role-selector che non serve più */

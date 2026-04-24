@@ -1,11 +1,5 @@
-<div
-  class="register-wrapper d-flex align-items-center justify-content-center"
-  style="min-height: 70vh; background-color: #db7134; padding: 240px 0"
->
-  <div
-    class="card register-card shadow-lg border-0"
-    style="max-width: 450px; width: 100%; border-radius: 24px"
-  >
+<div class="register-wrapper">
+  <div class="card register-card shadow-lg border-0">
     <div class="card-body p-4 p-md-5">
       <div class="text-center mb-4">
         <h2 class="fw-bold text-dark">Unisciti a noi 🐶</h2>
@@ -16,16 +10,14 @@
 
       <form (submit)="onRegister($event)">
         <div class="mb-3">
-          <label class="form-label small fw-bold text-secondary text-uppercase"
-            >Nome e Cognome</label
-          >
+          <label class="form-label small fw-bold text-secondary text-uppercase">Nome e Cognome</label>
           <div class="input-group">
-            <span class="input-group-text bg-white border-end-0 rounded-start-3">
+            <span class="input-group-text bg-white border-end-0">
               <i class="bi bi-person text-muted"></i>
             </span>
             <input
               type="text"
-              class="form-control border-start-0 rounded-end-3 shadow-none py-2"
+              class="form-control border-start-0 shadow-none py-2"
               [(ngModel)]="form.nome"
               name="nome"
               placeholder="Inserisci il tuo nome"
@@ -37,12 +29,12 @@
         <div class="mb-3">
           <label class="form-label small fw-bold text-secondary text-uppercase">Email</label>
           <div class="input-group">
-            <span class="input-group-text bg-white border-end-0 rounded-start-3">
+            <span class="input-group-text bg-white border-end-0">
               <i class="bi bi-envelope text-muted"></i>
             </span>
             <input
               type="email"
-              class="form-control border-start-0 rounded-end-3 shadow-none py-2"
+              class="form-control border-start-0 shadow-none py-2"
               [(ngModel)]="form.email"
               name="email"
               placeholder="esempio@email.it"
@@ -54,12 +46,12 @@
         <div class="mb-4">
           <label class="form-label small fw-bold text-secondary text-uppercase">Password</label>
           <div class="input-group">
-            <span class="input-group-text bg-white border-end-0 rounded-start-3">
+            <span class="input-group-text bg-white border-end-0">
               <i class="bi bi-lock text-muted"></i>
             </span>
             <input
               type="password"
-              class="form-control border-start-0 rounded-end-3 shadow-none py-2"
+              class="form-control border-start-0 shadow-none py-2"
               [(ngModel)]="form.password"
               name="password"
               placeholder="Almeno 6 caratteri"
@@ -78,7 +70,7 @@
         <div class="text-center mt-4">
           <p class="small text-muted mb-0">
             Hai già un account?
-            <a routerLink="/login" class="text-orange fw-bold text-decoration-none">Accedi qui</a>
+            <a [routerLink]="['/login']" class="text-orange fw-bold text-decoration-none" style="cursor: pointer;">Accedi qui</a>
           </p>
         </div>
       </form>
