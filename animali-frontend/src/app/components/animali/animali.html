@@ -245,12 +245,20 @@
                 >
                   <p class="small text-muted mb-2">Vuoi adottare {{ selected.nome }}?</p>
                   <div class="d-grid gap-2">
-                    <a routerLink="/login" class="btn btn-dark rounded-pill py-2 fw-bold">Accedi</a>
                     <a
-                      routerLink="/register"
-                      class="btn btn-outline-orange rounded-pill py-2 fw-bold"
-                      >Registrati</a
+                      [routerLink]="['/login']"
+                      [queryParams]="{ returnUrl: '/animali', id: selected.id }"
+                      class="btn btn-dark rounded-pill py-2 fw-bold"
                     >
+                      Accedi
+                    </a>
+
+                    <a
+                      routerLink="/registrati"
+                      class="btn btn-outline-orange rounded-pill py-2 fw-bold"
+                    >
+                      Registrati
+                    </a>
                   </div>
                 </div>
               } @else if (p.isSchedato === true || $any(p.statoIdoneita) === 'IDONEO') {
