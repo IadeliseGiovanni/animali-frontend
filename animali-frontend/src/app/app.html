@@ -131,23 +131,23 @@
   </div>
 </nav>
 
-<main class="content-area"><router-outlet></router-outlet></main>
-
-<footer class="bg-dark text-white border-top py-5 mt-5">
-  <div class="container text-center">
-    <a
-      class="footer-brand fw-bold d-inline-flex align-items-center text-decoration-none mb-3"
-      routerLink="/animali"
-      style="cursor: pointer"
-    >
-      <span class="fs-3 me-2">🐶</span>
-
-      <span class="brand-text">
-        <span style="color: #f27c21">Pet</span>
-        <span style="color: #b5b0b0">Flow</span>
-      </span>
-    </a>
-
-    <p class="small text-secondary mb-0">© 2026 PetFlow Inc. • Progetto No-Profit</p>
+<main class="content-area" style="min-height: 100vh; display: flex; flex-direction: column;">
+  
+  <div style="flex: 1;">
+    <router-outlet></router-outlet>
   </div>
-</footer>
+
+  <footer class="bg-dark text-white border-top py-5 mt-5">
+    <div class="container text-center">
+      <a class="footer-brand fw-bold d-inline-flex align-items-center text-decoration-none mb-3" routerLink="/animali">
+        <span class="fs-3 me-2">🐶</span>
+        <span class="brand-text">
+          <span style="color: #f27c21">Pet</span>
+          <span style="color: #b5b0b0">Flow</span>
+        </span>
+      </a>
+      <p class="small text-secondary mb-0">© 2026 PetFlow Inc. • Progetto No-Profit</p>
+    </div>
+  </footer>
+
+</main>

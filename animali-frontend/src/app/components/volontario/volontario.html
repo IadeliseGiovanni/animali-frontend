@@ -13,8 +13,8 @@
         type="text"
         class="form-control border-0 shadow-none p-0 bg-transparent small"
         placeholder="Cerca per nome o CF..."
-        [(ngModel)]="searchTerm"
-        (input)="onSearch()"
+        [ngModel]="searchTerm()"
+        (ngModelChange)="searchTerm.set($event)"
       />
     </div>
   </div>

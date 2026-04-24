@@ -97,23 +97,28 @@ export class VolontarioComponent implements OnInit {
   }
 
   aggiungi() {
-    const dto = this.nuovoVolontario() as VolontarioDto;
-
+    // Crea una copia pulita del DTO per l'invio
+    const dto = { ...this.nuovoVolontario() } as VolontarioDto;
+  
     if (!dto.nome || !dto.cognome || !dto.cf || !dto.centroAdozione) {
       alert('Inserire Nome, Cognome, CF e selezionare un Centro.');
       return;
     }
-
+  
     this.volontarioService.insert(dto).subscribe({
       next: (volontarioSalvato) => {
-        this.volontari.update((currentList) => [...currentList, volontarioSalvato]);
+        // AGGIORNAMENTO REATTIVO: Crea un nuovo riferimento all'array
+        this.volontari.update(list => [...list, volontarioSalvato]);
+        
+        // RESET FILTRI: Garantisce che il nuovo elemento sia visibile
+        this.searchTerm.set('');
+        this.filtroCentroId.set('TUTTI');
+        this.filtroTurno.set('TUTTI');
+  
         this.resetForm();
         alert('Volontario registrato correttamente!');
       },
-      error: (err) => {
-        console.error('Errore inserimento:', err);
-        alert('Errore nel salvataggio del volontario.');
-      },
+      error: (err) => alert('Errore nel salvataggio.')
     });
   }
 

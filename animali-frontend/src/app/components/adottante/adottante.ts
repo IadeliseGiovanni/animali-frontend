@@ -193,7 +193,6 @@ export class AdottanteComponent implements OnInit {
   }
 
   getEta(dataDiNascita: any): number {
-    // Il tuo DTO Java usa 'dataDiNascita'
     if (!dataDiNascita) return 0;
 
     // Gestione se la data arriva come stringa o array dal backend (LocalDateTime)
