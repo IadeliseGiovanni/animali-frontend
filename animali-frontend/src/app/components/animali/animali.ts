@@ -8,11 +8,12 @@ import { MappaComponent } from '../mappa-centri/mappa-centri';
 import { PraticaService } from '../../services/pratica';
 import { AdottanteDto } from '../../dto/adottante';
 import { AdottanteService } from '../../services/adottante';
+import { RouterLink } from '@angular/router';
 
 @Component({
   selector: 'app-animali',
   standalone: true,
-  imports: [CommonModule, FormsModule, MappaComponent],
+  imports: [CommonModule, FormsModule, MappaComponent, RouterLink],
   templateUrl: './animali.html',
   styleUrls: ['./animali.css'],
 })
