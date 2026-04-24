@@ -22,3 +22,37 @@
 .dropdown-item i {
   transition: color 0.2s;
 }
+
+.navbar-toggler {
+  /* Dimensioni ridotte */
+  padding: 4px 8px;
+  font-size: 1rem;
+  line-height: 1;
+  
+  /* Stile Dark & Orange */
+  background-color: #1a1a1a; 
+  border: 1px solid rgba(246, 114, 6, 0.5); /* Bordo arancione sottile */
+  border-radius: 8px;
+  color: #f67206; 
+  
+  cursor: pointer;
+  transition: all 0.2s ease;
+  outline: none;
+}
+
+.navbar-toggler:hover {
+  background-color: #f67206;
+  color: #1a1a1a;
+  border-color: #f67206;
+}
+
+.navbar-toggler:focus {
+  box-shadow: 0 0 0 2px rgba(246, 114, 6, 0.2);
+}
+
+/* Riduce anche l'icona interna per coerenza */
+.navbar-toggler-icon {
+  width: 1.2rem;
+  height: 1.2rem;
+  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'%3e%3cpath stroke='rgba(246, 114, 6, 1)' stroke-linecap='round' stroke-miterlimit='10' stroke-width='2' d='M4 7h22M4 15h22M4 23h22'/%3e%3c/svg%3e") !important;
+}
