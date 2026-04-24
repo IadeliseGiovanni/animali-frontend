@@ -280,6 +280,27 @@
 
                 <div style="height: 25px"></div>
 
+                <div class="row g-2 mb-3">
+                  <div class="col-6">
+                    <label class="small fw-bold text-muted text-uppercase mb-1">Nome</label>
+                    <input
+                      type="text"
+                      class="form-control form-control-sm border-light-subtle bg-light"
+                      [(ngModel)]="p.nome"
+                      placeholder="Nome"
+                    />
+                  </div>
+                  <div class="col-6">
+                    <label class="small fw-bold text-muted text-uppercase mb-1">Cognome</label>
+                    <input
+                      type="text"
+                      class="form-control form-control-sm border-light-subtle bg-light"
+                      [(ngModel)]="p.cognome"
+                      placeholder="Cognome"
+                    />
+                  </div>
+                </div>
+
                 <div class="mb-3">
                   <label class="small fw-bold text-muted text-uppercase mb-1"
                     >Data di Nascita</label
