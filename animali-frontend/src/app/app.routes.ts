@@ -7,13 +7,14 @@ import { AdottanteComponent } from './components/adottante/adottante';
 import { CentroAdozioneComponent } from './components/centroadozione/centroadozione';
 import { RegisterComponent } from './components/register/register';
 import { authGuard } from './guards/auth.guard';
-// 1. IMPORTA IL NUOVO COMPONENTE
 import { GestionePraticheComponent } from './components/gestione-pratiche/gestione-pratiche';
 import { GestioneAnimaliComponent } from './components/gestione-animali/gestione-animali';
+import { ResetPasswordComponent } from './components/resetpassword/resetpassword';
 
 export const routes: Routes = [
   { path: 'login', component: LoginComponent },
   { path: 'animali', component: AnimaliComponent },
+  { path: 'reset-password', component: ResetPasswordComponent },
 
   // Rotta per il profilo personale
   { path: 'adottante', component: AdottanteComponent, canActivate: [authGuard] },

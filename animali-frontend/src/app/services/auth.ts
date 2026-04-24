@@ -100,14 +100,6 @@ export class AuthService {
   }
 
   /**
-   * RESET PASSWORD: Usato quando l'utente NON è loggato.
-   * Invia email e la nuova password scelta dall'utente.
-   */
-  resetPassword(email: string, password: string): Observable<any> {
-    return this.http.post(`${this.apiUrl}/reset-password`, { email, password });
-  }
-
-  /**
    * CHANGE PASSWORD: Usato quando l'utente È loggato.
    * Richiede la vecchia password per sicurezza.
    */
@@ -137,5 +129,23 @@ export class AuthService {
       {},
       { responseType: 'text' },
     );
+  }
+
+  requestResetLink(email: string): Observable<any> {
+    return this.http.post(
+      `${this.apiUrl}/forgot-password?email=${email}`,
+      {},
+      { responseType: 'text' },
+    );
+  }
+
+  /**
+   * STEP 2: Invia il token ricevuto via mail e la nuova password scelta.
+   */
+  confirmPasswordReset(token: string, newPassword: string): Observable<any> {
+    return this.http.post(`${this.apiUrl}/reset-password-confirm`, {
+      token: token,
+      newPassword: newPassword, // Deve essere newPassword, NON nuovaPassword o password
+    });
   }
 }

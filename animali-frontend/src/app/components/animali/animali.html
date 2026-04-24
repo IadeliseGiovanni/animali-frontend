@@ -239,7 +239,21 @@
             <div class="mt-auto">
               @let p = profilo();
 
-              @if (p && (p.isSchedato === true || $any(p.statoIdoneita) === 'IDONEO')) {
+              @if (!p) {
+                <div
+                  class="text-center p-3 bg-light rounded-4 border border-info-subtle animate-fade"
+                >
+                  <p class="small text-muted mb-2">Vuoi adottare {{ selected.nome }}?</p>
+                  <div class="d-grid gap-2">
+                    <a routerLink="/login" class="btn btn-dark rounded-pill py-2 fw-bold">Accedi</a>
+                    <a
+                      routerLink="/register"
+                      class="btn btn-outline-orange rounded-pill py-2 fw-bold"
+                      >Registrati</a
+                    >
+                  </div>
+                </div>
+              } @else if (p.isSchedato === true || $any(p.statoIdoneita) === 'IDONEO') {
                 <button
                   class="btn btn-dark w-100 rounded-pill py-2 fw-bold"
                   [disabled]="isSendingPratica()"

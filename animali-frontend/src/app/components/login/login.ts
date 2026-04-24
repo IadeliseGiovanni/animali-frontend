@@ -73,30 +73,24 @@ export class LoginComponent {
   }
 
   inviaReset() {
-    if (!this.resetPayload.email || !this.resetPayload.password) {
-      alert('Inserisci email e la nuova password desiderata.');
-      return;
-    }
-
-    if (this.resetPayload.password.length < 6) {
-      alert('La password deve essere di almeno 6 caratteri.');
+    if (!this.resetPayload.email) {
+      alert("Inserisci l'email per ricevere il link di reset.");
       return;
     }
 
     this.isResetting.set(true);
-    this.authService.resetPassword(this.resetPayload.email, this.resetPayload.password).subscribe({
+
+    // Chiamiamo il metodo che invia solo l'email al backend
+    this.authService.requestResetLink(this.resetPayload.email).subscribe({
       next: (res) => {
-        alert(res.message || 'Password aggiornata con successo! Ora puoi accedere.');
+        alert("Ti abbiamo inviato un'email con il link per resettare la password! 🐾");
         this.isResetting.set(false);
-        this.mostraResetForm.set(false);
-        // Puliamo i campi dopo il successo
-        this.loginData.email = this.resetPayload.email;
-        this.resetPayload = { email: '', password: '' };
+        this.mostraResetForm.set(false); // Chiudiamo il form
+        this.resetPayload.email = ''; // Puliamo il campo
       },
       error: (err) => {
-        const msg = err.error?.message || err.error || 'Errore durante il reset';
-        alert(msg);
         this.isResetting.set(false);
+        alert("Errore: assicurati che l'email sia corretta.");
       },
     });
   }

@@ -44,6 +44,7 @@ export class AdottanteComponent implements OnInit {
   // Paginazione Animali Adottati (Nuovo)
   paginaAnimali = signal(1);
   animaliPerPagina = 6;
+  utenteLoggatoId: number | undefined;
 
   // --- LOGICA REATTIVA LISTA UTENTI ---
   listaFiltrata = computed(() => {
@@ -334,4 +335,22 @@ export class AdottanteComponent implements OnInit {
       error: (err) => alert('Errore: ' + err.error.error),
     });
   }
+
+  isEditable = computed(() => {
+    const p = this.profilo();
+    const user = this.authService.currentUser() as any;
+
+    if (!p || !user) return false;
+
+    const isAdmin = user.ruolo === 'ADMIN';
+
+    if (isAdmin) {
+      // Confrontiamo l'email del profilo con l'email dell'utente loggato
+      const isMioProfilo = p.email === user.email;
+
+      return isMioProfilo;
+    }
+
+    return true;
+  });
 }
