@@ -38,6 +38,8 @@ export class AdottanteComponent implements OnInit {
   filtroRuolo = signal<string>('TUTTI');
   paginaCorrente = signal(1);
   elementiPerPagina = 15;
+  nuovaEmailInserita = signal<string>('');
+  isSendingEmail = signal<boolean>(false);
 
   // Paginazione Animali Adottati (Nuovo)
   paginaAnimali = signal(1);
@@ -265,8 +267,15 @@ export class AdottanteComponent implements OnInit {
 
     this.adottanteService.patch(p.id, p).subscribe({
       next: (datoAggiornato) => {
-        this.profilo.set(datoAggiornato);
-        this.isEditMode.set(false);
+        // TRUCCO: Formatta la data prima di settare il signal
+        if (datoAggiornato.dataDiNascita) {
+          const d = new Date(datoAggiornato.dataDiNascita);
+          datoAggiornato.dataDiNascita = d.toISOString().split('T')[0];
+        }
+
+        // Aggiorna il profilo: questo scatenerà il ricalcolo di getTestoEta(p.dataDiNascita)
+        this.profilo.set({ ...datoAggiornato });
+
         alert('Profilo aggiornato con successo!');
       },
       error: () => alert("Errore durante l'aggiornamento."),
@@ -289,6 +298,41 @@ export class AdottanteComponent implements OnInit {
         this.isLoading.set(false);
         alert('Errore: ' + (err.error?.message || 'Impossibile inviare la richiesta.'));
       },
+    });
+  }
+
+  richiediCambioEmail(id: number | undefined, nuovaEmail: string) {
+    // Controllo di sicurezza: se l'ID manca, non procedere
+    if (id === undefined) {
+      console.error('ID Adottante non valido');
+      return;
+    }
+
+    if (!nuovaEmail) {
+      alert("Inserisci un'email valida");
+      return;
+    }
+
+    this.adottanteService.richiediCambioEmail(id, nuovaEmail).subscribe({
+      next: () => {
+        alert('Email di conferma inviata!');
+      },
+      error: (err) => alert('Errore: ' + err.message),
+    });
+  }
+
+  cambiaPassword(id: number, vecchia: string, nuova: string, conferma: string) {
+    if (nuova !== conferma) {
+      alert('La nuova password e la conferma non coincidono!');
+      return;
+    }
+
+    this.adottanteService.cambiaPassword(id, vecchia, nuova).subscribe({
+      next: () => {
+        alert('Password aggiornata! Riceverai una mail di conferma.');
+        // Pulisci i campi o chiudi il modal
+      },
+      error: (err) => alert('Errore: ' + err.error.error),
     });
   }
 }

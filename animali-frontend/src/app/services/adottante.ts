@@ -60,4 +60,29 @@ export class AdottanteService {
     // Chiamata all'endpoint POST che abbiamo creato nel controller Java
     return this.http.post(`${this.apiUrl}/${id}/richiedi-idoneita`, null);
   }
+
+  richiediCambioEmail(id: number, nuovaEmail: string): Observable<string> {
+    // Usiamo HttpParams per passare la query string ?nuovaEmail=...
+    const params = new HttpParams().set('nuovaEmail', nuovaEmail);
+    return this.http.post(`${this.apiUrl}/${id}/richiedi-cambio-email`, null, {
+      params,
+      responseType: 'text', // Il backend restituisce una stringa semplice
+    });
+  }
+
+  confermaCambioEmail(token: string): Observable<string> {
+    const params = new HttpParams().set('token', token);
+    return this.http.get(`${this.apiUrl}/conferma-email`, {
+      params,
+      responseType: 'text',
+    });
+  }
+
+  cambiaPassword(id: number, vecchiaPass: string, nuovaPass: string): Observable<any> {
+    const params = new HttpParams()
+      .set('vecchiaPassword', vecchiaPass)
+      .set('nuovaPassword', nuovaPass);
+
+    return this.http.patch(`${this.apiUrl}/${id}/cambia-password`, null, { params });
+  }
 }
