@@ -2,7 +2,11 @@
 .page {
   min-height: 100vh;
   padding: 32px;
-  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  font-family:
+    'Inter',
+    system-ui,
+    -apple-system,
+    sans-serif;
 }
 
 .header {
@@ -212,12 +216,69 @@
 
 /* --- RESPONSIVE --- */
 @media (max-width: 1024px) {
-  .layout { grid-template-columns: 1fr; height: auto; }
-  .map { height: 400px; }
+  .layout {
+    grid-template-columns: 1fr;
+    height: auto;
+  }
+  .map {
+    height: 400px;
+  }
 }
 
 @media (max-width: 768px) {
-  .grid-form { grid-template-columns: 1fr; }
-  .btn-primary { width: calc(100% - 56px); }
-  .toolbar { flex-direction: column; }
+  .grid-form {
+    grid-template-columns: 1fr;
+  }
+  .btn-primary {
+    width: calc(100% - 56px);
+  }
+  .toolbar {
+    flex-direction: column;
+  }
+}
+
+/* Container della card deve essere relativo */
+.card {
+  position: relative;
+  padding: 20px;
+  /* ... altri tuoi stili ... */
+}
+
+/* Pulsante elimina stile "Pillola" */
+.btn-delete {
+  position: absolute;
+  top: 15px;
+  right: 15px;
+
+  /* Dimensioni e Forma */
+  width: 50px;
+  height: 30px;
+  border-radius: 20px; /* Crea l'effetto ovale (pillola) */
+
+  /* Stato Default: Vuoto con bordo */
+  background: transparent;
+  border: 1px solid #dc3545; /* Rosso sottile */
+  color: #dc3545;
+
+  /* Allineamento Icona */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  /* Animazione fluida */
+  transition: all 0.3s ease;
+  cursor: pointer;
+  z-index: 10;
+}
+
+/* Stato Hover: Si colora come nella tua seconda immagine */
+.btn-delete:hover {
+  background-color: #dc3545; /* Sfondo rosso pieno */
+  color: white; /* Icona bianca */
+  box-shadow: 0 4px 8px rgba(220, 53, 69, 0.3); /* Leggera ombra rossa */
+}
+
+/* Icona dentro al pulsante */
+.btn-delete i {
+  font-size: 1.1rem;
 }

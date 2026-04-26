@@ -1,42 +1,39 @@
 <div class="page">
-
   <header class="header">
     <h1>🏠 Gestione Centri di Adozione</h1>
   </header>
 
   <!-- FORM -->
   <div class="form-card">
-
     <h2>Nuovo Centro</h2>
 
     <div class="grid-form">
-
       <input
         type="text"
         placeholder="Nome centro"
         [ngModel]="nuovoCentro().nomeCentro"
-        (ngModelChange)="nuovoCentro.update(c => ({ ...c, nomeCentro: $event }))"
+        (ngModelChange)="nuovoCentro.update((c) => ({ ...c, nomeCentro: $event }))"
       />
 
       <input
         type="text"
         placeholder="Città"
         [ngModel]="nuovoCentro().citta"
-        (ngModelChange)="nuovoCentro.update(c => ({ ...c, citta: $event }))"
+        (ngModelChange)="nuovoCentro.update((c) => ({ ...c, citta: $event }))"
       />
 
       <input
         type="text"
         placeholder="Indirizzo"
         [ngModel]="nuovoCentro().indirizzo"
-        (ngModelChange)="nuovoCentro.update(c => ({ ...c, indirizzo: $event }))"
+        (ngModelChange)="nuovoCentro.update((c) => ({ ...c, indirizzo: $event }))"
       />
 
       <input
         type="number"
         placeholder="Capacità"
         [ngModel]="nuovoCentro().capacitaMassima"
-        (ngModelChange)="nuovoCentro.update(c => ({ ...c, capacitaMassima: +$event }))"
+        (ngModelChange)="nuovoCentro.update((c) => ({ ...c, capacitaMassima: +$event }))"
       />
 
       <input
@@ -44,7 +41,7 @@
         step="any"
         placeholder="Latitudine"
         [ngModel]="nuovoCentro().latitudine"
-        (ngModelChange)="nuovoCentro.update(c => ({ ...c, latitudine: +$event }))"
+        (ngModelChange)="nuovoCentro.update((c) => ({ ...c, latitudine: +$event }))"
       />
 
       <input
@@ -52,30 +49,31 @@
         step="any"
         placeholder="Longitudine"
         [ngModel]="nuovoCentro().longitudine"
-        (ngModelChange)="nuovoCentro.update(c => ({ ...c, longitudine: +$event }))"
+        (ngModelChange)="nuovoCentro.update((c) => ({ ...c, longitudine: +$event }))"
       />
 
       <label class="checkbox">
         <input
           type="checkbox"
           [ngModel]="nuovoCentro().isNoProfit"
-          (ngModelChange)="nuovoCentro.update(c => ({ ...c, isNoProfit: $event }))"
+          (ngModelChange)="nuovoCentro.update((c) => ({ ...c, isNoProfit: $event }))"
         />
         Ente No-Profit
       </label>
-
     </div>
 
     <div class="btn-primary">
-    <button class="btn btn-success px-5 fw-bold rounded-pill shadow-sm" (click)="aggiungiCentro()">
-      <i class="bi bi-plus-circle me-2"></i>Registra Centro
-    </button>
-  </div>
+      <button
+        class="btn btn-success px-5 fw-bold rounded-pill shadow-sm"
+        (click)="aggiungiCentro()"
+      >
+        <i class="bi bi-plus-circle me-2"></i>Registra Centro
+      </button>
+    </div>
   </div>
 
   <!-- TOOLBAR -->
   <div class="toolbar">
-
     <input
       type="text"
       placeholder="🔎 Cerca città..."
@@ -84,52 +82,34 @@
       (input)="filtraPerCitta()"
     />
 
-    <button class="btn-reset" (click)="caricaTutti()">
-      🔄 Reset
-    </button>
-
+    <button class="btn-reset" (click)="caricaTutti()">🔄 Reset</button>
   </div>
 
-  <!-- MAIN -->
   <div class="layout">
-
-    <!-- LISTA -->
     <div class="list">
-
       @for (centro of centri(); track centro.id) {
-        <div class="card">
-
-          <div class="title">
-            {{ centro.nomeCentro }}
-          </div>
-
+        <div class="card position-relative">
+          <div class="title">{{ centro.nomeCentro }}</div>
+          <button class="btn-delete" (click)="elimina(centro.id)">
+            <i class="bi bi-trash"></i>
+          </button>
           <div class="info">
-            📍 {{ centro.citta }} <br>
-            🏠 {{ centro.indirizzo }} <br>
+            📍 {{ centro.citta }} <br />
+            🏠 {{ centro.indirizzo }} <br />
             🌍 {{ centro.latitudine }} , {{ centro.longitudine }}
           </div>
-
           <div class="footer">
             <span>Capacità</span>
             <strong>{{ centro.capacitaMassima }}</strong>
           </div>
-
         </div>
+      } @empty {
+        <div class="empty">Nessun centro trovato</div>
       }
-
-      @empty {
-        <div class="empty">
-          Nessun centro trovato
-        </div>
-      }
-
     </div>
 
-    <!-- MAPPA -->
-    <div class="map">
-      <div id="map"></div>
+    <div class="map-wrapper shadow-sm">
+      <app-mappa [centri]="centri()" style="height: 100%; display: block"> </app-mappa>
     </div>
-
   </div>
-
 </div>

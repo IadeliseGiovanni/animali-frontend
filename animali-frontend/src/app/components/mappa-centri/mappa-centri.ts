@@ -7,6 +7,10 @@ import {
   EventEmitter,
   NgZone,
   OnDestroy,
+  ElementRef,
+  ViewChild,
+  input,
+  effect,
 } from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';
 import { CentroAdozioneService } from '../../services/centroadozione';
@@ -14,76 +18,69 @@ import { CentroAdozioneService } from '../../services/centroadozione';
 @Component({
   selector: 'app-mappa',
   standalone: true,
-  templateUrl: './mappa-centri.html',
+  // Usiamo un template semplice: il div occupa tutto lo spazio del padre
+  template: `<div #mapContainer id="map" style="height: 100%; width: 100%;"></div>`,
   styleUrls: ['./mappa-centri.css'],
 })
 export class MappaComponent implements AfterViewInit, OnDestroy {
-  private centroService = inject(CentroAdozioneService);
-  private platformId = inject(PLATFORM_ID);
-  private zone = inject(NgZone);
-
-  // Variabile per memorizzare l'istanza di Leaflet
-  private map: any; 
-
+  @ViewChild('mapContainer') mapContainer!: ElementRef;
   @Output() centroSelezionato = new EventEmitter<number>();
 
+  // 1. Riceve la lista dei centri dal componente padre
+  centri = input<any[]>([]);
+
+  private platformId = inject(PLATFORM_ID);
+  private zone = inject(NgZone);
+  private map: any;
+  private markers: any[] = []; // <--- Teniamo traccia dei marker per pulirli
+  private resizeObserver: ResizeObserver | null = null;
+
+  constructor() {
+    // 2. Ogni volta che il signal 'centri' cambia, aggiorniamo i marker sulla mappa
+    effect(() => {
+      const listaCentri = this.centri();
+      if (this.map) {
+        this.aggiornaMarkers(listaCentri);
+      }
+    });
+  }
+
   ngAfterViewInit() {
-    // Eseguiamo l'inizializzazione solo se siamo nel Browser (evita errore document is not defined)
     if (isPlatformBrowser(this.platformId)) {
-      // Un piccolo delay assicura che il contenitore HTML sia pronto al 100%
-      setTimeout(() => this.initMap(), 150);
-    }
-  }
-
-  ngOnDestroy() {
-    // Pulizia quando il componente viene rimosso (cambio pagina o chiusura modale)
-    if (isPlatformBrowser(this.platformId)) {
-      this.pulisciMappa();
-    }
-  }
-
-  // Metodo per distruggere correttamente la mappa e liberare il div
-  private pulisciMappa() {
-    if (this.map) {
-      this.map.off(); // Rimuove gli eventi
-      this.map.remove(); // Distrugge l'oggetto mappa
-      this.map = null;
-    }
-    
-    // Reset manuale dell'ID di Leaflet nel DOM per evitare l'errore "already initialized"
-    const container = document.getElementById('map');
-    if (container) {
-      (container as any)._leaflet_id = null;
+      Promise.resolve().then(() => this.initMap());
     }
   }
 
   private async initMap() {
-    // Pulizia preventiva prima di ogni creazione
-    this.pulisciMappa();
-
     const L = await import('leaflet');
-
     try {
-      // Creazione della mappa
-      this.map = L.map('map', {
+      this.map = L.map(this.mapContainer.nativeElement, {
         center: [41.9028, 12.4964],
         zoom: 5,
-        fadeAnimation: false // Ottimizza il caricamento iniziale
+        zoomControl: false,
       });
 
-      // Caricamento dei pezzi (tiles) di OpenStreetMap
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-      attribution: '© OpenStreetMap',
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '© OSM',
       }).addTo(this.map);
 
-      // FIX PER LA MAPPA GRIGIA: Forza il ricalcolo delle dimensioni del div
-      setTimeout(() => {
-        if (this.map) {
-          this.map.invalidateSize();
-        }
-      }, 250);
+      this.resizeObserver = new ResizeObserver(() => this.map?.invalidateSize());
+      this.resizeObserver.observe(this.mapContainer.nativeElement);
 
-      // Icona personalizzata per i marker
+      // Inizializziamo i marker con i dati attuali
+      this.aggiornaMarkers(this.centri());
+    } catch (e) {
+      console.error(e);
+    }
+  }
+
+  private async aggiornaMarkers(centri: any[]) {
+    const L = await import('leaflet');
+
+    // 3. Pulizia: rimuoviamo i vecchi marker dalla mappa
+    this.markers.forEach((m) => this.map.removeLayer(m));
+    this.markers = [];
+
     const iconDefault = L.icon({
       iconRetinaUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon-2x.png',
       iconUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png',
@@ -92,28 +89,36 @@ export class MappaComponent implements AfterViewInit, OnDestroy {
       iconAnchor: [12, 41],
     });
 
-      // Caricamento centri dal database
-    this.centroService.getAll().subscribe({
-      next: (centri) => {
-        centri.forEach((c) => {
-            if (c.latitudine && c.longitudine && this.map) {
-              const m = L.marker([c.latitudine, c.longitudine], { icon: iconDefault }).addTo(this.map);
+    // 4. Creazione nuovi marker
+    centri.forEach((c) => {
+      if (c.latitudine && c.longitudine && this.map) {
+        const m = L.marker([c.latitudine, c.longitudine], { icon: iconDefault })
+          .addTo(this.map)
+          .bindPopup(`<b>${c.nomeCentro}</b>`);
 
-            m.bindPopup(`<b>${c.nomeCentro}</b>`);
-
-              // Emissione dell'evento per filtrare gli animali
-            m.on('click', () => {
-              this.zone.run(() => {
-                this.centroSelezionato.emit(c.id);
-              });
-            });
-          }
+        m.on('click', () => {
+          this.zone.run(() => this.centroSelezionato.emit(c.id));
         });
-      },
-        error: (err) => console.error('Mappa: Errore caricamento centri', err),
+
+        this.markers.push(m);
+      }
     });
-    } catch (e) {
-      console.error('Errore durante l\'inizializzazione di Leaflet:', e);
+  }
+
+  private pulisciMappa() {
+    if (this.resizeObserver) {
+      this.resizeObserver.disconnect();
+    }
+    if (this.map) {
+      this.map.off();
+      this.map.remove();
+      this.map = null;
+    }
+  }
+
+  ngOnDestroy() {
+    if (isPlatformBrowser(this.platformId)) {
+      this.pulisciMappa();
     }
   }
 }

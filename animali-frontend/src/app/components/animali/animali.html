@@ -58,15 +58,16 @@
 
         <div class="nav-section mb-4 px-2">
           <h6 class="nav-header-light px-0">📍 POSIZIONE CENTRI</h6>
-          <div class="map-container-mini border-dark shadow mb-2">
-            <app-mappa (centroSelezionato)="filtraPerCentro($event)"></app-mappa>
+
+          <div
+            class="map-container-mini border-dark shadow mb-2"
+            style="height: 250px; overflow: hidden; border-radius: 12px"
+          >
+            <app-mappa [centri]="centri()" (centroSelezionato)="filtraPerCentro($event)">
+            </app-mappa>
           </div>
 
-          @if (selectedCentroId()) {
-            <button class="btn-reset-map animate-fade" (click)="resetFiltroCentro()">
-              ❌ Rimuovi filtro mappa
-            </button>
-          }
+          @if (selectedCentroId()) {}
         </div>
 
         <hr class="border-secondary opacity-25" />

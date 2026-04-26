@@ -9,6 +9,8 @@ import { PraticaService } from '../../services/pratica';
 import { AdottanteDto } from '../../dto/adottante';
 import { AdottanteService } from '../../services/adottante';
 import { RouterLink } from '@angular/router';
+import { CentroAdozioneService } from '../../services/centroadozione';
+import { CentroAdozioneDto } from '../../dto/centroadozioni';
 
 @Component({
   selector: 'app-animali',
@@ -23,6 +25,7 @@ export class AnimaliComponent implements OnInit {
   private praticaService = inject(PraticaService);
   private sanitizer = inject(DomSanitizer);
   private adottanteService = inject(AdottanteService);
+  private centroService = inject(CentroAdozioneService);
 
   animali = signal<AnimaleDto[]>([]);
   isLoading = signal(false);
@@ -35,11 +38,13 @@ export class AnimaliComponent implements OnInit {
   selectedCentroId = signal<number | null>(null);
   filterRazza = signal('');
   pagePreferiti = signal(0);
+  centri = signal<CentroAdozioneDto[]>([]);
 
   ngOnInit(): void {
     if (isPlatformBrowser(this.platformId)) {
       this.caricaTutti();
       this.caricaProfilo();
+      this.caricaCentri();
     }
   }
 
@@ -64,6 +69,13 @@ export class AnimaliComponent implements OnInit {
         this.isLoading.set(false);
       },
       error: () => this.isLoading.set(false),
+    });
+  }
+
+  caricaCentri() {
+    this.centroService.getAll().subscribe({
+      next: (data) => this.centri.set(data),
+      error: (err) => console.error('Errore caricamento centri:', err),
     });
   }
 
