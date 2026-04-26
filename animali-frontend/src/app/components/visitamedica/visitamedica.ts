@@ -53,7 +53,7 @@ export class VisitaMedicaComponent implements OnInit {
   });
 
   nuovaVisita = signal<VisitaMedicaDto>({
-    id: 0,
+    id: undefined,
     data: '',
     veterinario: '',
     esito: '',

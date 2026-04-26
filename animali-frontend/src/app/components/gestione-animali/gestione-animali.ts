@@ -59,6 +59,7 @@ export class GestioneAnimaliComponent implements OnInit {
   });
 
   nuovoAnimale = signal<Partial<AnimaleDto>>({
+    id: undefined,
     nome: '',
     specie: 'Cane',
     microchip: '',

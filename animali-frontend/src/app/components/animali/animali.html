@@ -67,7 +67,11 @@
             </app-mappa>
           </div>
 
-          @if (selectedCentroId()) {}
+          @if (selectedCentroId()) {
+            <button class="btn-reset-map animate-fade" (click)="resetFiltroCentro()">
+              ❌ Rimuovi filtro mappa
+            </button>
+          }
         </div>
 
         <hr class="border-secondary opacity-25" />
