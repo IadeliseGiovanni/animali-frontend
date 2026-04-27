@@ -43,7 +43,7 @@ export class AdottanteComponent implements OnInit {
 
   // Paginazione Animali Adottati (Nuovo)
   paginaAnimali = signal(1);
-  animaliPerPagina = 6;
+  animaliPerPagina = 12;
   utenteLoggatoId: number | undefined;
 
   // --- LOGICA REATTIVA LISTA UTENTI ---
@@ -155,6 +155,9 @@ export class AdottanteComponent implements OnInit {
     this.profilo.set(null);
     this.isListaMode.set(true);
   }
+  resetPagination() {
+    this.paginaCorrente.set(1);
+  }
 
   cambiaIdoneita(adottante: AdottanteDto, event: any) {
     const nuovoStato = event.target.value === 'true';
@@ -258,6 +261,17 @@ export class AdottanteComponent implements OnInit {
         },
         error: () => alert('Errore durante la cancellazione.'),
       });
+    }
+  }
+
+  goToPage(page: number) {
+    if (page >= 1 && page <= this.totalePagine()) {
+      this.paginaCorrente.set(page);
+    }
+  }
+  goToPageAnimali(page: number) {
+    if (page >= 1 && page <= this.totalePagineAnimali()) {
+      this.paginaAnimali.set(page);
     }
   }
 

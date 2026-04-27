@@ -25,44 +25,53 @@
     </div>
     <div class="card-body p-4 bg-white">
       <div class="row g-3">
-        <div class="col-md-3">
-          <label class="form-label small fw-bold text-muted mb-1">NOME *</label>
-          <input
-            type="text"
-            class="form-control form-control-sm bg-light border-0"
-            [(ngModel)]="nuovoVolontario().nome"
-            placeholder="Nome"
-          />
-        </div>
-        <div class="col-md-3">
-          <label class="form-label small fw-bold text-muted mb-1">COGNOME *</label>
-          <input
-            type="text"
-            class="form-control form-control-sm bg-light border-0"
-            [(ngModel)]="nuovoVolontario().cognome"
-            placeholder="Cognome"
-          />
-        </div>
-        <div class="col-md-3">
-          <label class="form-label small fw-bold text-muted mb-1">CODICE FISCALE *</label>
-          <input
-            type="text"
-            class="form-control form-control-sm bg-light border-0 text-uppercase"
-            [(ngModel)]="nuovoVolontario().cf"
-            placeholder="CF"
-          />
-        </div>
-        <div class="col-md-3">
-          <label class="form-label small fw-bold text-muted mb-1">CENTRO *</label>
-          <select
-            class="form-select form-select-sm bg-light border-0"
-            [(ngModel)]="nuovoVolontario().centroAdozione"
-          >
-            <option [ngValue]="undefined" disabled selected>Scegli centro...</option>
-            @for (c of centri(); track c.id) {
-              <option [ngValue]="c">{{ c.nomeCentro }}</option>
-            }
-          </select>
+        <div class="row g-3">
+          <div class="col-md-3">
+            <label class="form-label small fw-bold text-muted mb-1">NOME *</label>
+            <input
+              type="text"
+              class="form-control form-control-sm bg-light border-0"
+              [ngModel]="nuovoVolontario().nome"
+              (ngModelChange)="nuovoVolontario.update((v) => ({ ...v, nome: $event }))"
+              placeholder="Nome"
+            />
+          </div>
+
+          <div class="col-md-3">
+            <label class="form-label small fw-bold text-muted mb-1">COGNOME *</label>
+            <input
+              type="text"
+              class="form-control form-control-sm bg-light border-0"
+              [ngModel]="nuovoVolontario().cognome"
+              (ngModelChange)="nuovoVolontario.update((v) => ({ ...v, cognome: $event }))"
+              placeholder="Cognome"
+            />
+          </div>
+
+          <div class="col-md-3">
+            <label class="form-label small fw-bold text-muted mb-1">CODICE FISCALE *</label>
+            <input
+              type="text"
+              class="form-control form-control-sm bg-light border-0 text-uppercase"
+              [ngModel]="nuovoVolontario().cf"
+              (ngModelChange)="nuovoVolontario.update((v) => ({ ...v, cf: $event }))"
+              placeholder="CF"
+            />
+          </div>
+
+          <div class="col-md-3">
+            <label class="form-label small fw-bold text-muted mb-1">CENTRO *</label>
+            <select
+              class="form-select form-select-sm bg-light border-0"
+              [ngModel]="nuovoVolontario().centroAdozione"
+              (ngModelChange)="nuovoVolontario.update((v) => ({ ...v, centroAdozione: $event }))"
+            >
+              <option [ngValue]="undefined" disabled selected>Scegli centro...</option>
+              @for (c of centri(); track c.id) {
+                <option [ngValue]="c">{{ c.nomeCentro }}</option>
+              }
+            </select>
+          </div>
         </div>
 
         <div class="col-md-4">
@@ -87,7 +96,8 @@
           <label class="form-label small fw-bold text-muted mb-1">RUOLO *</label>
           <select
             class="form-select form-select-sm bg-light border-0"
-            [(ngModel)]="nuovoVolontario().ruolo"
+            [ngModel]="nuovoVolontario().ruolo"
+            (ngModelChange)="nuovoVolontario.update((v) => ({ ...v, ruolo: $event }))"
           >
             <option value="USER">User</option>
             <option value="ADMIN">Admin</option>
@@ -143,7 +153,7 @@
         </div>
         <div class="col-md-4 d-flex align-items-center justify-content-end">
           <span class="badge bg-dark px-3 py-2 rounded-pill">
-            <i class="bi bi-filter me-2"></i>{{ volontariFiltrati().length }} Risultati
+            <i class="bi bi-filter me-2"></i>{{ volontariPaginate().length }} Risultati
           </span>
         </div>
       </div>
@@ -163,7 +173,7 @@
           </tr>
         </thead>
         <tbody class="bg-white" style="font-size: 0.85rem">
-          @for (v of volontariFiltrati(); track v.id) {
+          @for (v of volontariPaginate(); track v.id) {
             <tr>
               <td class="ps-4 py-3">
                 <div class="fw-bold text-dark">{{ v.nome }} {{ v.cognome }}</div>
@@ -171,17 +181,21 @@
               </td>
               <td class="py-3">
                 <div class="d-flex align-items-center mb-1">
-                  <i class="bi bi-envelope-at me-2 text-primary"></i>{{ v.email }}
+                  <i class="bi bi-envelope-at me-2 text-primary"></i>
+                  <span class="fw-medium">{{ v.email }}</span>
                 </div>
                 <span
-                  class="badge"
-                  [ngClass]="
-                    v.ruolo === 'ADMIN'
-                      ? 'bg-danger-subtle text-danger'
-                      : 'bg-info-subtle text-info'
-                  "
-                  style="font-size: 0.65rem"
+                  class="badge rounded-pill px-2 py-1 border"
+                  [ngClass]="{
+                    'bg-danger-subtle text-danger border-danger': v.ruolo === 'ADMIN',
+                    'bg-success-subtle text-success border-success': v.ruolo === 'USER' || !v.ruolo,
+                  }"
+                  style="font-size: 0.7rem; text-transform: uppercase"
                 >
+                  <i
+                    class="bi me-1"
+                    [ngClass]="v.ruolo === 'ADMIN' ? 'bi-shield-lock' : 'bi-person'"
+                  ></i>
                   {{ v.ruolo || 'USER' }}
                 </span>
               </td>
@@ -191,16 +205,30 @@
                 }}</span>
               </td>
               <td class="py-3 text-center">
-                <span
-                  class="badge rounded-pill border px-3 py-2"
-                  [ngClass]="{
-                    'bg-warning-subtle text-dark border-warning': v.turno === 'MATTINA',
-                    'bg-info-subtle text-dark border-info': v.turno === 'POMERIGGIO',
-                    'bg-secondary-subtle text-dark border-secondary': v.turno === 'NOTTE',
-                  }"
-                >
-                  {{ v.turno || '-' }}
-                </span>
+                @if (v.turno) {
+                  <span
+                    class="badge rounded-pill border px-3 py-2 fw-bold"
+                    [ngClass]="{
+                      'bg-warning-subtle text-warning-emphasis border-warning':
+                        v.turno === 'MATTINA',
+                      'bg-info-subtle text-info-emphasis border-info': v.turno === 'POMERIGGIO',
+                      'bg-secondary-subtle text-dark border-secondary': v.turno === 'NOTTE',
+                    }"
+                    style="min-width: 100px; letter-spacing: 0.5px"
+                  >
+                    <i
+                      class="bi me-1"
+                      [ngClass]="{
+                        'bi-sun-fill': v.turno === 'MATTINA',
+                        'bi-cloud-sun-fill': v.turno === 'POMERIGGIO',
+                        'bi-moon-stars-fill': v.turno === 'NOTTE',
+                      }"
+                    ></i>
+                    {{ v.turno }}
+                  </span>
+                } @else {
+                  <span class="text-muted small italic">Non assegnato</span>
+                }
               </td>
               <td class="py-3 text-center">
                 <button
@@ -218,6 +246,28 @@
           }
         </tbody>
       </table>
+      <div class="card-footer bg-white d-flex justify-content-between align-items-center py-3">
+        <span class="small text-muted">
+          Pagina <strong>{{ currentPage() }}</strong> di {{ totalPages() }}
+        </span>
+        <div class="btn-group shadow-sm">
+          <button
+            class="btn btn-sm btn-outline-dark"
+            [disabled]="currentPage() === 1"
+            (click)="goToPage(currentPage() - 1)"
+          >
+            <i class="bi bi-chevron-left"></i>
+          </button>
+
+          <button
+            class="btn btn-sm btn-outline-dark"
+            [disabled]="currentPage() === totalPages()"
+            (click)="goToPage(currentPage() + 1)"
+          >
+            <i class="bi bi-chevron-right"></i>
+          </button>
+        </div>
+      </div>
     </div>
   </div>
 </div>

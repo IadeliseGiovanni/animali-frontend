@@ -2,16 +2,15 @@ import { Component, signal, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { AuthService } from '../../services/auth';
-import { Router,RouterLink } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 
 @Component({
   selector: 'app-register',
   standalone: true,
-  imports: [CommonModule, FormsModule,RouterLink],
+  imports: [CommonModule, FormsModule, RouterLink],
   templateUrl: './register.html',
   styleUrls: ['./register.css'],
 })
-
 export class RegisterComponent {
   private authService = inject(AuthService);
   private router = inject(Router);
@@ -38,7 +37,7 @@ export class RegisterComponent {
     registerObs.subscribe({
       next: (response) => {
         console.log('Registrazione completata:', response);
-        alert('Registrazione riuscita! Adesso puoi accedere.');
+        alert('Registrazione riuscita! Controlla la tua email per la verifica.');
         this.router.navigate(['/login']);
       },
       error: (err) => {

@@ -21,14 +21,16 @@ export class VisitaMedicaComponent implements OnInit {
   visite = signal<VisitaMedicaDto[]>([]);
   elencoAnimali = signal<AnimaleDto[]>([]);
 
-  // Filtri per il form di inserimento
-  filtroAnimale = signal('');
+  // --- PAGINAZIONE ---
+  currentPage = signal(1);
+  pageSize = signal(5); // Elementi per pagina
 
-  // Filtri per la tabella dello storico
+  // Filtri
+  filtroAnimale = signal('');
   termineRicercaVisite = signal('');
   filtroVeterinario = signal('');
 
-  // 1. Filtraggio per la ricerca rapida nel form
+  // 1. Ricerca rapida animali (per il form)
   animaliFiltrati = computed(() => {
     const term = this.filtroAnimale().toLowerCase().trim();
     if (!term) return [];
@@ -37,8 +39,9 @@ export class VisitaMedicaComponent implements OnInit {
     );
   });
 
-  // 2. Filtraggio per la tabella delle visite effettuate
-  visiteFiltrate = computed(() => {
+  // 2. Logica di Filtraggio + Paginazione per la tabella
+  // Prima filtriamo, poi calcoliamo le pagine, poi tagliamo la lista
+  visiteDopoFiltro = computed(() => {
     let lista = this.visite();
     const search = this.termineRicercaVisite().toLowerCase().trim();
     const vet = this.filtroVeterinario().toLowerCase().trim();
@@ -52,6 +55,15 @@ export class VisitaMedicaComponent implements OnInit {
     return lista;
   });
 
+  // Questa è la lista effettiva da mostrare nel @for della tabella
+  visitePaginate = computed(() => {
+    const startIndex = (this.currentPage() - 1) * this.pageSize();
+    return this.visiteDopoFiltro().slice(startIndex, startIndex + this.pageSize());
+  });
+
+  // Calcolo totale pagine
+  totalPages = computed(() => Math.ceil(this.visiteDopoFiltro().length / this.pageSize()));
+
   nuovaVisita = signal<VisitaMedicaDto>({
     id: undefined,
     data: '',
@@ -64,6 +76,18 @@ export class VisitaMedicaComponent implements OnInit {
   ngOnInit() {
     this.caricaTutte();
     this.caricaAnimali();
+  }
+
+  // --- METODI NAVIGAZIONE ---
+  goToPage(page: number) {
+    if (page >= 1 && page <= this.totalPages()) {
+      this.currentPage.set(page);
+    }
+  }
+
+  // Se l'utente scrive nel filtro, resettiamo alla pagina 1
+  resetPagination() {
+    this.currentPage.set(1);
   }
 
   caricaTutte() {
@@ -90,37 +114,41 @@ export class VisitaMedicaComponent implements OnInit {
   }
 
   aggiungi() {
-    const data = this.nuovaVisita();
-
+    const data = { ...this.nuovaVisita() };
     if (!data.data || !data.veterinario || !data.animale) {
-      alert('Compila i campi obbligatori e seleziona un animale!');
+      alert('Compila i campi obbligatori!');
       return;
     }
+    delete data.id;
 
     this.visitaService.insert(data).subscribe({
       next: (res) => {
         this.visite.update((list) => [res, ...list]);
         this.resetForm();
+        this.currentPage.set(1); // Torna alla pag 1 per vedere l'inserimento
         alert('Visita salvata correttamente!');
       },
-      error: (err) => alert('Errore nel salvataggio.'),
+      error: (err) => console.error(err),
     });
   }
 
   elimina(id: number | undefined) {
-    if (id && confirm('Sei sicuro di voler eliminare questa visita medica?')) {
+    if (id && confirm('Eliminare questa visita?')) {
       this.visitaService.delete(id).subscribe({
         next: () => {
           this.visite.update((list) => list.filter((v) => v.id !== id));
+          // Se la pagina rimane vuota dopo l'eliminazione, torna indietro di una
+          if (this.visitePaginate().length === 0 && this.currentPage() > 1) {
+            this.currentPage.update((p) => p - 1);
+          }
         },
-        error: (err) => alert("Errore durante l'eliminazione."),
       });
     }
   }
 
   private resetForm() {
     this.nuovaVisita.set({
-      id: 0,
+      id: undefined,
       data: '',
       veterinario: '',
       esito: '',

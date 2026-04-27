@@ -96,13 +96,12 @@
 
                   <td class="text-center">
                     <select
-                      class="form-select form-select-sm rounded-pill border-0 shadow-sm w-auto mx-auto fw-bold"
-                      [style.background-color]="a.isSchedato ? '#d1e7dd' : '#fff3cd'"
-                      [style.color]="a.isSchedato ? '#0f5132' : '#664d03'"
+                      class="form-select form-select-sm rounded-pill border-0 shadow-sm w-auto mx-auto fw-bold select-idoneita"
+                      [class.stato-idoneo]="a.isSchedato"
+                      [class.stato-verifica]="!a.isSchedato"
                       (change)="cambiaIdoneita(a, $event)"
                     >
                       <option [value]="true" [selected]="a.isSchedato">Idoneo</option>
-
                       <option [value]="false" [selected]="!a.isSchedato">Verifica</option>
                     </select>
                   </td>
@@ -405,14 +404,18 @@
                       <button
                         class="btn btn-sm btn-orange rounded-pill px-4 fw-bold w-100"
                         (click)="inviaRichiestaIdoneita()"
-                        [disabled]="p.isSchedato || $any(p.statoIdoneita) === 'IN_ATTESA'"
+                        [disabled]="
+                          p.isSchedato || $any(p.statoIdoneita) === 'IN_ATTESA' || !isEditable()
+                        "
                       >
                         <i class="bi bi-patch-check me-1"></i>
 
                         {{
-                          p.isSchedato || $any(p.statoIdoneita) === 'IDONEO'
-                            ? 'Già Idoneo'
-                            : 'Richiedi Idoneità'
+                          !isEditable()
+                            ? 'Azione non consentita'
+                            : p.isSchedato || $any(p.statoIdoneita) === 'IDONEO'
+                              ? 'Già Idoneo'
+                              : 'Richiedi Idoneità'
                         }}
                       </button>
                     </div>
@@ -446,10 +449,18 @@
 
                 <div class="text-center">
                   <button
-                    class="btn btn-link text-danger btn-sm text-decoration-none"
+                    class="btn btn-link btn-sm text-decoration-none"
+                    [class.text-danger]="isEditable()"
+                    [class.text-muted]="!isEditable()"
+                    [disabled]="!isEditable()"
                     (click)="cancellaAccount()"
                   >
-                    <i class="bi bi-trash3 me-1"></i> Elimina profilo definitivamente
+                    <i class="bi bi-trash3 me-1"></i>
+                    {{
+                      isEditable()
+                        ? 'Elimina profilo definitivamente'
+                        : 'Eliminazione non consentita'
+                    }}
                   </button>
                 </div>
               </div>

@@ -1,4 +1,4 @@
-import { Component, OnInit, signal, inject, computed } from '@angular/core';
+import { Component, OnInit, signal, inject, computed, effect } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { AnimaleDto } from '../../dto/animale';
@@ -25,6 +25,9 @@ export class GestioneAnimaliComponent implements OnInit {
   mostraSoloDisponibili = signal(false);
   filtroSpecie = signal('TUTTE');
   filtroCentroId = signal('TUTTI');
+  paginaCorrente = signal(1);
+  elementiPerPagina = 6;
+  isSaving = signal(false);
 
   // Calcola la lista da visualizzare in base ai filtri
   animaliFiltrati = computed(() => {
@@ -57,6 +60,33 @@ export class GestioneAnimaliComponent implements OnInit {
 
     return lista;
   });
+
+  constructor() {
+    effect(() => {
+      // Quando uno di questi cambia...
+      this.filtroTesto();
+      this.filtroSpecie();
+      this.filtroCentroId();
+      this.mostraSoloDisponibili();
+
+      // ...riporta la visualizzazione all'inizio
+      this.paginaCorrente.set(1);
+    });
+  }
+
+  cambiaPagina(nuovaPagina: number) {
+    // Verifica che la pagina sia valida (non minore di 1 e non superiore al totale)
+    if (nuovaPagina >= 1 && nuovaPagina <= this.totalePagine()) {
+      this.paginaCorrente.set(nuovaPagina);
+    }
+  }
+
+  animaliPaginati = computed(() => {
+    const inizio = (this.paginaCorrente() - 1) * this.elementiPerPagina;
+    return this.animaliFiltrati().slice(inizio, inizio + this.elementiPerPagina);
+  });
+
+  totalePagine = computed(() => Math.ceil(this.animaliFiltrati().length / this.elementiPerPagina));
 
   nuovoAnimale = signal<Partial<AnimaleDto>>({
     id: undefined,
@@ -99,12 +129,17 @@ export class GestioneAnimaliComponent implements OnInit {
       return;
     }
 
+    this.isSaving.set(true);
     this.animaleService.insert(data).subscribe({
       next: (res) => {
-        this.animali.update((list) => [...list, res]);
+        this.animali.update((list) => [res, ...list]); // Inserisci in testa
         this.resetForm();
+        this.isSaving.set(false);
       },
-      error: (err) => alert('Errore nel salvataggio'),
+      error: () => {
+        this.isSaving.set(false);
+        alert('Errore nel salvataggio');
+      },
     });
   }
 

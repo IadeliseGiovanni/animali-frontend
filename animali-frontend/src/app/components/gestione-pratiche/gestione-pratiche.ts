@@ -1,4 +1,4 @@
-import { Component, inject, OnInit, signal, computed } from '@angular/core';
+import { Component, inject, OnInit, signal, computed, effect } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { PraticaService } from '../../services/pratica';
 import { PraticaAdozioneDto } from '../../dto/pratica';
@@ -19,6 +19,8 @@ export class GestionePraticheComponent implements OnInit {
   filtroStato = signal<string>('TUTTI');
   filtroData = signal<string>('RECENTER');
   isLoading = signal(true);
+  paginaCorrente = signal(1);
+  elementiPerPagina = signal(12);
 
   // LOGICA DI FILTRAGGIO E ORDINAMENTO REATTIVA
   filteredPratiche = computed(() => {
@@ -49,6 +51,23 @@ export class GestionePraticheComponent implements OnInit {
     });
   });
 
+  pratichePaginate = computed(() => {
+    const inizio = (this.paginaCorrente() - 1) * this.elementiPerPagina();
+    const fine = inizio + this.elementiPerPagina();
+    return this.filteredPratiche().slice(inizio, fine);
+  });
+
+  constructor() {
+    // Reset automatico della pagina quando cambiano i filtri
+    effect(() => {
+      this.searchQuery();
+      this.filtroStato();
+      this.filtroData();
+
+      this.paginaCorrente.set(1);
+    });
+  }
+
   ngOnInit() {
     this.caricaPratiche();
   }
@@ -62,6 +81,16 @@ export class GestionePraticheComponent implements OnInit {
       },
       error: () => this.isLoading.set(false),
     });
+  }
+
+  totalePagine = computed(() => {
+    return Math.ceil(this.filteredPratiche().length / this.elementiPerPagina());
+  });
+
+  cambiaPagina(n: number) {
+    if (n >= 1 && n <= this.totalePagine()) {
+      this.paginaCorrente.set(n);
+    }
   }
 
   aggiorna(id: number, nuovoStato: string) {

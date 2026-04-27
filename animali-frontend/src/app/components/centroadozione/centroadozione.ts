@@ -1,4 +1,4 @@
-import { Component, inject, signal, OnInit } from '@angular/core';
+import { Component, inject, signal, OnInit, computed, effect } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { CentroAdozioneService } from '../../services/centroadozione';
@@ -15,9 +15,32 @@ import { MappaComponent } from '../mappa-centri/mappa-centri'; // Importa il com
 export class CentroAdozioneComponent implements OnInit {
   private centroService = inject(CentroAdozioneService);
 
-  centri = signal<CentroAdozioneDto[]>([]);
   isLoading = signal(false);
   cercaCitta = signal('');
+  centriCompleti = signal<CentroAdozioneDto[]>([]);
+  paginaCorrente = signal(1);
+  elementiPerPagina = signal(5);
+
+  totalePagine = computed(() => Math.ceil(this.centriFiltrati().length / this.elementiPerPagina()));
+
+  centriPaginati = computed(() => {
+    const inizio = (this.paginaCorrente() - 1) * this.elementiPerPagina();
+    const fine = inizio + this.elementiPerPagina();
+    return this.centriFiltrati().slice(inizio, fine);
+  });
+
+  cambiaPagina(nuovaPagina: number) {
+    if (nuovaPagina >= 1 && nuovaPagina <= this.totalePagine()) {
+      this.paginaCorrente.set(nuovaPagina);
+    }
+  }
+
+  constructor() {
+    effect(() => {
+      this.cercaCitta();
+      this.paginaCorrente.set(1);
+    });
+  }
 
   nuovoCentro = signal<Partial<CentroAdozioneDto>>({
     nomeCentro: '',
@@ -29,18 +52,24 @@ export class CentroAdozioneComponent implements OnInit {
     isNoProfit: false,
   });
 
+  centriFiltrati = computed(() => {
+    const q = this.cercaCitta().toLowerCase().trim();
+    const tutti = this.centriCompleti(); // Prendi il valore attuale
+
+    if (!q) return tutti;
+
+    return tutti.filter(
+      (c) => c.citta?.toLowerCase().includes(q) || c.nomeCentro?.toLowerCase().includes(q),
+    );
+  });
+
   ngOnInit(): void {
     this.caricaTutti();
   }
 
   caricaTutti() {
-    this.isLoading.set(true);
     this.centroService.getAll().subscribe({
-      next: (data) => {
-        this.centri.set(data);
-        this.isLoading.set(false);
-      },
-      error: () => this.isLoading.set(false),
+      next: (data) => this.centriCompleti.set(data),
     });
   }
 
@@ -67,22 +96,12 @@ export class CentroAdozioneComponent implements OnInit {
     });
   }
 
-  filtraPerCitta() {
-    const q = this.cercaCitta().trim();
-    if (!q) {
-      this.caricaTutti();
-      return;
-    }
-    this.centroService.findByCitta(q).subscribe((data) => {
-      this.centri.set(data);
-    });
-  }
-
   elimina(id: number | undefined) {
     if (id && confirm('Sei sicuro di voler eliminare questo centro?')) {
       this.centroService.delete(id).subscribe({
         next: () => {
-          this.centri.update((list) => list.filter((v) => v.id !== id));
+          // Aggiorniamo centriCompleti: centriFiltrati reagirà automaticamente!
+          this.centriCompleti.update((list) => list.filter((v) => v.id !== id));
         },
         error: (err) => alert("Errore durante l'eliminazione."),
       });

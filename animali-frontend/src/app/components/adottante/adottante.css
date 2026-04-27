@@ -140,3 +140,28 @@
 .btn-link:focus {
   box-shadow: none;
 }
+
+/* Stile base per la select */
+.select-idoneita {
+  transition: all 0.2s ease;
+  cursor: pointer;
+}
+
+/* Colori quando è Idoneo */
+.stato-idoneo {
+  background-color: #d1e7dd !important;
+  color: #0f5132 !important;
+}
+
+/* Colori quando è in Verifica */
+.stato-verifica {
+  background-color: #fff3cd !important;
+  color: #664d03 !important;
+}
+
+/* Reset delle opzioni: questo rimuove il colore quando apri il menu */
+.select-idoneita option {
+  background-color: white !important;
+  color: #212529 !important;
+  font-weight: normal;
+}

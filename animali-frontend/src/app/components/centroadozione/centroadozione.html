@@ -72,44 +72,82 @@
     </div>
   </div>
 
-  <!-- TOOLBAR -->
   <div class="toolbar">
     <input
       type="text"
-      placeholder="🔎 Cerca città..."
+      placeholder="🔎 Cerca città o nome..."
       [ngModel]="cercaCitta()"
       (ngModelChange)="cercaCitta.set($event)"
-      (input)="filtraPerCitta()"
     />
-
-    <button class="btn-reset" (click)="caricaTutti()">🔄 Reset</button>
+    <button class="btn-reset" (click)="cercaCitta.set(''); caricaTutti()">🔄 Reset</button>
   </div>
 
   <div class="layout">
     <div class="list">
-      @for (centro of centri(); track centro.id) {
-        <div class="card position-relative">
-          <div class="title">{{ centro.nomeCentro }}</div>
-          <button class="btn-delete" (click)="elimina(centro.id)">
-            <i class="bi bi-trash"></i>
-          </button>
-          <div class="info">
-            📍 {{ centro.citta }} <br />
-            🏠 {{ centro.indirizzo }} <br />
-            🌍 {{ centro.latitudine }} , {{ centro.longitudine }}
-          </div>
-          <div class="footer">
-            <span>Capacità</span>
-            <strong>{{ centro.capacitaMassima }}</strong>
+      @for (centro of centriPaginati(); track centro.id) {
+        <div class="card position-relative mb-3 shadow-sm border-0">
+          <div class="card-body">
+            <h5 class="fw-bold mb-1">{{ centro.nomeCentro }}</h5>
+
+            <div class="small text-muted mb-2">
+              <i class="bi bi-geo-alt-fill text-danger"></i> {{ centro.citta }} <br />
+              <i class="bi bi-house-door-fill text-primary"></i> {{ centro.indirizzo }} <br />
+              <i class="bi bi-globe text-info"></i> {{ centro.latitudine }} ,
+              {{ centro.longitudine }}
+            </div>
+
+            <div class="d-flex justify-content-between align-items-end mt-3">
+              <div class="d-flex align-items-center gap-2">
+                <span class="text-uppercase small fw-bold text-secondary">Capacità:</span>
+                <span
+                  class="badge bg-success-subtle text-success border border-success-subtle px-3 py-1 rounded"
+                >
+                  {{ centro.capacitaMassima }}
+                </span>
+              </div>
+
+              <button
+                class="btn btn-outline-danger btn-sm shadow-sm"
+                (click)="elimina(centro.id)"
+                title="Elimina centro"
+              >
+                <i class="bi bi-trash"></i>
+              </button>
+            </div>
           </div>
         </div>
       } @empty {
-        <div class="empty">Nessun centro trovato</div>
+        <div class="empty text-center p-5 text-white">Nessun centro trovato</div>
+      }
+      @if (totalePagine() > 1) {
+        <div
+          class="pagination-container d-flex justify-content-center align-items-center gap-3 py-3"
+        >
+          <button
+            class="btn btn-dark btn-sm rounded-circle shadow-sm"
+            [disabled]="paginaCorrente() === 1"
+            (click)="cambiaPagina(paginaCorrente() - 1)"
+          >
+            <i class="bi bi-chevron-left"></i>
+          </button>
+
+          <span class="badge bg-dark text-white px-3 py-2 rounded-pill">
+            {{ paginaCorrente() }} / {{ totalePagine() }}
+          </span>
+
+          <button
+            class="btn btn-dark btn-sm rounded-circle shadow-sm"
+            [disabled]="paginaCorrente() === totalePagine()"
+            (click)="cambiaPagina(paginaCorrente() + 1)"
+          >
+            <i class="bi bi-chevron-right"></i>
+          </button>
+        </div>
       }
     </div>
 
     <div class="map-wrapper shadow-sm">
-      <app-mappa [centri]="centri()" style="height: 100%; display: block"> </app-mappa>
+      <app-mappa [centri]="centriFiltrati()" style="height: 100%; display: block"> </app-mappa>
     </div>
   </div>
 </div>

@@ -20,6 +20,10 @@ export class VolontarioComponent implements OnInit {
   volontari = signal<VolontarioDto[]>([]);
   centri = signal<CentroAdozioneDto[]>([]);
 
+  // --- PAGINAZIONE ---
+  currentPage = signal(1);
+  pageSize = signal(5);
+
   // Segnali per i filtri
   searchTerm = signal('');
   filtroCentroId = signal<string>('TUTTI');
@@ -27,21 +31,10 @@ export class VolontarioComponent implements OnInit {
 
   isLoading = signal(false);
 
-  nuovoVolontario = signal<Partial<VolontarioDto>>({
-    nome: '',
-    cognome: '',
-    cf: '',
-    turno: '',
-    email: '',
-    centroAdozione: undefined,
-    password: '',
-  });
-
-  // LOGICA DI FILTRAGGIO COMBINATA
-  volontariFiltrati = computed(() => {
+  // 1. Logica di filtraggio (Dati filtrati ma non ancora paginati)
+  volontariFiltratiTotali = computed(() => {
     let lista = this.volontari();
 
-    // 1. Filtro per testo (Nome, Cognome o CF)
     const search = this.searchTerm().toLowerCase().trim();
     if (search) {
       lista = lista.filter(
@@ -52,13 +45,11 @@ export class VolontarioComponent implements OnInit {
       );
     }
 
-    // 2. Filtro per Centro
     const centroId = this.filtroCentroId();
     if (centroId !== 'TUTTI') {
       lista = lista.filter((v) => v.centroAdozione?.id === +centroId);
     }
 
-    // 3. Filtro per Turno
     const turno = this.filtroTurno();
     if (turno !== 'TUTTI') {
       lista = lista.filter((v) => v.turno === turno);
@@ -67,9 +58,42 @@ export class VolontarioComponent implements OnInit {
     return lista;
   });
 
+  // 2. Logica di paginazione applicata ai dati già filtrati
+  volontariPaginate = computed(() => {
+    const startIndex = (this.currentPage() - 1) * this.pageSize();
+    return this.volontariFiltratiTotali().slice(startIndex, startIndex + this.pageSize());
+  });
+
+  // 3. Calcolo totale pagine
+  totalPages = computed(() => Math.ceil(this.volontariFiltratiTotali().length / this.pageSize()));
+
+  nuovoVolontario = signal<Partial<VolontarioDto>>({
+    id: undefined,
+    nome: '',
+    cognome: '',
+    cf: '',
+    turno: '',
+    email: '',
+    centroAdozione: undefined,
+    password: '',
+    ruolo: 'USER',
+  });
+
   ngOnInit() {
     this.caricaTutti();
     this.caricaCentri();
+  }
+
+  // --- NAVIGAZIONE ---
+  goToPage(page: number) {
+    if (page >= 1 && page <= this.totalPages()) {
+      this.currentPage.set(page);
+    }
+  }
+
+  // Resetta la pagina a 1 quando cambiano i filtri
+  resetPagination() {
+    this.currentPage.set(1);
   }
 
   caricaTutti() {
@@ -90,35 +114,25 @@ export class VolontarioComponent implements OnInit {
     });
   }
 
-  // Nota: onSearch() ora può essere vuoto o rimosso se usiamo il filtro lato client
-  // con computed, ma lo lasciamo per compatibilità con l'evento (input)
-  onSearch() {
-    // Il filtraggio avviene automaticamente tramite il computed 'volontariFiltrati'
-  }
-
   aggiungi() {
-    // Crea una copia pulita del DTO per l'invio
-    const dto = { ...this.nuovoVolontario() } as VolontarioDto;
-  
+    const dto = { ...this.nuovoVolontario() };
+
+    // Rimuoviamo l'id per evitare errori di persistenza (come visto per le visite)
+    delete dto.id;
+
     if (!dto.nome || !dto.cognome || !dto.cf || !dto.centroAdozione) {
-      alert('Inserire Nome, Cognome, CF e selezionare un Centro.');
+      alert(`Compila i campi obbligatori!`);
       return;
     }
-  
-    this.volontarioService.insert(dto).subscribe({
+
+    this.volontarioService.insert(dto as VolontarioDto).subscribe({
       next: (volontarioSalvato) => {
-        // AGGIORNAMENTO REATTIVO: Crea un nuovo riferimento all'array
-        this.volontari.update(list => [...list, volontarioSalvato]);
-        
-        // RESET FILTRI: Garantisce che il nuovo elemento sia visibile
-        this.searchTerm.set('');
-        this.filtroCentroId.set('TUTTI');
-        this.filtroTurno.set('TUTTI');
-  
+        this.volontari.update((list) => [...list, volontarioSalvato]);
         this.resetForm();
+        this.currentPage.set(1);
         alert('Volontario registrato correttamente!');
       },
-      error: (err) => alert('Errore nel salvataggio.')
+      error: (err) => alert('Errore nel salvataggio.'),
     });
   }
 
@@ -127,6 +141,9 @@ export class VolontarioComponent implements OnInit {
       this.volontarioService.delete(id).subscribe({
         next: () => {
           this.volontari.update((list) => list.filter((v) => v.id !== id));
+          if (this.volontariPaginate().length === 0 && this.currentPage() > 1) {
+            this.currentPage.update((p) => p - 1);
+          }
         },
         error: (err) => alert("Errore durante l'eliminazione."),
       });
@@ -138,9 +155,12 @@ export class VolontarioComponent implements OnInit {
       nome: '',
       cognome: '',
       cf: '',
-      turno: '',
+      turno: 'MATTINA',
       email: '',
       centroAdozione: undefined,
+      password: '',
+      ruolo: 'USER',
     });
+    this.resetPagination();
   }
 }
